@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block title %}Feedback{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="bg-light p-4 rounded shadow-sm">
+        <h2 class="text-center">Your Submission</h2>
+        <div class="mt-3 text-wrap" style="white-space: pre-wrap; overflow-wrap: break-word;">
+            {{ response.replace("\n", "<br>") | safe }}
+        </div>        
+    </div>
+</div>
+
+<h2 class="text-center mt-5">Feedback</h2>
+<div class="mt-4 mx-auto" style="max-width: 800px;">
+    <!-- 
+    <p class="text-muted"><strong>General Comment:</strong></p>
+    <p>{{ general_comment }}</p>
+    -->
+
+    <p class="text-muted"><strong>What You Did Well:</strong></p>
+    <ul>
+        {% for point in did_well %}
+            <li>{{ point }}</li>
+        {% endfor %}
+    </ul>
+
+    <p class="text-muted"><strong>What You Could Improve:</strong></p>
+    <ul>
+        {% for point in could_improve %}
+            <li>{{ point }}</li>
+        {% endfor %}
+    </ul>
+
+    <p class="text-muted"><strong>Estimated IELTS Band Score (usually +/-0.5):</strong> {{ ielts_band_score }}</p>
+</div>
+
+<div class="d-grid gap-2 col-6 mx-auto mt-4">
+    <a href="{{ url_for('dashboard.dashboard_home') }}" class="btn btn-secondary">Return to Home</a>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block title %}Speaking Feedback{% endblock %}
+
+{% block content %}
+<h1 class="text-center">Your IELTS Speaking Part 2 Feedback</h1>
+
+<div class="container bg-light p-4 rounded shadow-sm">
+    <h4 class="text-primary">Cue Card Topic:</h4>
+    <p class="mb-0"><strong>{{ question }}</strong></p>
+</div>
+
+<div class="container bg-light p-4 rounded shadow-sm mt-4">
+    <h4 class="text-success">Your Response:</h4>
+    <p class="mb-0">{{ transcription.replace('\n', '<br>') | safe }}</p>
+</div>
+
+<div class="p-4 border rounded mt-4">
+    <!-- 
+    <h4 class="text-dark">General Comment:</h4>
+    <p>{{ general_comment }}</p>
+    -->
+
+    <h4 class="text-dark">What You Did Well:</h4>
+    <ul>
+        {% for point in did_well %}
+            <li>{{ point }}</li>
+        {% endfor %}
+    </ul>
+
+    <h4 class="text-dark">What You Could Improve:</h4>
+    <ul>
+        {% for point in could_improve %}
+            <li>{{ point }}</li>
+        {% endfor %}
+    </ul>
+
+    <h4 class="text-dark">Estimated IELTS Band Score (usually +/-0.5):</h4>
+    <p>{{ ielts_band_score }}</p>
+</div>
+
+<div class="text-center mt-4">
+    <a href="{{ url_for('speaking.speaking_task_2') }}" class="btn btn-primary">Try Again</a>
+    <a href="{{ url_for('speaking.speaking_home') }}" class="btn btn-secondary">Return to Speaking Overview</a>
+</div>
+
+{% endblock %}
