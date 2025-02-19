@@ -1,1 +1,1 @@
-web: gunicorn run:app --forwarded-allow-ips="*"
+web: gunicorn app:app
