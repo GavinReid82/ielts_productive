@@ -2,6 +2,7 @@ import os
 from urllib.parse import urlparse, uses_netloc
 
 class Config:
+    WTF_CSRF_ENABLED = True
     SECRET_KEY = os.getenv('SECRET_KEY', 'your_secret_key')
 
     # ✅ Ensure compatibility with PostgreSQL URLs in Heroku
