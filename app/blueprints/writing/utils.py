@@ -1,7 +1,7 @@
 import os
 import json
 from flask import current_app
-from app.models import db, Transcript, Task, UserTask
+from app.models import db, Transcript, Task
 from openai import OpenAI
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -84,10 +84,5 @@ def save_writing_transcript(user_id, response, feedback):
 
     transcript = Transcript(user_id=user_id, task_id=task.id, transcription=response, feedback=feedback)
     db.session.add(transcript)
-
-    existing_completion = UserTask.query.filter_by(user_id=user_id, task_id=task.id).first()
-    if not existing_completion:
-        user_task = UserTask(user_id=user_id, task_id=task.id)
-        db.session.add(user_task)
 
     db.session.commit()

@@ -3,15 +3,13 @@ from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
-# User model
 class User(db.Model, UserMixin):
-    __tablename__ = 'users'  # Explicitly defining the table name
+    __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
 
-    # Establish relationships
     payments = db.relationship('Payment', back_populates='user')
 
     def set_password(self, password):
@@ -25,10 +23,8 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f"<User {self.email}>"
 
-# Task model
-class Task(db.Model):
-    __tablename__ = 'tasks'  # Explicitly defining the table name
 
+class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)
     type = db.Column(db.String(50))
@@ -37,16 +33,14 @@ class Task(db.Model):
     main_prompt = db.Column(db.String(500))
     bullet_points = db.Column(db.String(500))
 
-    # Establish relationships
     payments = db.relationship('Payment', back_populates='task')
 
     def __repr__(self):
         return f'<Task {self.name}>'
 
 
-# Payment model
 class Payment(db.Model):
-    __tablename__ = 'payments'  # Explicitly defining the table name
+    __tablename__ = 'payments'
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -54,16 +48,16 @@ class Payment(db.Model):
     amount_paid = db.Column(db.Integer, nullable=False)
     payment_status = db.Column(db.String(50), nullable=False)
 
-    # Establish relationships
     user = db.relationship('User', back_populates='payments')
     task = db.relationship('Task', back_populates='payments')
 
     def __repr__(self):
         return f"<Payment {self.id}, Task {self.task_id}, User {self.user_id}>"
 
-# Transcript model
+
+# Transcript Table (After User and Task tables)
 class Transcript(db.Model):
-    __tablename__ = 'transcripts'  # Explicitly defining the table name
+    __tablename__ = 'transcripts'
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)

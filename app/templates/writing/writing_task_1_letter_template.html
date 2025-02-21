@@ -17,12 +17,12 @@
           <div class="card-body">
               <h6 class="text-primary"><strong>Instructions</strong></h6>
               <p>You should spend about <strong>20 minutes</strong> on this task.</p>
-              <p>You are going on holiday and a friend has agreed to look after your house and pet. Write a letter to your friend.</p>
+              <p>{{ task.main_prompt }}</p>  <!-- Display main prompt dynamically -->
               <p>In your letter:</p>
               <ul>
-                  <li>give contact details for when you are away,</li>
-                  <li>give instructions about how to care for your pet,</li>
-                  <li>describe other household duties you would like your friend to undertake.</li>
+                  {% for point in bullet_points %}
+                      <li>{{ point }}</li>  <!-- Display each bullet point dynamically -->
+                  {% endfor %}
               </ul>
               <p>Write at least <strong>150 words</strong>.</p>
           </div>
