@@ -7,6 +7,7 @@ from app.blueprints.auth.routes import auth_bp
 from app.blueprints.writing.routes import writing_bp
 from app.blueprints.speaking.routes import speaking_bp
 from app.blueprints.dashboard.routes import dashboard_bp
+from app.blueprints.payments.routes import payments_bp 
 
 migrate = Migrate()  # ✅ Initialize Flask-Migrate
 
@@ -31,6 +32,7 @@ def create_app():
     app.register_blueprint(writing_bp, url_prefix='/writing')
     app.register_blueprint(speaking_bp, url_prefix='/speaking')
     app.register_blueprint(dashboard_bp)
+    app.register_blueprint(payments_bp, url_prefix='/payments')
 
     return app
 

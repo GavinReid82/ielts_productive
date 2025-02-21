@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block title %}Writing Task{% endblock %}
+
+{% block content %}
+<h1 class="text-center">IELTS Writing Task 1</h1>
+
+<div class="container my-4">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card border-primary">
+          <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">
+                  <i class="fas fa-envelope"></i> Write a Letter ✉️
+              </h5>
+          </div>
+          <div class="card-body">
+              <h6 class="text-primary"><strong>Instructions</strong></h6>
+              <p>You should spend about <strong>20 minutes</strong> on this task.</p>
+              <p>You are going on holiday and a friend has agreed to look after your house and pet. Write a letter to your friend.</p>
+              <p>In your letter:</p>
+              <ul>
+                  <li>give contact details for when you are away,</li>
+                  <li>give instructions about how to care for your pet,</li>
+                  <li>describe other household duties you would like your friend to undertake.</li>
+              </ul>
+              <p>Write at least <strong>150 words</strong>.</p>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<form method="POST" action="{{ url_for('writing.writing_task_1_letter_submit') }}" class="mt-4">
+    <div class="mb-3">
+        <textarea class="form-control" id="writingTask1" name="writingTask1" rows="6" placeholder="Write your response here..."></textarea>
+    </div>
+    <div class="d-grid gap-2">
+        <button type="submit" id="submit-btn" class="btn btn-primary">Submit and get feedback</button>
+    </div>
+</form>
+<script>
+    document.querySelector('form').onsubmit = function() {
+        let submitBtn = document.getElementById('submit-btn');
+        submitBtn.innerText = 'Submitting... Please wait';
+        submitBtn.disabled = true;
+    };
+</script>
+{% endblock %}

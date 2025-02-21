@@ -14,26 +14,26 @@
 
 <h2 class="text-center mt-5">Feedback</h2>
 <div class="mt-4 mx-auto" style="max-width: 800px;">
-    <!-- 
-    <p class="text-muted"><strong>General Comment:</strong></p>
-    <p>{{ general_comment }}</p>
-    -->
+    
+    <p><strong>Task Achievement:</strong> {{ task_achievement }}</p>
+    <p><strong>Coherence & Cohesion:</strong> {{ coherence_cohesion }}</p>
+    <p><strong>Lexical Resource:</strong> {{ lexical_resource }}</p>
+    <p><strong>Grammatical Range & Accuracy:</strong> {{ grammatical_range_accuracy }}</p>
 
-    <p class="text-muted"><strong>What You Did Well:</strong></p>
-    <ul>
-        {% for point in did_well %}
-            <li>{{ point }}</li>
-        {% endfor %}
-    </ul>
+    <h3 class="text-center mt-4">Band Scores</h3>
+    <div class="text-center">
+        <p><strong>Task Achievement:</strong> {{ band_scores.task_achievement }}</p>
+        <p><strong>Coherence & Cohesion:</strong> {{ band_scores.coherence_cohesion }}</p>
+        <p><strong>Lexical Resource:</strong> {{ band_scores.lexical_resource }}</p>
+        <p><strong>Grammatical Range & Accuracy:</strong> {{ band_scores.grammatical_range_accuracy }}</p>
+        <h4><strong>Overall Band Score:</strong> {{ band_scores.overall_band }}</h4>
+    </div>
 
-    <p class="text-muted"><strong>What You Could Improve:</strong></p>
-    <ul>
-        {% for point in could_improve %}
-            <li>{{ point }}</li>
-        {% endfor %}
-    </ul>
+    <h3 class="text-center mt-4">Improved Response</h3>
+    <div class="bg-light p-3 rounded">
+        <p>{{ improved_response.replace("\n", "<br>") | safe }}</p>
+    </div>
 
-    <p class="text-muted"><strong>Estimated IELTS Band Score (usually +/-0.5):</strong> {{ ielts_band_score }}</p>
 </div>
 
 <div class="d-grid gap-2 col-6 mx-auto mt-4">

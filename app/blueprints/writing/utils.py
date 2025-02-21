@@ -11,34 +11,46 @@ def extract_writing_response(request):
     response = request.form.get('writingTask1', '').replace("\r\n", "\n")
     return response
 
-def generate_writing_task1_letter_feedback(response):
-    """Generates AI feedback for the IELTS Writing Task 1."""
+def generate_writing_task_1_letter_feedback(response):
+    """Generates AI feedback for IELTS Writing Task 1 based on official assessment criteria and provides an improved version of the response."""
+    
     messages = [
         {
             "role": "system",
             "content": (
-                "You are an IELTS Writing (General) Task 1 examiner. Your job is to give feedback "
-                "to candidates based on their performance. Provide structured feedback:\n"
-                "1. General Comment\n2. What You Did Well (bullet points)\n3. What You Could Improve (bullet points)\n3. Estimated IELTS Band Score (usually +/-0.5)\n\n"
-                "Ensure feedback is clear, concise, and simple to understand. Address the candidate directly (e.g. 'You did well' or 'You could improve') or use imperative verbs. Return a JSON response with:\n"
+                "You are an IELTS Writing Task 1 examiner. Your task is to evaluate candidates' responses based on the "
+                "official IELTS Writing Task 1 band descriptors and key assessment criteria. Your feedback must include:\n"
+                "1. Task Achievement (TA): Assess if the response fully addresses the prompt and extends the points appropriately.\n"
+                "2. Coherence & Cohesion (CC): Evaluate logical structure, paragraphing, and use of cohesive devices.\n"
+                "3. Lexical Resource (LR): Assess the range, accuracy, and appropriacy of vocabulary.\n"
+                "4. Grammatical Range & Accuracy (GRA): Analyze sentence structures, grammar, punctuation, and errors.\n\n"
+                "Provide structured feedback as a JSON object with the following format:\n"
                 "{\n"
-                '"general_comment": "string",\n'
-                '"did_well": ["string", "string"],\n'
-                '"could_improve": ["string", "string"],\n'
-                '"ielts_band_score": "float"\n'
-                "}\n"
-                "Task Criteria:\n"
-                "- Task Achievement: Did they address all points?\n"
-                "- Coherence & Cohesion: Is it logically structured?\n"
-                "- Lexical Resource: Is vocabulary varied?\n"
-                "- Grammatical Range & Accuracy: Are there errors? Provide examples and corrections.\n\n"
-                "Task Prompt:\n"
-                "A friend has agreed to look after your house and pet while you are on holiday. "
-                "Write a letter to your friend.\n"
-                "In your letter:\n"
-                "- Give contact details for when you are away\n"
-                "- Give instructions about how to care for your pet\n"
-                "- Describe other household duties you would like your friend to undertake.\n\n"
+                '"task_achievement": "string",\n'
+                '"coherence_cohesion": "string",\n'
+                '"lexical_resource": "string",\n'
+                '"grammatical_range_accuracy": "string",\n'
+                '"band_scores": {\n'
+                '  "task_achievement": float,\n'
+                '  "coherence_cohesion": float,\n'
+                '  "lexical_resource": float,\n'
+                '  "grammatical_range_accuracy": float,\n'
+                '  "overall_band": float\n'
+                "},\n"
+                '"improved_response": "string"\n'
+                "}\n\n"
+                "Each score should be based on the official IELTS Writing Task 1 band descriptors, considering:\n"
+                "- 9 = Excellent (Almost no errors, highly fluent, well-developed ideas)\n"
+                "- 7-8 = Very good (Few minor errors, strong structure, well-extended ideas)\n"
+                "- 5-6 = Moderate (Some errors, limited development, minor issues in organization or vocabulary)\n"
+                "- 3-4 = Weak (Frequent errors, lack of clarity, poor structure)\n\n"
+                "After assessing the response, generate an 'Improved Response' where:\n"
+                "- The original ideas are maintained.\n"
+                "- Task Achievement is optimized by ensuring full coverage of required points.\n"
+                "- Coherence & Cohesion is improved by better structuring paragraphs and transitions.\n"
+                "- Lexical Resource is enhanced by using more precise and varied vocabulary.\n"
+                "- Grammar and sentence structure are refined, eliminating errors and improving complexity.\n\n"
+                "Now, evaluate the following candidate's response and generate feedback accordingly."
             )
         },
         {"role": "user", "content": f"Candidate's response:\n\n{response}"}
@@ -49,7 +61,7 @@ def generate_writing_task1_letter_feedback(response):
             model="gpt-4",
             messages=messages,
             temperature=0.7,
-            max_tokens=400
+            max_tokens=700  
         )
         raw_feedback = openai_response.choices[0].message.content.strip()
         feedback = json.loads(raw_feedback)

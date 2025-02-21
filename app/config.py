@@ -4,6 +4,8 @@ from urllib.parse import urlparse, uses_netloc
 class Config:
     WTF_CSRF_ENABLED = True
     SECRET_KEY = os.getenv('SECRET_KEY', 'your_secret_key')
+    STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+    STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
 
     # ✅ Ensure compatibility with PostgreSQL URLs in Heroku
     uses_netloc.append("postgres")

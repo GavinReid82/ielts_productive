@@ -30,12 +30,14 @@ class Task(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), unique=True, nullable=False)
-    type = db.Column(db.String(50), nullable=False)  # 'speaking' or 'listening'
+    type = db.Column(db.String(50), nullable=False)  # 'speaking' or 'writing'
+    is_free = db.Column(db.Boolean, default=False)  # ✅ NEW: Tracks if a task is free
+    price = db.Column(db.Integer, nullable=True)  # ✅ NEW: Paid tasks have a price
 
-    users_completed = db.relationship('UserTask', back_populates='task')  # ✅ Relationship with UserTask
+    users_completed = db.relationship('UserTask', back_populates='task')
 
     def __repr__(self):
-        return f"<Task {self.name} ({self.type})>"
+        return f"<Task {self.name} (Free: {self.is_free})>"
 
 
 # ✅ Tracks which users completed which tasks
