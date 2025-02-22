@@ -35,7 +35,9 @@ class Task(db.Model):
     is_free = db.Column(db.Boolean, default=False)
     price = db.Column(db.Integer, nullable=True)
     main_prompt = db.Column(db.String(500))
-    bullet_points = db.Column(db.String(500))
+    bullet_points = db.Column(db.String(500), nullable=True)
+    image_path = db.Column(db.String(500), nullable=True)
+    description = db.Column(db.Text, nullable=True)
 
     # Establish relationships
     payments = db.relationship('Payment', back_populates='task')

@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block title %}Writing Task 2 - Essay{% endblock %}
+
+{% block content %}
+<h1 class="text-center">IELTS Writing Task 2</h1>
+
+<div class="container my-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Essay: {{ task.name }}</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-primary"><strong>Instructions</strong></h6>
+                    <p>You should spend about <strong>40 minutes</strong> on this task.</p>
+                    <p>{{ task.main_prompt }}</p>  <!-- Display main prompt dynamically -->
+                    <p>Write at least <strong>250 words</strong>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="POST" action="{{ url_for('writing.writing_task_2_submit') }}" class="mt-4">
+    <input type="hidden" name="task_id" value="{{ task.id }}">
+    <div class="mb-3">
+        <textarea class="form-control" id="writingTask2" name="writingTask2" rows="6" placeholder="Write your response here..."></textarea>
+    </div>
+    <div class="d-grid gap-2">
+        <button type="submit" id="submit-btn" class="btn btn-primary">Submit and get feedback</button>
+    </div>
+</form>
+
+<script>
+    document.querySelector('form').onsubmit = function() {
+        let submitBtn = document.getElementById('submit-btn');
+        submitBtn.innerText = 'Submitting... Please wait';
+        submitBtn.disabled = true;
+    };
+</script>
+
+{% endblock %}

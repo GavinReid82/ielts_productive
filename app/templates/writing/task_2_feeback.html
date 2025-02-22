@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block title %}Feedback{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="bg-light p-4 rounded shadow-sm">
+        <h2 class="text-center">Your Submission</h2>
+        <div class="mt-3 text-wrap" style="white-space: pre-wrap; overflow-wrap: break-word;">
+            {{ response.replace("\n", "<br>") | safe }}
+        </div>        
+    </div>
+</div>
+
+<h2 class="text-center mt-5">Feedback</h2>
+<div class="mt-4 mx-auto" style="max-width: 800px;">
+    
+    <p><strong>Task Achievement:</strong> {{ task_achievement }}</p>
+    <p><strong>Coherence & Cohesion:</strong> {{ coherence_cohesion }}</p>
+    <p><strong>Lexical Resource:</strong> {{ lexical_resource }}</p>
+    <p><strong>Grammatical Range & Accuracy:</strong> {{ grammatical_range_accuracy }}</p>
+
+    <h3 class="text-center mt-4">Band Scores</h3>
+    <div class="text-center">
+        <p><strong>Task Achievement:</strong> {{ band_scores.task_achievement }}</p>
+        <p><strong>Coherence & Cohesion:</strong> {{ band_scores.coherence_cohesion }}</p>
+        <p><strong>Lexical Resource:</strong> {{ band_scores.lexical_resource }}</p>
+        <p><strong>Grammatical Range & Accuracy:</strong> {{ band_scores.grammatical_range_accuracy }}</p>
+        <h4><strong>Overall Band Score:</strong> {{ band_scores.overall_band }}</h4>
+    </div>
+
+    <h3 class="text-center mt-4">Improved Response</h3>
+    <div class="bg-light p-3 rounded">
+        <p>{{ improved_response | replace("\n", "<br>") | safe }}</p>
+    </div>
+
+</div>
+
+<div class="d-grid gap-2 col-6 mx-auto mt-4">
+    <a href="{{ url_for('dashboard.dashboard_home') }}" class="btn btn-secondary">Return to Home</a>
+</div>
+{% endblock %}

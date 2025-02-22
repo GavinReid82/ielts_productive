@@ -24,27 +24,4 @@
     <a href="{{ url_for('dashboard.listening') }}" class="btn btn-primary btn-lg d-none">Listening</a>
 </div>
 
-{% if not session.get('paid_user') %}
-    <div class="text-center mt-4">
-        <button id="pay-button" class="btn btn-primary">Unlock More Tasks - $5.00</button>
-    </div>
-
-    <script>
-        document.getElementById("pay-button").addEventListener("click", function() {
-            fetch("/payments/checkout", { method: "POST" })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.checkout_url) {
-                        window.location.href = data.checkout_url;
-                    } else {
-                        alert("Error: " + data.error);
-                    }
-                });
-        });
-    </script>
-{% else %}
-    <p class="text-success">✅ You have access to more tasks!</p>
-{% endif %}
-
-
 {% endblock %}
