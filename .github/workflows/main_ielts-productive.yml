@@ -28,11 +28,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Log in to Azure CLI
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
       - name: Clean and prepare deployment package
         run: |
           # Remove unnecessary files
@@ -42,11 +37,9 @@ jobs:
           rm -rf .git .github venv local_backup.dump
 
       - name: Deploy to Azure Web App
-        run: |
-          zip -r app.zip ./* -x "venv/*"
-          az webapp deploy --resource-group ielts-productive-group \
-                         --name ielts-productive \
-                         --src-path app.zip \
-                         --type zip \
-                         --async false \
-                         --timeout 1800
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'ielts-productive'
+          slot-name: 'Production'
+          publish-profile: ${{ secrets.AZUREWEBAPP_PUBLISHPROFILE }}
+          package: .
