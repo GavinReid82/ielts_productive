@@ -1,5 +1,5 @@
 # Gunicorn Configuration File for IELTS Productive
-# Updated configuration for Azure deployment
+# Updated for Azure Web App deployment - 2025
 
 # Server socket
 bind = "0.0.0.0:8000"
