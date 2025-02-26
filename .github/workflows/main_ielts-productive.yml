@@ -47,3 +47,12 @@ jobs:
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREWEBAPP_PUBLISHPROFILE }}
           package: .
+
+      # Add this step after deployment
+      - name: Run Database Migrations
+        uses: azure/webapps-action@v1
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZUREWEBAPP_PUBLISHPROFILE }}
+          startup-command: |
+            python -m flask db upgrade
