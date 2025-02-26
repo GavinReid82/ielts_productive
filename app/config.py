@@ -1,3 +1,5 @@
+# config in the muthafukin 2025
+
 import os
 from dotenv import load_dotenv
 import logging
