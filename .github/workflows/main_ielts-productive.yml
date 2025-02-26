@@ -33,7 +33,20 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Clean and prepare deployment package
+        run: |
+          # Remove unnecessary files
+          find . -name "*.pyc" -delete
+          find . -name "__pycache__" -type d -exec rm -r {} +
+          find . -name ".DS_Store" -delete
+          rm -rf .git .github venv local_backup.dump
+
       - name: Deploy to Azure Web App
         run: |
-          zip -r app.zip . -x "venv/*" ".git/*"
-          az webapp deploy --resource-group ielts-productive-group --name ielts-productive --src-path app.zip --type zip --async false
+          zip -r app.zip ./* -x "venv/*"
+          az webapp deploy --resource-group ielts-productive-group \
+                         --name ielts-productive \
+                         --src-path app.zip \
+                         --type zip \
+                         --async false \
+                         --timeout 1800
