@@ -32,11 +32,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Add migration step before deployment
-      - name: Generate deployment script
+      # Create a startup.txt file for Azure
+      - name: Create startup command file
         run: |
-          echo "cd /home/site/wwwroot && python -m flask db upgrade" > startup.sh
-          chmod +x startup.sh
+          echo "python -m flask db upgrade && gunicorn app:app" > startup.txt
 
       - name: Clean and prepare deployment package
         run: |
@@ -53,4 +52,3 @@ jobs:
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREWEBAPP_PUBLISHPROFILE }}
           package: .
-          startup-command: 'sh startup.sh'
