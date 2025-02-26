@@ -1,4 +1,5 @@
-# Gunicorn Configuration File
+# Gunicorn Configuration File for IELTS Productive
+# Updated configuration for Azure deployment
 
 # Server socket
 bind = "0.0.0.0:8000"
