@@ -32,6 +32,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # Add migration step before deployment
+      - name: Generate deployment script
+        run: |
+          echo "cd /home/site/wwwroot && python -m flask db upgrade" > startup.sh
+          chmod +x startup.sh
+
       - name: Clean and prepare deployment package
         run: |
           # Remove unnecessary files
@@ -47,12 +53,4 @@ jobs:
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREWEBAPP_PUBLISHPROFILE }}
           package: .
-
-      # Updated migration step
-      - name: Run Database Migrations
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: 'ielts-productive'
-          slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREWEBAPP_PUBLISHPROFILE }}
-          startup-command: 'python -m flask db upgrade'
+          startup-command: 'sh startup.sh'
