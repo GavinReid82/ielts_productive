@@ -1,4 +1,4 @@
-from flask_login import current_user
+from flask_login import current_user, login_required
 from app.models import db, Transcript, Task, Payment
 from flask import Blueprint, render_template, request, url_for, redirect, flash, session, jsonify
 from app.blueprints.writing.utils import extract_writing_response, generate_writing_task_1_letter_feedback, generate_writing_task_1_report_feedback, generate_writing_task_2_feedback, save_writing_transcript
@@ -27,6 +27,7 @@ def writing_home():
 
 
 @writing_bp.route('/writing_tips')
+@login_required
 def writing_tips():
     return render_template('writing/writing_tips.html')
 
@@ -37,6 +38,7 @@ def writing_tips():
 
 
 @writing_bp.route('/view_task/<int:task_id>')
+@login_required
 def view_task(task_id):
     """View a task that the user has paid for (if paid)"""
     task = Task.query.get(task_id)
@@ -53,6 +55,7 @@ def view_task(task_id):
 
 
 @writing_bp.route('/writing_task_1/<task_type>')
+@login_required
 def writing_task_1(task_type):
     """Show the Writing Task 1 page with tasks available to the user."""
     if task_type not in ['writing_task_1_letter', 'writing_task_1_report']:
@@ -91,6 +94,7 @@ def writing_task_1(task_type):
 
 
 @writing_bp.route('/writing_task_1_submit', methods=['POST'])
+@login_required
 def writing_task_1_submit():
     user_id = session.get('user_id')
     if not user_id:
@@ -145,6 +149,7 @@ def writing_task_1_submit():
 
 
 @writing_bp.route('/writing_task_1_feedback', methods=['GET'])
+@login_required
 def writing_task_1_feedback():
     """Retrieve stored feedback from session and display it."""
     feedback = session.get('feedback', {})
@@ -168,6 +173,7 @@ def writing_task_1_feedback():
 # ------------------------------------------------------------
 
 @writing_bp.route('/view_task_2/<int:task_id>')
+@login_required
 def view_task_2(task_id):
     """View a task that the user has paid for (if paid)"""
     task = Task.query.get(task_id)
@@ -184,6 +190,7 @@ def view_task_2(task_id):
 
 
 @writing_bp.route('/writing_task_2')
+@login_required
 def writing_task_2():
     """Show the Writing Task 2 page with essay tasks available to the user."""
     all_tasks = Task.query.filter_by(type='writing_task_2').all()
@@ -214,6 +221,7 @@ def writing_task_2():
 
 
 @writing_bp.route('/writing_task_2_submit', methods=['POST'])
+@login_required
 def writing_task_2_submit():
     """Submit the essay and generate feedback."""
     user_id = session.get('user_id')
@@ -251,6 +259,7 @@ def writing_task_2_submit():
 
 
 @writing_bp.route('/writing_task_2_feedback', methods=['GET'])
+@login_required
 def writing_task_2_feedback():
     """Retrieve stored feedback for Writing Task 2 and display it."""
     feedback = session.get('feedback', {})

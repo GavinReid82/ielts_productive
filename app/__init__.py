@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_session import Session
 from app.config import Config
 from app.extensions import db, login_manager
 from app.models import User
@@ -11,6 +12,11 @@ logger = logging.getLogger(__name__)
 def create_app():
     logger.info("Starting application creation...")
     app = Flask(__name__)
+    app.config["SESSION_TYPE"] = "filesystem"  # Ensure sessions are persisted
+    Session(app)
+
+    # Ensure Flask-Login redirects unauthorized users to the login page
+    login_manager.login_view = "auth.login"
     
     try:
         logger.info("Loading configuration...")
