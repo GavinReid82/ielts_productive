@@ -7,9 +7,11 @@ from openai import OpenAI
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def extract_writing_response(request):
-    """Extracts and formats the user's writing response."""
-    response = request.form.get('writingTask1', '').replace("\r\n", "\n")
-    return response
+    """Extract and validate the writing response from the request."""
+    response = request.form.get('writingTask1')  # Changed from 'writingResponse' to match the form
+    if not response:
+        raise ValueError("No writing response provided")
+    return response.replace("\r\n", "\n")  # Keep the line ending normalization
 
 def generate_writing_task_1_letter_feedback(response):
     """Generates AI feedback for IELTS Writing Task 1 based on official assessment criteria and provides an improved version of the response."""
@@ -89,11 +91,20 @@ def generate_writing_task_1_letter_feedback(response):
         return {"general_comment": "Error processing feedback.", "did_well": [], "could_improve": []}
 
 
-def generate_writing_task_1_report_feedback(task_id, response):
+def generate_writing_task_1_report_feedback(response, task_id):
     """Generates AI feedback for IELTS Writing Task 1 based on official assessment criteria and provides an improved version of the response."""
     
-    # Retrieve the task from the database using the provided task_id
-    task = Task.query.filter_by(id=task_id).first()
+    # Validate task_id is an integer
+    try:
+        task_id = int(task_id)
+    except (TypeError, ValueError):
+        raise ValueError("Invalid task ID provided")
+
+    # Get the task
+    task = Task.query.get(task_id)
+    if not task:
+        raise ValueError("Task not found")
+
     if task and task.description:
         graph_description = task.description
     else:

@@ -100,12 +100,19 @@ def writing_task_1_submit():
     if not user_id:
         flash("Session expired. Please log in again.", "warning")
         return redirect(url_for('auth.login'))
-    task_id = request.form.get('task_id')
+    
+    # Get and validate task_id
+    try:
+        task_id = int(request.form.get('task_id'))
+    except (TypeError, ValueError):
+        flash("Invalid task ID.", "danger")
+        return redirect(url_for('writing.writing_task_1', task_type='writing_task_1_letter'))
+    
     if not task_id:
         flash("No task selected.", "danger")
         return redirect(url_for('writing.writing_task_1', task_type='writing_task_1_letter'))
     
-     # Extract the writing response
+    # Extract the writing response
     response = extract_writing_response(request)
 
     # Get the task details

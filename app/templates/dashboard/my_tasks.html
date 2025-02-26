@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+
+{% block title %}My Tasks{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">My Completed Tasks</h1>
+
+{% if transcripts %}
+    <div class="list-group">
+        {% for transcript in transcripts %}
+            <button type="button" 
+                    class="list-group-item list-group-item-action mb-2"
+                    data-bs-toggle="collapse" 
+                    data-bs-target="#transcript{{ transcript.id }}"
+                    aria-expanded="false">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-1">
+                        {% if transcript.task.type == 'writing_task_1_report' %}
+                            Writing: Task 1 (Report)
+                        {% elif transcript.task.type == 'writing_task_1_letter' %}
+                            Writing: Task 1 (Letter)
+                        {% elif transcript.task.type == 'writing_task_2' %}
+                            Writing: Task 2 (Essay)
+                        {% elif transcript.task.type == 'speaking_task_1' %}
+                            Speaking: Task 1 (Interview)
+                        {% elif transcript.task.type == 'speaking_task_2' %}
+                            Speaking: Task 2 (Long Turn)
+                        {% elif transcript.task.type == 'speaking_task_3' %}
+                            Speaking: Task 3 (Discussion)
+                        {% else %}
+                            Task #{{ transcript.id }}
+                        {% endif %}
+                    </h5>
+                    <small>{{ transcript.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                </div>
+            </button>
+            <div class="collapse mb-3" id="transcript{{ transcript.id }}">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-3 text-muted">Your Response:</h6>
+                        <p class="card-text">{{ transcript.transcription }}</p>
+                        
+                        {% if transcript.feedback %}
+                            <h6 class="card-subtitle mb-3 text-muted">Feedback</h6>
+                            <div class="card-text feedback-section">
+                                <p><strong>Task Achievement:</strong> {{ transcript.feedback.task_achievement }}</p>
+                                <p><strong>Coherence & Cohesion:</strong> {{ transcript.feedback.coherence_cohesion }}</p>
+                                <p><strong>Lexical Resource:</strong> {{ transcript.feedback.lexical_resource }}</p>
+                                <p><strong>Grammatical Range & Accuracy:</strong> {{ transcript.feedback.grammatical_range_accuracy }}</p>
+
+                                {% if transcript.feedback.improved_response %}
+                                    <h6 class="text-center mt-4">Improved Response</h6>
+                                    <div class="bg-light p-3 rounded">
+                                        <p>{{ transcript.feedback.improved_response | replace("\n", "<br>") | safe }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>You haven't completed any tasks yet.</p>
+{% endif %}
+{% endblock %}
