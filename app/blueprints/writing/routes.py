@@ -236,7 +236,6 @@ def writing_task_2_submit():
         flash("Session expired. Please log in again.", "warning")
         return redirect(url_for('auth.login'))
     
-    # Get and validate task_id
     try:
         task_id = int(request.form.get('task_id'))
     except (TypeError, ValueError):
@@ -259,21 +258,21 @@ def writing_task_2_submit():
     # Store feedback in session
     session['feedback'] = {
         'response': response,
-        'task_achievement': feedback.get('task_achievement', ''),
+        'task_response': feedback.get('task_response', ''),  # Changed from task_achievement
         'coherence_cohesion': feedback.get('coherence_cohesion', ''),
         'lexical_resource': feedback.get('lexical_resource', ''),
         'grammatical_range_accuracy': feedback.get('grammatical_range_accuracy', ''),
         'band_scores': feedback.get('band_scores', {
-            'task_achievement': 0, 
-            'coherence_cohesion': 0, 
-            'lexical_resource': 0, 
-            'grammatical_range_accuracy': 0, 
+            'task_response': 0,  # Changed from task_achievement
+            'coherence_cohesion': 0,
+            'lexical_resource': 0,
+            'grammatical_range_accuracy': 0,
             'overall_band': 0
         }),
         'improved_response': feedback.get('improved_response', 'No improved response generated.')
     }
 
-    return redirect(url_for('writing.task_2_feedback'))
+    return redirect(url_for('writing.writing_task_2_feedback'))  # Changed from task_2_feedback
 
 
 @writing_bp.route('/writing_task_2_feedback', methods=['GET'])
@@ -285,10 +284,10 @@ def writing_task_2_feedback():
     return render_template(
         'writing/task_2_feedback.html',
         response=feedback.get('response', 'No response available.'),
-        task_achievement=feedback.get('task_achievement', 'No feedback available.'),
+        task_achievement=feedback.get('task_response', 'No feedback available.'),
         coherence_cohesion=feedback.get('coherence_cohesion', 'No feedback available.'),
         lexical_resource=feedback.get('lexical_resource', 'No feedback available.'),
         grammatical_range_accuracy=feedback.get('grammatical_range_accuracy', 'No feedback available.'),
-        band_scores=feedback.get('band_scores', {'task_achievement': 0, 'coherence_cohesion': 0, 'lexical_resource': 0, 'grammatical_range_accuracy': 0, 'overall_band': 0}),
+        band_scores=feedback.get('band_scores', {'task_response': 0, 'coherence_cohesion': 0, 'lexical_resource': 0, 'grammatical_range_accuracy': 0, 'overall_band': 0}),
         improved_response=feedback.get('improved_response', 'No improved response generated.')
     )
