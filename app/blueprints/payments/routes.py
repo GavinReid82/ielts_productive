@@ -31,17 +31,19 @@ def checkout(task_id):
         return jsonify({"error": "This task is free and does not require payment."}), 400
 
     try:
+        print(f"Using API key: {stripe.api_key[:7]}...")
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],
             line_items=[{
                 'price_data': {
                     'currency': 'usd',
                     'product_data': {'name': task.name},
-                    'unit_amount': task.price
+                    'unit_amount': int(task.price * 100),  # Convert dollars to cents
                 },
                 'quantity': 1
             }],
             mode='payment',
+            client_reference_id=str(task.id),
             success_url=url_for('payments.payment_success', task_id=task.id, _external=True),
             cancel_url=url_for('payments.payment_cancel', _external=True)
         )

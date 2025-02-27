@@ -288,6 +288,12 @@ def writing_task_2_feedback():
         coherence_cohesion=feedback.get('coherence_cohesion', 'No feedback available.'),
         lexical_resource=feedback.get('lexical_resource', 'No feedback available.'),
         grammatical_range_accuracy=feedback.get('grammatical_range_accuracy', 'No feedback available.'),
-        band_scores=feedback.get('band_scores', {'task_response': 0, 'coherence_cohesion': 0, 'lexical_resource': 0, 'grammatical_range_accuracy': 0, 'overall_band': 0}),
+        band_scores=feedback.get('band_scores', {
+            'task_response': feedback.get('band_scores', {}).get('task_response', 0),
+            'coherence_cohesion': feedback.get('band_scores', {}).get('coherence_cohesion', 0),
+            'lexical_resource': feedback.get('band_scores', {}).get('lexical_resource', 0),
+            'grammatical_range_accuracy': feedback.get('band_scores', {}).get('grammatical_range_accuracy', 0),
+            'overall_band': feedback.get('band_scores', {}).get('overall_band', 0)
+        }),
         improved_response=feedback.get('improved_response', 'No improved response generated.')
     )
