@@ -38,7 +38,7 @@ def generate_writing_task_1_letter_feedback(response, task_id):
             "and address the candidate as 'you'. The task details are provided below.\n\n"
             f"Task Prompt:\n{task_prompt}\n\n"
             f"Required Points:\n{bullet_points}\n\n"
-            "You are an IELTS Writing Task 1 examiner. Your task is to evaluate candidates' responses based on the "
+            "Evaluate candidates' responses based on the "
             "official IELTS Writing Task 1 band descriptors and key assessment criteria. Your feedback must be "
             "consistent, accurate, and strictly follow these guidelines:\n\n"
             
@@ -87,7 +87,13 @@ def generate_writing_task_1_letter_feedback(response, task_id):
             "Now, evaluate the following candidate's response and generate feedback accordingly."
         )
     },
-    {"role": "user", "content": f"Candidate's response:\n\n{response}"}
+    {"role": "user", 
+     "content": [
+        {"type": "text", "text": f"Candidate's response:\n\n{response}"},
+        {"type": "text", "text": f"Task Prompt:\n{task_prompt}\n\n"},
+        {"type": "text", "text": f"Required Points:\n{bullet_points}\n\n"}
+     ]
+    }
     ]
 
     try:
@@ -227,7 +233,7 @@ def generate_writing_task_2_feedback(response, task_id):
             "You are an IELTS Writing Task 2 examiner providing feedback in British English. Use direct, simple language "
             "and address the candidate as 'you'. The essay question is provided below.\n\n"
             f"Essay Question:\n{task_prompt}\n\n"
-            "You are an IELTS Writing Task 2 examiner. Your task is to evaluate candidates' responses based on the "
+            "Evaluate candidates' responses based on the "
             "official IELTS Writing Task 2 band descriptors and key assessment criteria. Your feedback must be "
             "consistent and rigorous, and adhere strictly to the following rules:\n\n"
             
@@ -278,10 +284,13 @@ def generate_writing_task_2_feedback(response, task_id):
             "Now, evaluate the following candidate's response and generate feedback accordingly."
         )
     },
-    {"role": "user", "content": f"Candidate's response:\n\n{response}"}
+    {"role": "user", 
+     "content": [
+        {"type": "text", "text": f"Candidate's response:\n\n{response}"},
+        {"type": "text", "text": f"Essay Question:\n{task_prompt}\n\n"}
+     ]
+    }
     ]
-
-
 
     try:
         openai_response = client.chat.completions.create(
