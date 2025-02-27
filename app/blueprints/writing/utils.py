@@ -13,13 +13,31 @@ def extract_writing_response(request):
         raise ValueError("No writing response provided")
     return response.replace("\r\n", "\n")  # Keep the line ending normalization
 
-def generate_writing_task_1_letter_feedback(response):
+def generate_writing_task_1_letter_feedback(response, task_id):
     """Generates AI feedback for IELTS Writing Task 1 based on official assessment criteria and provides an improved version of the response."""
     
+    # Validate task_id is an integer
+    try:
+        task_id = int(task_id)
+    except (TypeError, ValueError):
+        raise ValueError("Invalid task ID provided")
+
+    # Get the task
+    task = Task.query.get(task_id)
+    if not task:
+        raise ValueError("Task not found")
+
+    task_prompt = task.main_prompt if task and task.main_prompt else "No prompt provided."
+    bullet_points = task.bullet_points if task and task.bullet_points else "No bullet points provided."
+
     messages = [
     {
         "role": "system",
         "content": (
+            "You are an IELTS Writing Task 1 examiner providing feedback in British English. Use direct, simple language "
+            "and address the candidate as 'you'. The task details are provided below.\n\n"
+            f"Task Prompt:\n{task_prompt}\n\n"
+            f"Required Points:\n{bullet_points}\n\n"
             "You are an IELTS Writing Task 1 examiner. Your task is to evaluate candidates' responses based on the "
             "official IELTS Writing Task 1 band descriptors and key assessment criteria. Your feedback must be "
             "consistent, accurate, and strictly follow these guidelines:\n\n"
@@ -186,13 +204,29 @@ def generate_writing_task_1_report_feedback(response, task_id):
         return {"general_comment": "Error processing feedback.", "did_well": [], "could_improve": []}
     
 
-def generate_writing_task_2_feedback(response):
+def generate_writing_task_2_feedback(response, task_id):
     """Generates AI feedback for IELTS Writing Task 2 based on official assessment criteria and provides an improved version of the response."""
     
+    # Validate task_id is an integer
+    try:
+        task_id = int(task_id)
+    except (TypeError, ValueError):
+        raise ValueError("Invalid task ID provided")
+
+    # Get the task
+    task = Task.query.get(task_id)
+    if not task:
+        raise ValueError("Task not found")
+
+    task_prompt = task.main_prompt if task and task.main_prompt else "No prompt provided."
+
     messages = [
     {
         "role": "system",
         "content": (
+            "You are an IELTS Writing Task 2 examiner providing feedback in British English. Use direct, simple language "
+            "and address the candidate as 'you'. The essay question is provided below.\n\n"
+            f"Essay Question:\n{task_prompt}\n\n"
             "You are an IELTS Writing Task 2 examiner. Your task is to evaluate candidates' responses based on the "
             "official IELTS Writing Task 2 band descriptors and key assessment criteria. Your feedback must be "
             "consistent and rigorous, and adhere strictly to the following rules:\n\n"

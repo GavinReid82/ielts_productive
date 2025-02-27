@@ -124,7 +124,7 @@ def writing_task_1_submit():
     # Generate AI feedback
     # Choose the correct feedback function based on the task type
     if task.type.lower() == "writing_task_1_letter":
-        feedback = generate_writing_task_1_letter_feedback(response)
+        feedback = generate_writing_task_1_letter_feedback(response, task_id)
     elif task.type.lower() == "writing_task_1_report":
         feedback = generate_writing_task_1_report_feedback(response, task_id)
     else:
@@ -132,7 +132,7 @@ def writing_task_1_submit():
         return redirect(url_for('writing.writing_task_1', task_type='writing_task_1_letter'))
     
     # Save the transcript to the database
-    save_writing_transcript(current_user.id, task_id,response, feedback)
+    save_writing_transcript(current_user.id, task_id, response, feedback)
 
     # Store feedback in session
     session['feedback'] = {
@@ -236,14 +236,25 @@ def writing_task_2_submit():
         flash("Session expired. Please log in again.", "warning")
         return redirect(url_for('auth.login'))
     
+    # Get and validate task_id
+    try:
+        task_id = int(request.form.get('task_id'))
+    except (TypeError, ValueError):
+        flash("Invalid task ID.", "danger")
+        return redirect(url_for('writing.writing_task_2'))
+    
+    if not task_id:
+        flash("No task selected.", "danger")
+        return redirect(url_for('writing.writing_task_2'))
+    
     # Extract the essay response
     response = request.form.get('writingTask2')
 
-    # Generate feedback using your AI model (you'll need to replace this part with actual feedback generation)
-    feedback = generate_writing_task_2_feedback(response)
+    # Generate feedback using your AI model
+    feedback = generate_writing_task_2_feedback(response, task_id)
 
     # Save the transcript to the database
-    save_writing_transcript(user_id, response, feedback)
+    save_writing_transcript(user_id, task_id, response, feedback)
 
     # Store feedback in session
     session['feedback'] = {
