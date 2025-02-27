@@ -83,7 +83,8 @@ def generate_writing_task_1_letter_feedback(response, task_id):
             "- **Task Achievement** is optimized by ensuring full coverage of required points.\n"
             "- **Coherence & Cohesion** is improved by better structuring paragraphs and transitions.\n"
             "- **Lexical Resource** is enhanced by using more precise and varied vocabulary.\n"
-            "- **Grammar** and sentence structure are refined, eliminating errors and improving complexity.\n\n"
+            "- **Grammar** and sentence structure are refined, eliminating errors and improving complexity.\n"
+            "- Format the improved response with proper line breaks between paragraphs and letter components (greeting, body paragraphs, closing).\n\n"
             "Now, evaluate the following candidate's response and generate feedback accordingly."
         )
     },
@@ -183,7 +184,8 @@ def generate_writing_task_1_report_feedback(response, task_id):
             "- **Task Achievement** is optimized by ensuring full coverage of required points.\n"
             "- **Coherence & Cohesion** is improved by better structuring paragraphs and transitions.\n"
             "- **Lexical Resource** is enhanced by using more precise and varied vocabulary.\n"
-            "- **Grammar** and sentence structure are refined, eliminating errors and improving complexity.\n\n"
+            "- **Grammar** and sentence structure are refined, eliminating errors and improving complexity.\n"
+            "- Format the improved response with proper line breaks between paragraphs.\n\n"
             "Now, evaluate the following candidate's response and generate feedback accordingly."
         )
     },
@@ -280,7 +282,8 @@ def generate_writing_task_2_feedback(response, task_id):
             "- **Task Response** is optimized by ensuring full coverage of required points.\n"
             "- **Coherence & Cohesion** is improved by better structuring paragraphs and transitions.\n"
             "- **Lexical Resource** is enhanced by using more precise and varied vocabulary.\n"
-            "- **Grammar** and sentence structure are refined, eliminating errors and improving complexity.\n\n"
+            "- **Grammar** and sentence structure are refined, eliminating errors and improving complexity.\n"
+            "- Format the improved response with proper line breaks between paragraphs and essay components (introduction, body paragraphs, conclusion).\n\n"
             "Now, evaluate the following candidate's response and generate feedback accordingly."
         )
     },
