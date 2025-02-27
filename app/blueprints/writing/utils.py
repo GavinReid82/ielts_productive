@@ -60,8 +60,8 @@ def generate_writing_task_1_letter_feedback(response):
             "- **5-6** = Moderate (Some errors, limited development, minor issues in organization or vocabulary)\n"
             "- **3-4** = Weak (Frequent errors, lack of clarity, poor structure)\n\n"
             
-            "After assessing the response, generate an 'Improved Response' where:\n"
-            "- The original ideas are maintained.\n"
+            "After assessing the response, generate an 'Improved Response' based on the specific task and where:\n"
+            "- The user's original ideas are maintained where relevant to the task.\n"
             "- **Task Achievement** is optimized by ensuring full coverage of required points.\n"
             "- **Coherence & Cohesion** is improved by better structuring paragraphs and transitions.\n"
             "- **Lexical Resource** is enhanced by using more precise and varied vocabulary.\n"
@@ -154,8 +154,8 @@ def generate_writing_task_1_report_feedback(response, task_id):
             "- **5-6** = Moderate (Some errors, limited development, minor issues in organization or vocabulary)\n"
             "- **3-4** = Weak (Frequent errors, lack of clarity, poor structure)\n\n"
             
-            "After assessing the response, generate an 'Improved Response' where:\n"
-            "- The original ideas are maintained.\n"
+            "After assessing the response, generate an 'Improved Response' based on the specific task and where:\n"
+            "- The user's original ideas are maintained where relevant to the task.\n"
             "- **Task Achievement** is optimized by ensuring full coverage of required points.\n"
             "- **Coherence & Cohesion** is improved by better structuring paragraphs and transitions.\n"
             "- **Lexical Resource** is enhanced by using more precise and varied vocabulary.\n"
@@ -235,8 +235,8 @@ def generate_writing_task_2_feedback(response):
             "- **5-6** = Moderate (Some errors, limited development, minor issues in organization or vocabulary)\n"
             "- **3-4** = Weak (Frequent errors, lack of clarity, poor structure)\n\n"
             
-            "After assessing the response, generate an 'Improved Response' where:\n"
-            "- The original ideas are maintained.\n"
+            "After assessing the response, generate an 'Improved Response' based on the specific task and where:\n"
+            "- The user's original ideas are maintained where relevant to the task.\n"
             "- **Task Response** is optimized by ensuring full coverage of required points.\n"
             "- **Coherence & Cohesion** is improved by better structuring paragraphs and transitions.\n"
             "- **Lexical Resource** is enhanced by using more precise and varied vocabulary.\n"
