@@ -88,12 +88,9 @@ def generate_writing_task_1_letter_feedback(response, task_id):
             "Now, evaluate the following candidate's response and generate feedback accordingly."
         )
     },
-    {"role": "user", 
-     "content": [
-        {"type": "text", "text": f"Candidate's response:\n\n{response}"},
-        {"type": "text", "text": f"Task Prompt:\n{task_prompt}\n\n"},
-        {"type": "text", "text": f"Required Points:\n{bullet_points}\n\n"}
-     ]
+    {
+        "role": "user", 
+        "content": f"Candidate's response:\n\n{response}\nTask Prompt:\n{task_prompt}\nRequired Points:\n{bullet_points}"
     }
     ]
 
@@ -189,8 +186,10 @@ def generate_writing_task_1_report_feedback(response, task_id):
             "Now, evaluate the following candidate's response and generate feedback accordingly."
         )
     },
-    {"role": "user", "content": f"Graph details:\n\n{graph_description}"},
-    {"role": "user", "content": f"Candidate's response:\n\n{response}"}
+    {
+        "role": "user", 
+        "content": f"Graph details:\n\n{graph_description}\nCandidate's response:\n\n{response}"
+    }
     ]
 
     try:
@@ -287,11 +286,9 @@ def generate_writing_task_2_feedback(response, task_id):
             "Now, evaluate the following candidate's response and generate feedback accordingly."
         )
     },
-    {"role": "user", 
-     "content": [
-        {"type": "text", "text": f"Candidate's response:\n\n{response}"},
-        {"type": "text", "text": f"Essay Question:\n{task_prompt}\n\n"}
-     ]
+    {
+        "role": "user", 
+        "content": f"Candidate's response:\n\n{response}\nEssay Question:\n{task_prompt}"
     }
     ]
 
