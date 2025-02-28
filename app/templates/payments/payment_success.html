@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block title %}Payment Successful{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-body text-center">
+            <h2 class="text-success"><i class="fas fa-check-circle"></i> Payment Successful!</h2>
+            <p class="lead">Thank you for your purchase of {{ task.name }}</p>
+            <p>You can now access this task and start practicing.</p>
+            <div class="mt-4">
+                <a href="{{ url_for('writing.view_task_2', task_id=task.id) }}" class="btn btn-primary">Start Task</a>
+                <a href="{{ url_for('dashboard.dashboard_home') }}" class="btn btn-secondary">Return to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

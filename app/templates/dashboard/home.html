@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<h1 class="text-center">IELTS Productive Practice</h1>
+<!-- <p class="text-center">This test evaluates your ability to communicate clearly and effectively in English.</p> -->
+<p class="text-center mb-3">Select the skill you would like to explore.</p>
+
+
+<div class="d-grid gap-2 col-6 mx-auto mb-3 mt-5">
+    <a href="{{ url_for('dashboard.writing') }}" class="btn btn-primary btn-lg">Writing</a>
+</div>
+
+<div class="d-grid gap-2 col-6 mx-auto mb-3">
+    <a href="{{ url_for('dashboard.reading') }}" class="btn btn-primary btn-lg d-none">Reading</a>
+</div>
+
+<p class="text-center mb-3">Coming soon!</p>
+
+<div class="d-grid gap-2 col-6 mx-auto mb-3">
+    <a href="{{ url_for('dashboard.speaking') }}" class="btn btn-primary btn-lg disabled">Speaking</a>
+</div>
+
+<div class="d-grid gap-2 col-6 mx-auto">
+    <a href="{{ url_for('dashboard.listening') }}" class="btn btn-primary btn-lg d-none">Listening</a>
+</div>
+
+{% endblock %}

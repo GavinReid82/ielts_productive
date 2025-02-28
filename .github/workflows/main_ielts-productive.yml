@@ -1,0 +1,54 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+# More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
+
+name: Build and deploy Python app to Azure Web App - ielts-productive
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python version
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Create and start virtual environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Create a startup.txt file for Azure
+      - name: Create startup command file
+        run: |
+          echo "python -m flask db upgrade && gunicorn app:app" > startup.txt
+
+      - name: Clean and prepare deployment package
+        run: |
+          # Remove unnecessary files
+          find . -name "*.pyc" -delete
+          find . -name "__pycache__" -type d -exec rm -r {} +
+          find . -name ".DS_Store" -delete
+          rm -rf .git .github venv local_backup.dump
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'ielts-productive'
+          slot-name: 'Production'
+          publish-profile: ${{ secrets.AZUREWEBAPP_PUBLISHPROFILE }}
+          package: .

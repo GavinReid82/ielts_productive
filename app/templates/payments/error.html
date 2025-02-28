@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block title %}Error{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-body text-center">
+            <h2 class="text-danger"><i class="fas fa-exclamation-circle"></i> Error</h2>
+            <p class="lead">{{ error }}</p>
+            <div class="mt-4">
+                <a href="{{ url_for('dashboard.dashboard_home') }}" class="btn btn-primary">Return to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

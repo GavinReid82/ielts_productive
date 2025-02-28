@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+
+{% block title %}IELTS Speaking Part 2{% endblock %}
+
+{% block content %}
+<h1 class="text-center mb-3">IELTS Speaking Part 2</h1>
+
+<div class="card mx-auto mt-4 p-4 shadow" style="max-width: 600px;">
+    <p class="text-center fw-bold">Describe something you own which is very important to you.</p>
+
+    <p class="text-center">You should say:</p>
+    <ul class="text-left">
+        <li>where you got it from</li>
+        <li>how long you have had it</li>
+        <li>what you use it for; and</li>
+        <li>explain why it is important to you.</li>
+    </ul>
+
+    <p class="text-muted text-center"><strong>You will have to talk about the topic for 1 to 2 minutes.</strong></p>
+    <p class="text-muted text-center">You have one minute to think about what you're going to say. You can make some notes to help you if you wish.</p>
+
+    <div class="text-center">
+        <button id="start-preparation" class="btn btn-warning">Start Preparation</button>
+        <button id="start-recording" class="btn btn-primary d-none">Start Recording</button>
+        <button id="countdown-timer" class="btn btn-secondary text-center" disabled style="width: 150px;">
+            <span id="countdown-text">60</span> seconds left
+        </button>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center mt-5">
+    <form method="POST" action="{{ url_for('speaking.speaking_task_2_submit') }}" enctype="multipart/form-data">
+        <input type="hidden" name="question_number" value="{{ question_number }}">
+        <input type="hidden" name="audio_data" id="audio-data">
+        <button type="submit" id="submit-btn" class="btn btn-success mt-3 d-none">
+            Submit recording and get feedback
+        </button>        
+    </form>
+</div>
+
+<script src="{{ url_for('static', filename='js/speaking/speaking_task_2.js') }}"></script>
+
+{% endblock %}

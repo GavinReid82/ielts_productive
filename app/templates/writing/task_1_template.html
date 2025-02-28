@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+
+{% block title %}Writing Task{% endblock %}
+
+{% block content %}
+<h1 class="text-center">IELTS Writing Task 1</h1>
+
+<div class="container my-4">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card border-primary">
+          <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">
+                  {% if task.type == 'writing_task_1_letter' %}
+                      <i class="fas fa-envelope"></i> Write a Letter ✉️
+                  {% else %}
+                      <i class="fas fa-chart-line"></i> Report Writing 📊
+                  {% endif %}
+              </h5>
+          </div>
+          <div class="card-body">
+              <h6 class="text-primary"><strong>Instructions</strong></h6>
+              <p>You should spend about <strong>20 minutes</strong> on this task.</p>
+                            
+              {% if task.type == 'writing_task_1_letter' %}
+                  <p>{{ task.main_prompt }}</p>  <!-- Display main prompt dynamically -->
+                  <p>In your letter:</p>
+                  <ul>
+                      {% for point in task.bullet_points.split(',') %}
+                          <li>{{ point }}</li>  <!-- Display each bullet point dynamically -->
+                      {% endfor %}
+                  </ul>
+              {% else %}
+                  <p>Take a look at the chart below and perform the task as outlined:</p>
+                  <p>{{ task.main_prompt }}</p>  <!-- Display main prompt dynamically -->
+                  <img src="{{ url_for('static', filename=task.image_path) }}" alt="Task Image" class="img-fluid mb-3" style="max-width: 100%; height: auto; max-height: 300px;">
+                  <p>Summarise the information by selecting and reporting the main features, making comparisons where relevant.</p>
+              {% endif %}
+              
+              <p>Write at least <strong>150 words</strong>.</p>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<form method="POST" action="{{ url_for('writing.writing_task_1_submit') }}" class="mt-4">
+    <input type="hidden" name="task_id" value="{{ task.id }}">
+    <div class="mb-3">
+        <textarea class="form-control" id="writingTask1" name="writingTask1" rows="6" placeholder="Write your response here..."></textarea>
+    </div>
+    <div class="d-grid gap-2">
+        <button type="submit" id="submit-btn" class="btn btn-primary">Submit and get feedback</button>
+    </div>
+</form>
+
+<script>
+    document.querySelector('form').onsubmit = function() {
+        let submitBtn = document.getElementById('submit-btn');
+        submitBtn.innerText = 'Submitting... Please wait';
+        submitBtn.disabled = true;
+    };
+</script>
+{% endblock %}
