@@ -6,8 +6,11 @@ from datetime import datetime, timedelta
 import secrets
 from flask_mail import Message
 from app.extensions import mail
+import logging
 
 auth_bp = Blueprint('auth', __name__)
+
+logger = logging.getLogger(__name__)
 
 
 def send_verification_email(user):
@@ -35,6 +38,7 @@ If you did not register for this account, please ignore this email.
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    logger.info(f"Login route accessed. Referrer: {request.referrer}")
     if current_user.is_authenticated:
         return redirect(url_for('dashboard.dashboard_home'))
         
@@ -43,7 +47,6 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user and user.check_password(form.password.data):
             if not user.is_verified:
-                # Store the email in session for the resend verification link
                 session['unverified_email'] = user.email
                 flash('Please verify your email before logging in. Check your inbox for the verification link.', 'warning')
                 return render_template('auth/login.html', form=form)
@@ -51,7 +54,17 @@ def login():
             login_user(user)
             session['user_id'] = user.id
             flash('Logged in successfully!', 'success')
-            return redirect(url_for('dashboard.dashboard_home'))
+            
+            # Get the next parameter from the URL
+            next_page = request.args.get('next')
+            
+            # If there's no next parameter or it's the landing page,
+            # redirect to dashboard instead
+            if not next_page or 'landing' in next_page or next_page == '/':
+                return redirect(url_for('dashboard.dashboard_home'))
+                
+            return redirect(next_page)
+            
         else:
             flash('Invalid email or password.', 'danger')
     return render_template('auth/login.html', form=form)

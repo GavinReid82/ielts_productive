@@ -4,15 +4,15 @@
 
 {% block content %}
 <h1 class="text-center">IELTS Writing</h1>
-<!-- <p class="text-center">This test evaluates your ability to communicate clearly and effectively in spoken English.</p> -->
-<p class="text-center">When you're ready, click a button below to begin.</p>
+<!-- <p class="text-center">This test evaluates your ability to communicate clearly and effectively in spoken English.</p>
+<p class="text-center">When you're ready, click a button below to begin.</p> -->
 
 <div class="d-grid gap-2 col-6 mx-auto mb-3">
     <a href="{{ url_for('writing.writing_tips') }}" class="btn btn-primary btn-lg disabled d-none">Writing Tips</a>
 </div>
 
 <div class="d-grid gap-2 col-6 mx-auto mb-3">
-    <a href="{{ url_for('writing.writing_task_1', task_type='writing_task_1_letter') }}" class="btn btn-primary btn-lg">Task 1 (Letter)</a>
+    <a href="{{ url_for('writing.writing_task_1', task_type='writing_task_1_letter') }}" class="btn btn-primary btn-lg disabled">Task 1 (Letter)</a>
 </div>
 
 <div class="d-grid gap-2 col-6 mx-auto mb-3">
@@ -20,7 +20,7 @@
 </div>
 
 <div class="d-grid gap-2 col-6 mx-auto">
-    <a href="{{ url_for('writing.writing_task_2', task_type='writing_task_2') }}" class="btn btn-primary btn-lg">Task 2 (Essay)</a>
+    <a href="{{ url_for('writing.writing_task_2', task_type='writing_task_2') }}" class="btn btn-primary btn-lg disabled">Task 2 (Essay)</a>
 </div>
 
 {% endblock %}

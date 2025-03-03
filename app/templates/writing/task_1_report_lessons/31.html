@@ -1,0 +1,307 @@
+{% extends "layout.html" %}
+
+{% block title %}Task 1 Report Writing - Mini Lesson{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="text-center mb-4">Welcome to IELTS Productive</h1>
+    <p class="text-center mb-4">This is a mini lesson to help you understand the task and improve your writing.</p>
+    
+    <!-- Language Input Button -->
+    <div class="d-grid gap-2 mb-4">
+        <button class="btn btn-primary btn-lg" onclick="toggleSection('languageInputSection', this)">
+            Show Language Input →
+        </button>
+    </div>
+
+    <!-- Language Input Section (Initially Hidden) -->
+    <div id="languageInputSection" style="display: none;">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">📚 Language Input</h3>
+            </div>
+            <div class="card-body">
+                <div class="row justify-content-center">
+                    <div class="col-12 col-lg-8 mb-4">
+                        <img src="{{ url_for('static', filename='images/writing_task_1_report_lessons/31_1.png') }}" 
+                             alt="Language Example 1" 
+                             class="img-fluid shadow-sm rounded w-100">
+                    </div>
+                    <div class="col-12 col-lg-8">
+                        <img src="{{ url_for('static', filename='images/writing_task_1_report_lessons/31_2.png') }}" 
+                             alt="Language Example 2" 
+                             class="img-fluid shadow-sm rounded w-100">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Practice Button -->
+    <div class="d-grid gap-2 mb-4">
+        <button class="btn btn-success btn-lg" onclick="toggleSection('practiceSection', this)">
+            Start Practice Exercise →
+        </button>
+    </div>
+
+    <!-- Practice Section (Initially Hidden) -->
+    <div id="practiceSection" style="display: none;">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h3 class="mb-0">🎯 IELTS Trends Practice</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Graph on the left -->
+                    <div class="col-md-6">
+                        <img src="{{ url_for('static', filename=task.image_path) }}" 
+                             alt="Task Graph" 
+                             class="img-fluid mb-3">
+                    </div>
+
+                    <!-- Practice Questions on the right -->
+                    <div class="col-md-6">
+                        <h4>Complete the sentences using appropriate trend descriptions:</h4>
+                        
+                        <p>The graph shows a 
+                            <select onchange="checkAnswer(this, 'sharp rise')">
+                                <option value="">-- Select --</option>
+                                <option value="sharp rise">sharp rise</option>
+                                <option value="gradual decline">gradual decline</option>
+                                <option value="fell sharply">fell sharply</option>
+                                <option value="rose steadily">rose steadily</option>
+                            </select>
+                            in television viewership from 4:00 pm to 8:00 pm.</p>
+                        
+                        <p>There was a 
+                            <select onchange="checkAnswer(this, 'gradual decline')">
+                                <option value="">-- Select --</option>
+                                <option value="sharp rise">sharp rise</option>
+                                <option value="gradual decline">gradual decline</option>
+                                <option value="fell sharply">fell sharply</option>
+                                <option value="rose steadily">rose steadily</option>
+                            </select>
+                            in radio listenership after 8:00 am.</p>
+                        
+                        <p>Television viewership 
+                            <select onchange="checkAnswer(this, 'rose dramatically')">
+                                <option value="">-- Select --</option>
+                                <option value="rose dramatically">rose dramatically</option>
+                                <option value="declined sharply">declined sharply</option>
+                                <option value="increased slightly">increased slightly</option>
+                                <option value="fell sharply">fell sharply</option>
+                            </select>
+                            in the evening, peaking at around 8:00 pm.</p>
+                        
+                        <p>Radio listenership 
+                            <select onchange="checkAnswer(this, 'steadily declined')">
+                                <option value="">-- Select --</option>
+                                <option value="rose dramatically">rose dramatically</option>
+                                <option value="steadily declined">steadily declined</option>
+                                <option value="slight increase">slight increase</option>
+                                <option value="sharp rise">sharp rise</option>
+                            </select>
+                            throughout the afternoon.</p>
+                        
+                        <p>A 
+                            <select onchange="checkAnswer(this, 'slight increase')">
+                                <option value="">-- Select --</option>
+                                <option value="slight increase">slight increase</option>
+                                <option value="gradual decline">gradual decline</option>
+                                <option value="fell sharply">fell sharply</option>
+                                <option value="dramatic fall">dramatic fall</option>
+                            </select>
+                            in television viewership can be observed between 10:00 am and 2:00 pm.</p>
+                        
+                        <p>Radio listenership 
+                            <select onchange="checkAnswer(this, 'fell sharply')">
+                                <option value="">-- Select --</option>
+                                <option value="fell sharply">fell sharply</option>
+                                <option value="rose steadily">rose steadily</option>
+                                <option value="sharp rise">sharp rise</option>
+                                <option value="declined sharply">declined sharply</option>
+                            </select>
+                            after 6:00 pm.</p>
+                        
+                        <p>Television viewership 
+                            <select onchange="checkAnswer(this, 'rose steadily')">
+                                <option value="">-- Select --</option>
+                                <option value="rose steadily">rose steadily</option>
+                                <option value="gradual decline">gradual decline</option>
+                                <option value="fell sharply">fell sharply</option>
+                                <option value="sharp rise">sharp rise</option>
+                            </select>
+                            from midday until early evening.</p>
+                        
+                        <p>A 
+                            <select onchange="checkAnswer(this, 'dramatic fall')">
+                                <option value="">-- Select --</option>
+                                <option value="dramatic fall">dramatic fall</option>
+                                <option value="sharp rise">sharp rise</option>
+                                <option value="rose steadily">rose steadily</option>
+                                <option value="increased slightly">increased slightly</option>
+                            </select>
+                            in television viewership occurred after 10:00 pm.</p>
+                        
+                        <p>The percentage of people listening to the radio 
+                            <select onchange="checkAnswer(this, 'increased slightly')">
+                                <option value="">-- Select --</option>
+                                <option value="increased slightly">increased slightly</option>
+                                <option value="declined sharply">declined sharply</option>
+                                <option value="sharp rise">sharp rise</option>
+                                <option value="gradual decline">gradual decline</option>
+                            </select>
+                            between 12:00 pm and 2:00 pm.</p>
+                        
+                        <p>After reaching its peak, television viewership 
+                            <select onchange="checkAnswer(this, 'declined sharply')">
+                                <option value="">-- Select --</option>
+                                <option value="declined sharply">declined sharply</option>
+                                <option value="rose dramatically">rose dramatically</option>
+                                <option value="fell sharply">fell sharply</option>
+                                <option value="gradual decline">gradual decline</option>
+                            </select>
+                            from 9:00 pm onwards.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Writing Task Button -->
+    <div class="d-grid gap-2 mb-4">
+        <button class="btn btn-primary btn-lg" onclick="toggleSection('taskSection', this)">
+            Continue to Writing Task 1 →
+        </button>
+    </div>
+
+    <!-- Task Section (Initially Hidden) -->
+    <div id="taskSection" style="display: none;">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">✍️ Writing Task 1</h3>
+            </div>
+            <div class="card-body">
+                <!-- Embed the task_1_template.html content here -->
+                <div class="row">
+                    <!-- Task Instructions -->
+                    <div class="col-md-12 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <p class="mb-3">
+                                    You should spend about 20 minutes on this task.
+                                </p>
+                                <p>{{ task.main_prompt }}</p>
+                                {% if task.bullet_points %}
+                                    <p>{{ task.bullet_points | safe }}</p>
+                                {% endif %}
+                                <p class="mt-3">
+                                    Write at least 150 words.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Task Image -->
+                    {% if task.image_path %}
+                    <div class="col-md-12 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <img src="{{ url_for('static', filename=task.image_path) }}" 
+                                     alt="Task Image" 
+                                     class="img-fluid">
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Response Area -->
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                {% if is_demo %}
+                                    <form id="writingForm" method="POST" action="{{ url_for('landing.try_it_out_submit') }}">
+                                        <input type="hidden" name="task_id" value="{{ task.id }}">
+                                        <div class="form-group">
+                                            <label for="writingTask1">Your Response:</label>
+                                            <textarea class="form-control" 
+                                                      id="writingTask1" 
+                                                      name="writingTask1" 
+                                                      rows="10" 
+                                                      required></textarea>
+                                        </div>
+                                        <div class="word-count mt-2 mb-3">
+                                            Words: <span id="wordCount">0</span>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Submit Response</button>
+                                    </form>
+                                {% else %}
+                                    <form id="writingForm" method="POST" action="{{ url_for('writing.submit_writing', task_id=task.id) }}">
+                                        <div class="form-group">
+                                            <label for="response">Your Response:</label>
+                                            <textarea class="form-control" 
+                                                      id="response" 
+                                                      name="response" 
+                                                      rows="10" 
+                                                      required></textarea>
+                                        </div>
+                                        <div class="word-count mt-2 mb-3">
+                                            Words: <span id="wordCount">0</span>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Submit Response</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .correct {
+        color: green;
+    }
+    .incorrect {
+        color: red;
+    }
+    textarea {
+        resize: vertical;
+    }
+</style>
+
+<script>
+    function toggleSection(sectionId, button) {
+        const section = document.getElementById(sectionId);
+        if (section.style.display === 'none') {
+            // Show section
+            section.style.display = 'block';
+            button.textContent = button.textContent.replace('Show', 'Hide').replace('Continue to', 'Hide');
+            window.scrollTo({
+                top: section.offsetTop,
+                behavior: 'smooth'
+            });
+        } else {
+            // Hide section
+            section.style.display = 'none';
+            button.textContent = button.textContent.replace('Hide', 'Show').replace('Hide', 'Continue to');
+        }
+    }
+
+    function checkAnswer(selectElement, correctAnswer) {
+        if (selectElement.value === correctAnswer) {
+            selectElement.className = "correct";
+        } else {
+            selectElement.className = "incorrect";
+        }
+    }
+
+    // Add word count functionality
+    document.getElementById('response').addEventListener('input', function() {
+        const words = this.value.trim().split(/\s+/).filter(word => word.length > 0);
+        document.getElementById('wordCount').textContent = words.length;
+    });
+</script>
+{% endblock %}

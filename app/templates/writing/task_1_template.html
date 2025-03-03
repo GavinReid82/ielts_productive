@@ -44,10 +44,10 @@
   </div>
 </div>
 
-<form method="POST" action="{{ url_for('writing.writing_task_1_submit') }}" class="mt-4">
+<form action="{% if is_demo %}{{ url_for('landing.try_it_out_submit') }}{% else %}{{ url_for('writing.writing_task_1_submit') }}{% endif %}" method="post" class="mt-4">
     <input type="hidden" name="task_id" value="{{ task.id }}">
     <div class="mb-3">
-        <textarea class="form-control" id="writingTask1" name="writingTask1" rows="6" placeholder="Write your response here..."></textarea>
+        <textarea name="writingTask1" class="form-control" rows="6" placeholder="Write your response here..." required></textarea>
     </div>
     <div class="d-grid gap-2">
         <button type="submit" id="submit-btn" class="btn btn-primary">Submit and get feedback</button>

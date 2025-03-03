@@ -21,11 +21,16 @@
         </div>
     {% endif %}
     
-    <p><strong>Task Achievement:</strong> {{ task_achievement }}</p>
-    <p><strong>Coherence & Cohesion:</strong> {{ coherence_cohesion }}</p>
-    <p><strong>Lexical Resource:</strong> {{ lexical_resource }}</p>
-    <p><strong>Grammatical Range & Accuracy:</strong> {{ grammatical_range_accuracy }}</p>
-
+    {% if how_to_improve and how_to_improve.general_suggestions %}
+        <div class="mt-4">
+            <h4>General Suggestions:</h4>
+            <ul class="list-group">
+                {% for suggestion in how_to_improve.general_suggestions %}
+                    <li class="list-group-item">{{ suggestion }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
 
     <h3 class="text-center mt-4">How to Improve</h3>
     {% if how_to_improve and how_to_improve.examples %}
@@ -47,25 +52,24 @@
         </div>
     {% endif %}
 
-    {% if how_to_improve and how_to_improve.general_suggestions %}
-        <div class="mt-4">
-            <h4>General Suggestions:</h4>
-            <ul class="list-group">
-                {% for suggestion in how_to_improve.general_suggestions %}
-                    <li class="list-group-item">{{ suggestion }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
 
-    <h3 class="text-center mt-4">Improved {{ "Letter" if type == "writing_task_1_letter" else "Report" }}</h3>
+
+    <h3 class="text-center mt-4">Example {{ "Letter" if type == "writing_task_1_letter" else "Report" }}</h3>
     <div class="bg-light p-3 rounded">
-        <p>{{ improved_response | replace("\n", "<br>") | safe }}</p>
+        {% for paragraph in task.description.replace('\\n', '\n').split('\n\n') %}
+            {% if paragraph.strip() %}
+                <p>{{ paragraph }}</p>
+            {% endif %}
+        {% endfor %}
     </div>
 
 </div>
 
 <div class="d-grid gap-2 col-6 mx-auto mt-4">
-    <a href="{{ url_for('writing.writing_home') }}" class="btn btn-secondary">Return to Writing</a>
+    {% if is_demo %}
+        <a href="{{ url_for('auth.register') }}" class="btn btn-success">Get more free lessons! →</a>
+    {% else %}
+        <a href="{{ url_for('writing.writing_home') }}" class="btn btn-secondary">Return to Writing</a>
+    {% endif %}
 </div>
 {% endblock %}

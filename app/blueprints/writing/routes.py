@@ -19,6 +19,9 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @writing_bp.route('/')
 def writing_home():
+    """Landing page with regular writing home"""
+    if not current_user.is_authenticated:
+        return redirect(url_for('auth.login'))
     return render_template('writing/home.html')
 
 # ------------------------------------------------------------
@@ -35,23 +38,41 @@ def writing_tips():
 # ------------------------------------------------------------
 # Task 1
 # ------------------------------------------------------------
+@writing_bp.route('/task-1-lesson/<int:lesson_id>')
+def task_1_lesson(lesson_id):
+    """Display the Task 1 lesson page"""
+    # Get the corresponding task for this lesson
+    task = Task.query.get_or_404(lesson_id)
+    
+    # Get the task type from the task object
+    task_type = task.type  # This should be 'writing_task_1_report' or 'writing_task_1_letter'
+    
+    # Render the specific lesson template
+    return render_template(f'writing/task_1_report_lessons/{lesson_id}.html', 
+                         task=task,
+                         task_type=task_type)
 
 
 @writing_bp.route('/view_task/<int:task_id>')
-@login_required
 def view_task(task_id):
-    """View a task that the user has paid for (if paid)"""
+    """View a task that the user has paid for (if paid) or is being viewed as demo"""
     task = Task.query.get(task_id)
     if not task:
         return jsonify({"error": "Task not found"}), 404
 
-    # Check if the task is free or if the user has paid for it
-    if task.is_free or Task.query.join(Payment).filter(Payment.user_id == current_user.id, Payment.task_id == task.id).first():
-        # The user has paid or the task is free, allow access
-        return render_template('writing/task_1_template.html', task=task)
+    # Allow access if:
+    # 1. It's a demo view
+    # 2. The task is free
+    # 3. The user is logged in and has paid
+    is_demo = request.args.get('is_demo', False)
+    if (is_demo or 
+        task.is_free or 
+        (current_user.is_authenticated and 
+         Task.query.join(Payment).filter(Payment.user_id == current_user.id, Payment.task_id == task.id).first())):
+        return render_template('writing/task_1_template.html', task=task, is_demo=is_demo)
     else:
         # If the task is not free and the user has not paid
-        return redirect(url_for('payments.checkout', task_id=task.id))
+        return redirect(url_for('auth.login'))
 
 
 @writing_bp.route('/writing_task_1/<task_type>')

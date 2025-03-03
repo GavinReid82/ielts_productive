@@ -53,6 +53,7 @@ class Task(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)
+    is_available = db.Column(db.Boolean, default=False)
     type = db.Column(db.String(50))
     is_free = db.Column(db.Boolean, default=False)
     price = db.Column(db.Integer, nullable=True)

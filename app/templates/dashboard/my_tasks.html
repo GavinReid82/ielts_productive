@@ -34,15 +34,18 @@
 
                                     <h6 class="mt-4">Feedback:</h6>
                                     <div class="card-text feedback-section">
-                                        {% if transcript.task.type == 'writing_task_2' %}
-                                            <p><strong>Task Response:</strong> {{ transcript.feedback.get('task_response') }}</p>
-                                        {% else %}
-                                            <p><strong>Task Achievement:</strong> {{ transcript.feedback.get('task_achievement') }}</p>
-                                        {% endif %}
-                                        <p><strong>Coherence & Cohesion:</strong> {{ transcript.feedback.get('coherence_cohesion') }}</p>
-                                        <p><strong>Lexical Resource:</strong> {{ transcript.feedback.get('lexical_resource') }}</p>
-                                        <p><strong>Grammatical Range & Accuracy:</strong> {{ transcript.feedback.get('grammatical_range_accuracy') }}</p>
-                                        
+
+                                        {% if transcript.feedback.how_to_improve.general_suggestions %}
+                                            <div class="mt-3">
+                                                <h6>General Suggestions:</h6>
+                                                <ul class="list-group">
+                                                    {% for suggestion in transcript.feedback.how_to_improve.general_suggestions %}
+                                                        <li class="list-group-item">{{ suggestion }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                         {% endif %}
+
                                         {% if transcript.feedback.get('how_to_improve') %}
                                             <h6 class="mt-4">How to Improve:</h6>
                                             {% if transcript.feedback.how_to_improve.examples %}
@@ -64,23 +67,13 @@
                                                 </div>
                                             {% endif %}
 
-                                            {% if transcript.feedback.how_to_improve.general_suggestions %}
-                                                <div class="mt-3">
-                                                    <h6>General Suggestions:</h6>
-                                                    <ul class="list-group">
-                                                        {% for suggestion in transcript.feedback.how_to_improve.general_suggestions %}
-                                                            <li class="list-group-item">{{ suggestion }}</li>
-                                                        {% endfor %}
-                                                    </ul>
-                                                </div>
-                                            {% endif %}
                                         {% endif %}
 
                                         {% if transcript.feedback.get('improved_response') %}
                                             <h6 class="mt-4">Improved Response:</h6>
                                             <div class="card">
                                                 <div class="card-body bg-light">
-                                                    <p>{{ transcript.feedback.get('improved_response') | replace("\n", "<br>") | safe }}</p>
+                                                    <p>{{ trask.description | replace("\n", "<br>") | safe }}</p>
                                                 </div>
                                             </div>
                                         {% endif %}
