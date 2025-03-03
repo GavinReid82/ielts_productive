@@ -192,6 +192,7 @@ def writing_task_1_feedback():
 
     return render_template(
         'writing/task_1_feedback.html',
+        task=task,
         task_id=task_id,
         type=task_type,
         response=feedback.get('response', 'No response available.'),

@@ -182,74 +182,78 @@
                 <h3 class="mb-0">✍️ Writing Task 1</h3>
             </div>
             <div class="card-body">
-                <!-- Embed the task_1_template.html content here -->
-                <div class="row">
-                    <!-- Task Instructions -->
-                    <div class="col-md-12 mb-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <p class="mb-3">
-                                    You should spend about 20 minutes on this task.
-                                </p>
-                                <p>{{ task.main_prompt }}</p>
-                                {% if task.bullet_points %}
-                                    <p>{{ task.bullet_points | safe }}</p>
-                                {% endif %}
-                                <p class="mt-3">
-                                    Write at least 150 words.
-                                </p>
-                            </div>
+                <!-- Task Instructions -->
+                <div class="col-md-12 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="mb-3">
+                                You should spend about 20 minutes on this task.
+                            </p>
+                            <p>{{ task.main_prompt }}</p>
+                            {% if task.bullet_points %}
+                                <p>{{ task.bullet_points | safe }}</p>
+                            {% endif %}
+                            <p class="mt-3">
+                                Write at least 150 words.
+                            </p>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Task Image -->
-                    {% if task.image_path %}
-                    <div class="col-12 col-lg-8 mb-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <img src="{{ url_for('static', filename=task.image_path) }}" 
-                                     alt="Task Image" 
-                                     class="img-fluid">
-                            </div>
+                <!-- Task Image -->
+                <div class="col-12 col-lg-8 mb-4 mx-auto">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <img src="{{ url_for('static', filename=task.image_path) }}" 
+                                 alt="Task Image" 
+                                 class="img-fluid">
                         </div>
                     </div>
-                    {% endif %}
+                </div>
 
-                    <!-- Response Area -->
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-body">
-                                {% if is_demo %}
-                                    <form id="writingForm" method="POST" action="{{ url_for('landing.try_it_out_submit') }}">
-                                        <input type="hidden" name="task_id" value="{{ task.id }}">
-                                        <div class="form-group">
-                                            <label for="writingTask1">Your Response:</label>
-                                            <textarea class="form-control" 
-                                                      id="writingTask1" 
-                                                      name="writingTask1" 
-                                                      rows="10" 
-                                                      required></textarea>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary" onclick="this.innerHTML='Generating Feedback...'; this.disabled=true;">
+                <!-- Response Area -->
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if is_demo %}
+                                <form id="writingForm" method="POST" action="{{ url_for('landing.try_it_out_submit') }}">
+                                    <input type="hidden" name="task_id" value="{{ task.id }}">
+                                    <div class="form-group">
+                                        <label for="writingTask1">Your Response:</label>
+                                        <textarea class="form-control" 
+                                                  id="writingTask1" 
+                                                  name="writingTask1" 
+                                                  rows="10" 
+                                                  required></textarea>
+                                    </div>
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" 
+                                                class="btn btn-primary mt-2" 
+                                                id="submitButton">
                                             Submit Response and Get Feedback
                                         </button>
-                                    </form>
-                                {% else %}
-                                    <form id="writingForm" method="POST" action="{{ url_for('writing.submit_writing', task_id=task.id) }}">
-                                        <div class="form-group">
-                                            <label for="response">Your Response:</label>
-                                            <textarea class="form-control" 
-                                                      id="response" 
-                                                      name="response" 
-                                                      rows="10" 
-                                                      required></textarea>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary" onclick="this.innerHTML='Generating Feedback...'; this.disabled=true;">
+                                    </div>
+                                </form>
+                            {% else %}
+                                <form id="writingForm" method="POST" action="{{ url_for('writing.writing_task_1_submit') }}">
+                                    <input type="hidden" name="task_id" value="{{ task.id }}">
+                                    <div class="form-group">
+                                        <label for="writingTask1">Your Response:</label>
+                                        <textarea class="form-control" 
+                                                  id="writingTask1" 
+                                                  name="writingTask1" 
+                                                  rows="10" 
+                                                  required></textarea>
+                                    </div>
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" 
+                                                class="btn btn-primary mt-2" 
+                                                id="submitButton">
                                             Submit Response and Get Feedback
                                         </button>
-                                    </form>
-                                {% endif %}
-                            </div>
+                                    </div>
+                                </form>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -277,6 +281,16 @@
             // Show section
             section.style.display = 'block';
             button.textContent = button.textContent.replace('Show', 'Hide').replace('Continue to', 'Hide');
+            
+            // Add form submit handler after section is shown
+            if (sectionId === 'taskSection') {
+                document.getElementById('writingForm').addEventListener('submit', function() {
+                    const submitButton = document.getElementById('submitButton');
+                    submitButton.innerHTML = 'Generating Feedback...';
+                    submitButton.disabled = true;
+                });
+            }
+            
             window.scrollTo({
                 top: section.offsetTop,
                 behavior: 'smooth'
@@ -301,5 +315,9 @@
         const words = this.value.trim().split(/\s+/).filter(word => word.length > 0);
         document.getElementById('wordCount').textContent = words.length;
     });
+
+    document.getElementById('writingForm').onsubmit = function() {
+        return true;
+    };
 </script>
 {% endblock %}

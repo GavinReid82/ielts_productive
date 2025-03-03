@@ -14,12 +14,6 @@
 
 <h2 class="text-center mt-5">Feedback</h2>
 <div class="mt-4 mx-auto" style="max-width: 800px;">
-    {% if band_scores and band_scores.get('overall_band') %}
-        {% set adjusted_band = band_scores.get('overall_band') - 1 %}
-        <div class="text-center mb-4">
-            <h4 class="text-info">Estimated Band: {{ "%.1f"|format(adjusted_band) }} (±1)</h4>
-        </div>
-    {% endif %}
     
     {% if how_to_improve and how_to_improve.general_suggestions %}
         <div class="mt-4">
