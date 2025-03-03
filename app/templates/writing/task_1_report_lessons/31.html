@@ -10,7 +10,7 @@
     <!-- Language Input Button -->
     <div class="d-grid gap-2 mb-4">
         <button class="btn btn-primary btn-lg" onclick="toggleSection('languageInputSection', this)">
-            Show Language Input →
+            Show Language Input
         </button>
     </div>
 
@@ -40,7 +40,7 @@
     <!-- Practice Button -->
     <div class="d-grid gap-2 mb-4">
         <button class="btn btn-success btn-lg" onclick="toggleSection('practiceSection', this)">
-            Start Practice Exercise →
+            Start Practice Exercise
         </button>
     </div>
 
@@ -171,7 +171,7 @@
     <!-- Writing Task Button -->
     <div class="d-grid gap-2 mb-4">
         <button class="btn btn-primary btn-lg" onclick="toggleSection('taskSection', this)">
-            Continue to Writing Task 1 →
+            Continue to Writing Task 1
         </button>
     </div>
 
@@ -204,7 +204,7 @@
 
                     <!-- Task Image -->
                     {% if task.image_path %}
-                    <div class="col-md-12 mb-4">
+                    <div class="col-12 col-lg-8 mb-4">
                         <div class="card">
                             <div class="card-body">
                                 <img src="{{ url_for('static', filename=task.image_path) }}" 
@@ -230,10 +230,9 @@
                                                       rows="10" 
                                                       required></textarea>
                                         </div>
-                                        <div class="word-count mt-2 mb-3">
-                                            Words: <span id="wordCount">0</span>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">Submit Response</button>
+                                        <button type="submit" class="btn btn-primary" onclick="this.innerHTML='Generating Feedback...'; this.disabled=true;">
+                                            Submit Response and Get Feedback
+                                        </button>
                                     </form>
                                 {% else %}
                                     <form id="writingForm" method="POST" action="{{ url_for('writing.submit_writing', task_id=task.id) }}">
@@ -245,10 +244,9 @@
                                                       rows="10" 
                                                       required></textarea>
                                         </div>
-                                        <div class="word-count mt-2 mb-3">
-                                            Words: <span id="wordCount">0</span>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">Submit Response</button>
+                                        <button type="submit" class="btn btn-primary" onclick="this.innerHTML='Generating Feedback...'; this.disabled=true;">
+                                            Submit Response and Get Feedback
+                                        </button>
                                     </form>
                                 {% endif %}
                             </div>
