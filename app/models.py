@@ -61,6 +61,8 @@ class Task(db.Model):
     bullet_points = db.Column(db.String(500), nullable=True)
     image_path = db.Column(db.String(500), nullable=True)
     description = db.Column(db.Text, nullable=True)
+    language_inputs = db.Column(db.JSON, nullable=True)  # Store language examples
+    practice_questions = db.Column(db.JSON, nullable=True)  # Store practice questions
 
     # Establish relationships
     payments = db.relationship('Payment', back_populates='task')

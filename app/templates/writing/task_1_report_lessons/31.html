@@ -4,8 +4,10 @@
 
 {% block content %}
 <div class="container my-4">
-    <h1 class="text-center mb-4">Welcome to IELTS Productive</h1>
-    <p class="text-center mb-4">This is a mini lesson to help you understand the task and improve your writing.</p>
+    {% if is_demo %}
+        <h1 class="text-center mb-4">Welcome to IELTS Productive</h1>
+        <p class="text-center mb-4">This is a mini lesson to help you understand the task and improve your writing.</p>
+    {% endif %}
     
     <!-- Language Input Button -->
     <div class="d-grid gap-2 mb-4">
@@ -22,16 +24,15 @@
             </div>
             <div class="card-body">
                 <div class="row justify-content-center">
-                    <div class="col-12 col-lg-8 mb-4">
-                        <img src="{{ url_for('static', filename='images/writing_task_1_report_lessons/31_1.png') }}" 
-                             alt="Language Example 1" 
-                             class="img-fluid shadow-sm rounded w-100">
-                    </div>
-                    <div class="col-12 col-lg-8">
-                        <img src="{{ url_for('static', filename='images/writing_task_1_report_lessons/31_2.png') }}" 
-                             alt="Language Example 2" 
-                             class="img-fluid shadow-sm rounded w-100">
-                    </div>
+                    {% if task.language_inputs %}
+                        {% for input in task.language_inputs %}
+                        <div class="col-12 col-lg-8 {% if not loop.last %}mb-4{% endif %}">
+                            <img src="{{ url_for('static', filename=input.image_path) }}" 
+                                 alt="Language Example {{ loop.index }}" 
+                                 class="img-fluid shadow-sm rounded w-100">
+                        </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -63,105 +64,18 @@
                     <div class="col-md-6">
                         <h4>Complete the sentences using appropriate trend descriptions:</h4>
                         
-                        <p>The graph shows a 
-                            <select onchange="checkAnswer(this, 'sharp rise')">
-                                <option value="">-- Select --</option>
-                                <option value="sharp rise">sharp rise</option>
-                                <option value="gradual decline">gradual decline</option>
-                                <option value="fell sharply">fell sharply</option>
-                                <option value="rose steadily">rose steadily</option>
-                            </select>
-                            in television viewership from 4:00 pm to 8:00 pm.</p>
-                        
-                        <p>There was a 
-                            <select onchange="checkAnswer(this, 'gradual decline')">
-                                <option value="">-- Select --</option>
-                                <option value="sharp rise">sharp rise</option>
-                                <option value="gradual decline">gradual decline</option>
-                                <option value="fell sharply">fell sharply</option>
-                                <option value="rose steadily">rose steadily</option>
-                            </select>
-                            in radio listenership after 8:00 am.</p>
-                        
-                        <p>Television viewership 
-                            <select onchange="checkAnswer(this, 'rose dramatically')">
-                                <option value="">-- Select --</option>
-                                <option value="rose dramatically">rose dramatically</option>
-                                <option value="declined sharply">declined sharply</option>
-                                <option value="increased slightly">increased slightly</option>
-                                <option value="fell sharply">fell sharply</option>
-                            </select>
-                            in the evening, peaking at around 8:00 pm.</p>
-                        
-                        <p>Radio listenership 
-                            <select onchange="checkAnswer(this, 'steadily declined')">
-                                <option value="">-- Select --</option>
-                                <option value="rose dramatically">rose dramatically</option>
-                                <option value="steadily declined">steadily declined</option>
-                                <option value="slight increase">slight increase</option>
-                                <option value="sharp rise">sharp rise</option>
-                            </select>
-                            throughout the afternoon.</p>
-                        
-                        <p>A 
-                            <select onchange="checkAnswer(this, 'slight increase')">
-                                <option value="">-- Select --</option>
-                                <option value="slight increase">slight increase</option>
-                                <option value="gradual decline">gradual decline</option>
-                                <option value="fell sharply">fell sharply</option>
-                                <option value="dramatic fall">dramatic fall</option>
-                            </select>
-                            in television viewership can be observed between 10:00 am and 2:00 pm.</p>
-                        
-                        <p>Radio listenership 
-                            <select onchange="checkAnswer(this, 'fell sharply')">
-                                <option value="">-- Select --</option>
-                                <option value="fell sharply">fell sharply</option>
-                                <option value="rose steadily">rose steadily</option>
-                                <option value="sharp rise">sharp rise</option>
-                                <option value="declined sharply">declined sharply</option>
-                            </select>
-                            after 6:00 pm.</p>
-                        
-                        <p>Television viewership 
-                            <select onchange="checkAnswer(this, 'rose steadily')">
-                                <option value="">-- Select --</option>
-                                <option value="rose steadily">rose steadily</option>
-                                <option value="gradual decline">gradual decline</option>
-                                <option value="fell sharply">fell sharply</option>
-                                <option value="sharp rise">sharp rise</option>
-                            </select>
-                            from midday until early evening.</p>
-                        
-                        <p>A 
-                            <select onchange="checkAnswer(this, 'dramatic fall')">
-                                <option value="">-- Select --</option>
-                                <option value="dramatic fall">dramatic fall</option>
-                                <option value="sharp rise">sharp rise</option>
-                                <option value="rose steadily">rose steadily</option>
-                                <option value="increased slightly">increased slightly</option>
-                            </select>
-                            in television viewership occurred after 10:00 pm.</p>
-                        
-                        <p>The percentage of people listening to the radio 
-                            <select onchange="checkAnswer(this, 'increased slightly')">
-                                <option value="">-- Select --</option>
-                                <option value="increased slightly">increased slightly</option>
-                                <option value="declined sharply">declined sharply</option>
-                                <option value="sharp rise">sharp rise</option>
-                                <option value="gradual decline">gradual decline</option>
-                            </select>
-                            between 12:00 pm and 2:00 pm.</p>
-                        
-                        <p>After reaching its peak, television viewership 
-                            <select onchange="checkAnswer(this, 'declined sharply')">
-                                <option value="">-- Select --</option>
-                                <option value="declined sharply">declined sharply</option>
-                                <option value="rose dramatically">rose dramatically</option>
-                                <option value="fell sharply">fell sharply</option>
-                                <option value="gradual decline">gradual decline</option>
-                            </select>
-                            from 9:00 pm onwards.</p>
+                        {% if task.practice_questions %}
+                            {% for question in task.practice_questions %}
+                            <p>{{ question.text }}
+                                <select onchange="checkAnswer(this, '{{ question.correct_answer }}')">
+                                    <option value="">-- Select --</option>
+                                    {% for option in question.options %}
+                                    <option value="{{ option }}">{{ option }}</option>
+                                    {% endfor %}
+                                </select>
+                            </p>
+                            {% endfor %}
+                        {% endif %}
                     </div>
                 </div>
             </div>
