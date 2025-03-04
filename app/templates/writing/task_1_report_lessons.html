@@ -106,7 +106,7 @@
                             <p class="mb-3">
                                 You should spend about 20 minutes on this task.
                             </p>
-                            <p>{{ task.main_prompt }}</p>
+                            <p>{{ task.main_prompt | replace('\n', '<br>') | safe }}</p>
                             {% if task.bullet_points %}
                                 <p>{{ task.bullet_points | safe }}</p>
                             {% endif %}
