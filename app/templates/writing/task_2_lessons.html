@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 
-{% block title %}Task 1 Report Writing - Mini Lesson{% endblock %}
+{% block title %}Task 2 Writing - Mini Lesson{% endblock %}
 
 {% block content %}
 <div class="container my-4">
@@ -49,20 +49,13 @@
     <div id="practiceSection" style="display: none;">
         <div class="card">
             <div class="card-header bg-success text-white">
-                <h3 class="mb-0">🎯 IELTS Trends Practice</h3>
+                <h3 class="mb-0">🎯 IELTS Essay Practice</h3>
             </div>
             <div class="card-body">
                 <div class="row">
-                    <!-- Graph on the left -->
-                    <div class="col-md-6">
-                        <img src="{{ url_for('static', filename=task.image_path) }}" 
-                             alt="Task Graph" 
-                             class="img-fluid mb-3">
-                    </div>
-
                     <!-- Practice Questions -->
-                    <div class="col-md-6">
-                        <h4>Complete the sentences using appropriate trend descriptions:</h4>
+                    <div class="col-md-12">
+                        <h4>Complete the sentences with appropriate academic language:</h4>
                         
                         {% if task.practice_questions %}
                             {% for question in task.practice_questions %}
@@ -88,7 +81,7 @@
     <!-- Writing Task Button -->
     <div class="d-grid gap-2 mb-4">
         <button class="btn btn-primary btn-lg" onclick="toggleSection('taskSection', this)">
-            Continue to Writing Task 1
+            Continue to Writing Task 2
         </button>
     </div>
 
@@ -96,7 +89,7 @@
     <div id="taskSection" style="display: none;">
         <div class="card">
             <div class="card-header bg-primary text-white">
-                <h3 class="mb-0">✍️ Writing Task 1</h3>
+                <h3 class="mb-0">✍️ Writing Task 2</h3>
             </div>
             <div class="card-body">
                 <!-- Task Instructions -->
@@ -104,26 +97,15 @@
                     <div class="card">
                         <div class="card-body">
                             <p class="mb-3">
-                                You should spend about 20 minutes on this task.
+                                You should spend about 40 minutes on this task.
                             </p>
                             <p>{{ task.main_prompt | replace('\n', '<br>') | safe }}</p>
                             {% if task.bullet_points %}
                                 <p>{{ task.bullet_points | safe }}</p>
                             {% endif %}
                             <p class="mt-3">
-                                Write at least 150 words.
+                                Write at least 250 words.
                             </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Task Image -->
-                <div class="col-12 col-lg-8 mb-4 mx-auto">
-                    <div class="card">
-                        <div class="card-body text-center">
-                            <img src="{{ url_for('static', filename=task.image_path) }}" 
-                                 alt="Task Image" 
-                                 class="img-fluid">
                         </div>
                     </div>
                 </div>
@@ -136,10 +118,10 @@
                                 <form id="writingForm" method="POST" action="{{ url_for('landing.try_it_out_submit') }}">
                                     <input type="hidden" name="task_id" value="{{ task.id }}">
                                     <div class="form-group">
-                                        <label for="writingTask1">Your Response:</label>
+                                        <label for="writingTask2">Your Response:</label>
                                         <textarea class="form-control" 
-                                                  id="writingTask1" 
-                                                  name="writingTask1" 
+                                                  id="writingTask2" 
+                                                  name="writingTask2" 
                                                   rows="10" 
                                                   required></textarea>
                                     </div>
@@ -152,13 +134,13 @@
                                     </div>
                                 </form>
                             {% else %}
-                                <form id="writingForm" method="POST" action="{{ url_for('writing.writing_task_1_submit') }}">
+                                <form id="writingForm" method="POST" action="{{ url_for('writing.writing_task_2_submit') }}">
                                     <input type="hidden" name="task_id" value="{{ task.id }}">
                                     <div class="form-group">
-                                        <label for="writingTask1">Your Response:</label>
+                                        <label for="writingTask2">Your Response:</label>
                                         <textarea class="form-control" 
-                                                  id="writingTask1" 
-                                                  name="writingTask1" 
+                                                  id="writingTask2" 
+                                                  name="writingTask2" 
                                                   rows="10" 
                                                   required></textarea>
                                     </div>
@@ -195,11 +177,9 @@
     function toggleSection(sectionId, button) {
         const section = document.getElementById(sectionId);
         if (section.style.display === 'none') {
-            // Show section
             section.style.display = 'block';
             button.textContent = button.textContent.replace('Show', 'Hide').replace('Continue to', 'Hide');
             
-            // Add form submit handler after section is shown
             if (sectionId === 'taskSection') {
                 document.getElementById('writingForm').addEventListener('submit', function() {
                     const submitButton = document.getElementById('submitButton');
@@ -213,7 +193,6 @@
                 behavior: 'smooth'
             });
         } else {
-            // Hide section
             section.style.display = 'none';
             button.textContent = button.textContent.replace('Hide', 'Show').replace('Hide', 'Continue to');
         }
@@ -226,15 +205,5 @@
             selectElement.className = "incorrect";
         }
     }
-
-    // Add word count functionality
-    document.getElementById('response').addEventListener('input', function() {
-        const words = this.value.trim().split(/\s+/).filter(word => word.length > 0);
-        document.getElementById('wordCount').textContent = words.length;
-    });
-
-    document.getElementById('writingForm').onsubmit = function() {
-        return true;
-    };
 </script>
-{% endblock %}
+{% endblock %} 

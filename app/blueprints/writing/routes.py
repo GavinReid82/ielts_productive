@@ -219,6 +219,14 @@ def writing_task_1_feedback():
 # Task 2
 # ------------------------------------------------------------
 
+@writing_bp.route('/task-2-lesson/<int:lesson_id>')
+def task_2_lesson(lesson_id):
+    """Display the Task 2 lesson page"""
+    task = Task.query.get_or_404(lesson_id)
+    return render_template('writing/task_2_lessons.html', 
+                         task=task,
+                         task_type='writing_task_2')
+
 @writing_bp.route('/view_task_2/<int:task_id>')
 @login_required
 def view_task_2(task_id):
@@ -229,8 +237,7 @@ def view_task_2(task_id):
 
     # Check if the task is free or if the user has paid for it
     if task.is_free or Task.query.join(Payment).filter(Payment.user_id == current_user.id, Payment.task_id == task.id).first():
-        # The user has paid or the task is free, allow access
-        return render_template('writing/task_2_template.html', task=task)
+        return render_template('writing/task_2_lessons.html', task=task)
     else:
         # If the task is not free and the user has not paid
         return redirect(url_for('payments.checkout', task_id=task.id))
