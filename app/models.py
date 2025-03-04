@@ -16,6 +16,8 @@ class User(db.Model, UserMixin):
     is_verified = db.Column(db.Boolean, default=False)
     verification_token = db.Column(db.String(100), unique=True, nullable=True)
     token_expiration = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_admin = db.Column(db.Boolean, default=False)
 
     # Establish relationships
     payments = db.relationship('Payment', back_populates='user')
