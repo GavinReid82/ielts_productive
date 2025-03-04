@@ -60,19 +60,22 @@
                              class="img-fluid mb-3">
                     </div>
 
-                    <!-- Practice Questions on the right -->
+                    <!-- Practice Questions -->
                     <div class="col-md-6">
                         <h4>Complete the sentences using appropriate trend descriptions:</h4>
                         
                         {% if task.practice_questions %}
                             {% for question in task.practice_questions %}
-                            <p>{{ question.text }}
+                            <p>
+                                {% set parts = question.text.split('______') %}
+                                {{ parts[0] }}
                                 <select onchange="checkAnswer(this, '{{ question.correct_answer }}')">
                                     <option value="">-- Select --</option>
                                     {% for option in question.options %}
                                     <option value="{{ option }}">{{ option }}</option>
                                     {% endfor %}
                                 </select>
+                                {% if parts|length > 1 %}{{ parts[1] }}{% endif %}
                             </p>
                             {% endfor %}
                         {% endif %}

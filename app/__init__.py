@@ -81,7 +81,7 @@ def create_app(config_class=Config):
             
             # Render the lesson template instead of the task template
             return render_template(
-                'writing/task_1_report_lessons/31.html',
+                'writing/task_1_report_lessons.html',
                 task=demo_task,
                 is_demo=True
             )

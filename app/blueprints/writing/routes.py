@@ -45,10 +45,10 @@ def task_1_lesson(lesson_id):
     task = Task.query.get_or_404(lesson_id)
     
     # Get the task type from the task object
-    task_type = task.type  # This should be 'writing_task_1_report' or 'writing_task_1_letter'
+    task_type = task.type
     
-    # Render the specific lesson template
-    return render_template(f'writing/task_1_report_lessons/{lesson_id}.html', 
+    # Render the generic lesson template
+    return render_template('writing/task_1_report_lessons.html', 
                          task=task,
                          task_type=task_type)
 
