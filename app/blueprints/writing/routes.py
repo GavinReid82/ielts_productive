@@ -151,6 +151,9 @@ def writing_task_1_submit():
         flash("Unknown task type.", "danger")
         return redirect(url_for('writing.writing_task_1', task_type='writing_task_1_letter'))
     
+    # Add debug logging
+    print("Generated feedback:", feedback)  # For development only
+    
     # Save the transcript to the database
     save_writing_transcript(current_user.id, task_id, response, feedback)
 
