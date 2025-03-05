@@ -39,9 +39,24 @@ def generate_writing_task_1_letter_feedback(response, task_id):
                 "role": "system",
                 "content": (
                     "You are an IELTS Writing Task 1 (Letter) examiner. Evaluate the candidate's letter based on the "
-                    "official IELTS Writing Task 1 band descriptors and key assessment criteria. Provide all feedback in British English and "
-                    "use direct, simple language. Address the candidate as 'you'"
-                    "Your feedback must be consistent and rigorous, and adhere strictly to these guidelines:\n\n"
+                    "official IELTS Writing Task 1 band descriptors and key assessment criteria. For each example in the feedback, "
+                    "provide 2-3 alternative ways to express the same idea, showing different grammatical structures or vocabulary "
+                    "choices. Address the candidate as 'you' and use British English.\n\n"
+                    
+                    "For each identified area of improvement:\n"
+                    "1. Show the original text\n"
+                    "2. Provide 2-3 improved versions that:\n"
+                    "   - Use different grammatical structures\n"
+                    "   - Employ varied vocabulary\n"
+                    "   - Show appropriate tone and style for the letter type\n"
+                    "   - Demonstrate different ways to organize the information\n"
+                    
+                    "For example, if the original is:\n"
+                    "'I am writing to complain about the noise.'\n"
+                    "Provide multiple alternatives like:\n"
+                    "1. 'I am writing to express my concern regarding the excessive noise levels.'\n"
+                    "2. 'The purpose of this letter is to bring to your attention the ongoing noise issue.'\n"
+                    "3. 'I wish to raise my concerns about the disturbance caused by the noise.'\n\n"
                     
                     "1. **Task Achievement (TA):** Assess how fully the candidate addresses the prompt, if the key features are "
                     "accurately summarized, and if any relevant comparisons are made. A score of 9 means all key features are fully covered, "
@@ -196,9 +211,24 @@ def generate_writing_task_1_report_feedback(response, task_id):
             {
                 "role": "system",
                 "content": (
-                    "You are an IELTS Academic Writing Task 1 (Report) examiner. Your task is to evaluate candidates' responses based on the "
-                    "official IELTS Writing Task 1 band descriptors and key assessment criteria. Candidates' responses are based on a graph, "
-                    "which is provided below with the user's response. Your feedback must be consistent, accurate, and strictly follow these guidelines:\n\n"
+                    "You are an IELTS Writing Task 1 (Report) examiner. Evaluate the candidate's report based on the "
+                    "official IELTS Writing Task 1 band descriptors and key assessment criteria. For each example in the feedback, "
+                    "provide 2-3 alternative ways to express the same idea, showing different grammatical structures or vocabulary "
+                    "choices. Address the candidate as 'you' and use British English.\n\n"
+                    
+                    "For each identified area of improvement:\n"
+                    "1. Show the original text\n"
+                    "2. Provide 2-3 improved versions that:\n"
+                    "   - Use different grammatical structures\n"
+                    "   - Employ varied vocabulary\n"
+                    "   - Show different ways to organize the information\n"
+                    
+                    "For example, if the original is:\n"
+                    "'The graph shows an increase in sales.'\n"
+                    "Provide multiple alternatives like:\n"
+                    "1. 'According to the graph, sales figures demonstrated an upward trend.'\n"
+                    "2. 'The data indicates a rise in sales throughout the period.'\n"
+                    "3. 'Sales volumes grew steadily, as illustrated in the graph.'\n\n"
                     
                     "1. **Task Achievement (TA):** Assess how fully the candidate ('you') addresses the prompt, if the key features of the graph_description are "
                     "accurately summarized, and if any relevant comparisons are made. A score of 9 means all key features are fully covered, "
@@ -277,8 +307,8 @@ def generate_writing_task_1_report_feedback(response, task_id):
                 )
             },
             {
-                "role": "user", 
-                "content": f"Graph details:\n\n{graph_description}\nCandidate's response:\n\n{response}"
+                "role": "user",
+                "content": f"Evaluate this report:\n\n{response}\n\nTask Prompt:\n{task_prompt}\nGraph Description:\n{graph_description}"
             }
         ]
 
@@ -340,8 +370,7 @@ def generate_writing_task_1_report_feedback(response, task_id):
 
 
 def generate_writing_task_2_feedback(response, task_id):
-    """Generates AI feedback for IELTS Writing Task 2 based on official assessment criteria and provides an improved version of the response."""
-    
+    """Generates AI feedback for IELTS Writing Task 2."""
     try:
         # Validate task_id is an integer
         try:
@@ -360,12 +389,25 @@ def generate_writing_task_2_feedback(response, task_id):
             {
                 "role": "system",
                 "content": (
-                    "You are an IELTS Writing Task 2 examiner providing feedback in British English. Use direct, simple language "
-                    "and address the candidate as 'you'. The essay question is provided below.\n\n"
-                    f"Essay Question:\n{task_prompt}\n\n"
-                    "Evaluate candidates' responses based on the "
-                    "official IELTS Writing Task 2 band descriptors and key assessment criteria. Your feedback must be "
-                    "consistent and rigorous, and adhere strictly to the following rules:\n\n"
+                    "You are an IELTS Writing Task 2 examiner. Evaluate the candidate's essay based on the "
+                    "official IELTS Writing Task 2 band descriptors and key assessment criteria. For each example in the feedback, "
+                    "provide 2-3 alternative ways to express the same idea, showing different grammatical structures or vocabulary "
+                    "choices. Address the candidate as 'you' and use British English.\n\n"
+                    
+                    "For each identified area of improvement:\n"
+                    "1. Show the original text\n"
+                    "2. Provide 2-3 improved versions that:\n"
+                    "   - Use different grammatical structures\n"
+                    "   - Employ varied academic vocabulary\n"
+                    "   - Show different ways to present arguments\n"
+                    "   - Demonstrate advanced cohesive devices\n"
+                    
+                    "For example, if the original is:\n"
+                    "'Many people think education is important.'\n"
+                    "Provide multiple alternatives like:\n"
+                    "1. 'It is widely acknowledged that education plays a crucial role in society.'\n"
+                    "2. 'The significance of education in modern society cannot be overstated.'\n"
+                    "3. 'Education is widely regarded as a fundamental pillar of human development.'\n\n"
                     
                     "1. **Task Response (TR):** Assess how fully the candidate ('you) responds to the task, whether the position is clear, "
                     "and how well the main ideas are supported. A score of 9 indicates full coverage with detailed examples, while "
@@ -448,8 +490,8 @@ def generate_writing_task_2_feedback(response, task_id):
                 )
             },
             {
-                "role": "user", 
-                "content": f"Candidate's response:\n\n{response}\nEssay Question:\n{task_prompt}"
+                "role": "user",
+                "content": f"Evaluate this essay:\n\n{response}\n\nEssay Question:\n{task_prompt}"
             }
         ]
 
