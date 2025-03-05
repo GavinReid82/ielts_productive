@@ -46,31 +46,42 @@ def generate_writing_task_1_letter_feedback(response, task_id):
                     "For each identified area of improvement:\n"
                     "1. Show the original text\n"
                     "2. Provide 2-3 improved versions that:\n"
-                    "   - Use different grammatical structures\n"
-                    "   - Employ varied vocabulary\n"
-                    "   - Show appropriate tone and style for the letter type\n"
-                    "   - Demonstrate different ways to organize the information\n"
+                    "   - Use appropriate tone (formal/semi-formal/informal) for the letter type\n"
+                    "   - Show natural letter-writing expressions and phrases\n"
+                    "   - Employ varied vocabulary suitable for letter writing\n"
+                    "   - Demonstrate clear organization with proper opening/closing\n"
                     
                     "For example, if the original is:\n"
-                    "'I am writing to complain about the noise.'\n"
+                    "'I want to tell you about a problem with my neighbor.'\n"
                     "Provide multiple alternatives like:\n"
-                    "1. 'I am writing to express my concern regarding the excessive noise levels.'\n"
-                    "2. 'The purpose of this letter is to bring to your attention the ongoing noise issue.'\n"
-                    "3. 'I wish to raise my concerns about the disturbance caused by the noise.'\n\n"
+                    "1. 'I am writing to inform you about an ongoing issue with my neighbor.'\n"
+                    "2. 'I would like to bring to your attention a situation concerning my neighbor.'\n"
+                    "3. 'I need to discuss a problem I've been having with my neighbor.'\n\n"
                     
-                    "1. **Task Achievement (TA):** Assess how fully the candidate addresses the prompt, if the key features are "
-                    "accurately summarized, and if any relevant comparisons are made. A score of 9 means all key features are fully covered, "
-                    "with clear, accurate comparisons. Lower scores reflect incomplete coverage or inaccurate information.\n"
+                    "1. **Task Achievement (TA):** Assess how well the letter:\n"
+                    "   - Addresses the purpose of the letter (complaint, request, information, etc.)\n"
+                    "   - Covers all bullet points from the task\n"
+                    "   - Uses appropriate tone and style for the recipient\n"
+                    "   - Includes proper letter format (opening, paragraphing, closing)\n"
+                    "   - Meets the minimum word count (150 words)\n"
                     
-                    "2. **Coherence & Cohesion (CC):** Evaluate the organization of ideas, paragraphing, and the use of cohesive devices. "
-                    "A score of 9 reflects clear, logical structure with effective transitions between ideas. Scores lower than 9 reflect "
-                    "problems in paragraphing, weak transitions, or illogical ordering of ideas.\n"
+                    "2. **Coherence & Cohesion (CC):** Evaluate:\n"
+                    "   - Clear organization of ideas in logical paragraphs\n"
+                    "   - Natural flow between paragraphs using appropriate linking phrases\n"
+                    "   - Proper use of letter-writing conventions\n"
+                    "   - Clear progression from opening to closing\n"
                     
-                    "3. **Lexical Resource (LR):** Assess the range, accuracy, and appropriacy of vocabulary. A score of 9 requires precise, "
-                    "varied vocabulary used accurately. A score of 5-6 means the vocabulary is limited, repetitive, or used inaccurately.\n"
+                    "3. **Lexical Resource (LR):** Assess:\n"
+                    "   - Range and accuracy of vocabulary for letter writing\n"
+                    "   - Appropriate tone and register (formal/semi-formal/informal)\n"
+                    "   - Natural expressions and collocations used in letters\n"
+                    "   - Avoidance of overly informal or formal language where inappropriate\n"
                     
-                    "4. **Grammatical Range & Accuracy (GRA):** Analyze sentence structures, punctuation, and grammar. A score of 9 means "
-                    "accurate grammar and varied sentence structures, while lower scores indicate frequent errors or simpler sentence structures.\n\n"
+                    "4. **Grammatical Range & Accuracy (GRA):** Analyze:\n"
+                    "   - Accuracy of basic and complex sentence structures\n"
+                    "   - Variety of sentence forms appropriate for letters\n"
+                    "   - Correct use of tenses and modal verbs\n"
+                    "   - Proper punctuation in letter format\n\n"
                     
                     "The task details are provided below.\n\n"
                     f"Task Prompt:\n{task_prompt}\n\n"
@@ -82,16 +93,22 @@ def generate_writing_task_1_letter_feedback(response, task_id):
                     '"coherence_cohesion": "string",\n'
                     '"lexical_resource": "string",\n'
                     '"grammatical_range_accuracy": "string",\n'
-                    '"how_to_improve": {\n'
+                    '"how_to_improve_language": {\n'
                     '  "examples": [\n'
                     '    {\n'
                     '      "original": "string",\n'
                     '      "improved": ["string", "string", "string"],\n'
-                    '      "explanation": "string"\n'
                     '    }\n'
                     '  ],\n'
                     '  "general_suggestions": ["string"]\n'
                     "},\n"
+                    '"how_to_improve_answer": {\n'
+                    '  "examples": [\n'
+                    '    {\n'
+                    '      "original": "string",\n'
+                    '      "improved": ["string", "string", "string"],\n'
+                    '    }\n'
+                    '  ],\n'
                     '"band_scores": {\n'
                     '  "task_achievement": float,\n'
                     '  "coherence_cohesion": float,\n'
@@ -102,10 +119,17 @@ def generate_writing_task_1_letter_feedback(response, task_id):
                     '"improved_response": "string"\n'
                     "}\n\n"
                     
-                    "For the 'how_to_improve' section:\n"
+                    "For the 'how_to_improve_language' section:\n"
                     "- Identify 2-3 specific examples from the response that could be improved\n"
                     "- For each example, show the original text, an improved version, and explain the improvement\n"
                     "- Focus on grammar, vocabulary, and expression improvements\n"
+                    "- Add 2-3 general suggestions for overall improvement\n"
+                    "- Be constructive and encouraging in your feedback\n\n"
+
+                    "For the 'how_to_improve_answer' section:\n"
+                    "- Identify 2-3 specific examples from the response that could be improved\n"
+                    "- For each example, show a section of the original text, a section of the improved version\n"
+                    "- Focus on task achievement and coherence & cohesion improvements\n"
                     "- Add 2-3 general suggestions for overall improvement\n"
                     "- Be constructive and encouraging in your feedback\n\n"
                     
@@ -161,11 +185,11 @@ def generate_writing_task_1_letter_feedback(response, task_id):
                 logger.error(f"Retry after rate limit failed: {e}")
                 return {
                     "error": "Service temporarily at capacity",
-                    "task_achievement": "We're processing a high volume of requests.",
-                    "coherence_cohesion": "Your response has been saved.",
-                    "lexical_resource": "Please check back in a few minutes.",
-                    "grammatical_range_accuracy": "Thank you for your patience.",
-                    "how_to_improve": {
+                    "how_to_improve_language": {
+                        "examples": [],
+                        "general_suggestions": ["Your feedback is being processed. Please check back soon."]
+                    },
+                    "how_to_improve_answer": {
                         "examples": [],
                         "general_suggestions": ["Your feedback is being processed. Please check back soon."]
                     },
@@ -176,14 +200,12 @@ def generate_writing_task_1_letter_feedback(response, task_id):
         logger.error(f"General error: {str(e)}")
         return {
             "error": f"Error generating feedback: {str(e)}",
-            "task_achievement": "We're experiencing technical difficulties.",
-            "coherence_cohesion": "Your response has been saved.",
-            "lexical_resource": "Please check back in a few minutes.",
-            "grammatical_range_accuracy": "Thank you for your patience.",
-            "how_to_improve": {
+            "how_to_improve_language": {
                 "examples": [],
-                "general_suggestions": ["Your feedback is being processed. Please check back soon."]
             },
+            "how_to_improve_answer": {
+                "examples": [],
+            },  
             "improved_response": "Your improved response will be available shortly."
         }
 
@@ -230,8 +252,8 @@ def generate_writing_task_1_report_feedback(response, task_id):
                     "2. 'The data indicates a rise in sales throughout the period.'\n"
                     "3. 'Sales volumes grew steadily, as illustrated in the graph.'\n\n"
                     
-                    "1. **Task Achievement (TA):** Assess how fully the candidate ('you') addresses the prompt, if the key features of the graph_description are "
-                    "accurately summarized, and if any relevant comparisons are made. A score of 9 means all key features are fully covered, "
+                    "1. **Task Achievement (TA):** Assess how fully the candidate (addressed as 'you') addresses the prompt, if the key features of the graph_description are "
+                    "accurately summarized, and if any relevant comparisons are made. The candidate (addressed as 'you') should write at least 150 words. A score of 9 means all key features are fully covered, "
                     "with clear, accurate comparisons. Lower scores reflect incomplete coverage or inaccurate information.\n"
                     
                     "2. **Coherence & Cohesion (CC):** Evaluate the organization of ideas, paragraphing, and the use of cohesive devices. "
@@ -246,10 +268,7 @@ def generate_writing_task_1_report_feedback(response, task_id):
                     
                     "Provide structured feedback addressing the candidate as 'you' as a JSON object with the following format:\n"
                     "{\n"
-                    '"task_achievement": "string",\n'
-                    '"coherence_cohesion": "string",\n'
-                    '"lexical_resource": "string",\n'
-                    '"grammatical_range_accuracy": "string",\n'
+
                     '"how_to_improve_language": {\n'
                     '  "examples": [\n'
                     '    {\n'
@@ -264,7 +283,6 @@ def generate_writing_task_1_report_feedback(response, task_id):
                     '      "improved": ["string", "string", "string"],\n'
                     '    }\n'
                     '  ],\n'
-                    '  "general_suggestions": ["string"]\n'
                     "},\n"
                     '"band_scores": {\n'
                     '  "task_achievement": float,\n'
@@ -277,17 +295,15 @@ def generate_writing_task_1_report_feedback(response, task_id):
                     "}\n\n"
                     
                     "For the 'how_to_improve_language' section:\n"
-                    "- Identify 2-3 specific examples of grammar, vocabulary, and expression from the response that could be improved\n"
+                    "- Identify between 2-6 specific examples of grammar, vocabulary, and expression from the response that could be improved\n"
                     "- For each example, show the original text and an improved version\n"
                     "- Focus on grammar, vocabulary, and expression improvements\n"
-                    "- Add 2-3 general language-specificsuggestions for overall improvement\n"
                     "- Be constructive and encouraging in your feedback\n\n"
 
                     "For the 'how_to_improve_answer' section:\n"
                     "- Identify 2-3 specific examples of task achievement and coherence & cohesion from the response that could be improved\n"
                     "- For each example, show the original text, an improved version, and explain the improvement\n"
                     "- Focus on task achievement and coherence & cohesion improvements\n"
-                    "- Add 2-3 general suggestions for overall improvement\n"
                     "- Be constructive and encouraging in your feedback\n\n"
 
                     "Each score should be based on the official IELTS Writing Task 1 band descriptors, considering:\n"
@@ -344,11 +360,9 @@ def generate_writing_task_1_report_feedback(response, task_id):
                     "error": "Service temporarily at capacity",
                     "how_to_improve_language": {
                         "examples": [],
-                        "general_suggestions": ["Your feedback is being processed. Please check back soon."]
                     },
                     "how_to_improve_answer": {
                         "examples": [],
-                        "general_suggestions": ["Your feedback is being processed. Please check back soon."]
                     },
                     "improved_response": "Your improved response will be available shortly."
                 }
@@ -359,11 +373,9 @@ def generate_writing_task_1_report_feedback(response, task_id):
             "error": f"Error generating feedback: {str(e)}",
             "how_to_improve_language": {
                 "examples": [],
-                "general_suggestions": ["Your feedback is being processed. Please check back soon."]
             },
             "how_to_improve_answer": {
                 "examples": [],
-                "general_suggestions": ["Your feedback is being processed. Please check back soon."]
             },
             "improved_response": "Your improved response will be available shortly."
         }
@@ -409,8 +421,8 @@ def generate_writing_task_2_feedback(response, task_id):
                     "2. 'The significance of education in modern society cannot be overstated.'\n"
                     "3. 'Education is widely regarded as a fundamental pillar of human development.'\n\n"
                     
-                    "1. **Task Response (TR):** Assess how fully the candidate ('you) responds to the task, whether the position is clear, "
-                    "and how well the main ideas are supported. A score of 9 indicates full coverage with detailed examples, while "
+                    "1. **Task Response (TR):** Assess how fully the candidate (addressed as 'you') responds to the task, whether the position is clear, "
+                    "and how well the main ideas are supported. The candidate (addressed as 'you') should write at least 250 words. A score of 9 indicates full coverage with detailed examples, while "
                     "lower scores reflect gaps or unclear arguments.\n"
                     
                     "2. **Coherence & Cohesion (CC):** Evaluate the logical structure (introduction, body paragraphs, conclusion), paragraphing, "
@@ -427,10 +439,6 @@ def generate_writing_task_2_feedback(response, task_id):
                     
                     "Provide structured feedback addressing the candidate as 'you' as a JSON object with the following format:\n"
                     "{\n"
-                    '"task_response": "string",\n'
-                    '"coherence_cohesion": "string",\n'
-                    '"lexical_resource": "string",\n'
-                    '"grammatical_range_accuracy": "string",\n'
 
                     '"how_to_improve_language": {\n'
                     '  "examples": [\n'
@@ -460,17 +468,15 @@ def generate_writing_task_2_feedback(response, task_id):
                     "}\n\n"
                     
                     "For the 'how_to_improve_language' section:\n"
-                    "- Identify 2-3 specific examples of grammar, vocabulary, and expression from the response that could be improved\n"
+                    "- Identify between 2-6 specific examples of grammar, vocabulary, and expression from the response that could be improved\n"
                     "- For each example, show the original text and an improved version\n"
                     "- Focus on grammar, vocabulary, and expression improvements\n"
-                    "- Add 2-3 general language-specific suggestions for overall improvement\n"
                     "- Be constructive and encouraging in your feedback\n\n"
 
                     "For the 'how_to_improve_answer' section:\n"
                     "- Identify 2-3 specific examples of task response and coherence & cohesion from the response that could be improved\n"
                     "- For each example, show the original text and improved version\n"
                     "- Focus on task response and coherence & cohesion improvements\n"
-                    "- Add 2-3 general suggestions for overall improvement\n"
                     "- Be constructive and encouraging in your feedback\n\n"
                     
                     "Each score should be based on the official IELTS Writing Task 2 band descriptors, considering:\n"
@@ -553,11 +559,9 @@ def generate_writing_task_2_feedback(response, task_id):
                             
                             "how_to_improve_language": {
                                 "examples": [],
-                                "general_suggestions": ["Your feedback is being processed. Please check back soon."]
                             },
                             "how_to_improve_answer": {
                                 "examples": [],
-                                "general_suggestions": ["Your feedback is being processed. Please check back soon."]
                             },
                             "improved_response": "Your improved response will be available shortly."
                         }
@@ -583,11 +587,9 @@ def generate_writing_task_2_feedback(response, task_id):
                     
                     "how_to_improve_language": {
                         "examples": [],
-                        "general_suggestions": ["Your feedback is being processed. Please check back soon."]
                     },
                     "how_to_improve_answer": {
                         "examples": [],
-                        "general_suggestions": ["Your feedback is being processed. Please check back soon."]
                     },
                     "improved_response": "Your improved response will be available shortly."
                 }
@@ -599,11 +601,9 @@ def generate_writing_task_2_feedback(response, task_id):
             
             "how_to_improve_language": {
                 "examples": [],
-                "general_suggestions": ["Your feedback is being processed. Please check back soon."]
             },
             "how_to_improve_answer": {
                 "examples": [],
-                "general_suggestions": ["Your feedback is being processed. Please check back soon."]
             },
             "improved_response": "Your improved response will be available shortly."
         }

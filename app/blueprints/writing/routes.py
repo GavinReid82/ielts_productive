@@ -163,11 +163,9 @@ def writing_task_1_submit():
         'task_id': task_id,
         'how_to_improve_language': feedback.get('how_to_improve_language', {
             'examples': [],
-            'general_suggestions': []
         }),
         'how_to_improve_answer': feedback.get('how_to_improve_answer', {
             'examples': [],
-            'general_suggestions': []
         }),
         'band_scores': feedback.get('band_scores', {
             'task_achievement': 0,
@@ -201,11 +199,9 @@ def writing_task_1_feedback():
         response=feedback.get('response', 'No response available.'),
         how_to_improve_language=feedback.get('how_to_improve_language', {
             'examples': [],
-            'general_suggestions': []
         }),
         how_to_improve_answer=feedback.get('how_to_improve_answer', {
             'examples': [],
-            'general_suggestions': []
         }),
         band_scores=feedback.get('band_scores', {
             'task_achievement': 0,
@@ -311,11 +307,9 @@ def writing_task_2_submit():
         
         'how_to_improve_language': feedback.get('how_to_improve_language', {
             'examples': [],
-            'general_suggestions': []
         }),
         'how_to_improve_answer': feedback.get('how_to_improve_answer', {
             'examples': [],
-            'general_suggestions': []
         }),
         'band_scores': feedback.get('band_scores', {
             'task_response': 0,
@@ -341,11 +335,9 @@ def writing_task_2_feedback():
         response=feedback.get('response', 'No response available.'),
         how_to_improve_language=feedback.get('how_to_improve_language', {
             'examples': [],
-            'general_suggestions': []
         }),
         how_to_improve_answer=feedback.get('how_to_improve_answer', {
             'examples': [],
-            'general_suggestions': []
         }),
         band_scores=feedback.get('band_scores', {
             'task_response': feedback.get('band_scores', {}).get('task_response', 0),

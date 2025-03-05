@@ -28,11 +28,9 @@ def try_it_out_submit():
         'task': task,
         'how_to_improve_language': feedback.get('how_to_improve_language', {
             'examples': [],
-            'general_suggestions': []
         }),
         'how_to_improve_answer': feedback.get('how_to_improve_answer', {
             'examples': [],
-            'general_suggestions': []
         }),
         'improved_response': feedback.get('improved_response', '')
     }
