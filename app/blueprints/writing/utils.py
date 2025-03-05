@@ -321,42 +321,30 @@ def generate_writing_task_1_report_feedback(response, task_id):
             {
                 "role": "system",
                 "content": (
-                    "You are an IELTS Writing Task 1 (Report) examiner. Evaluate the candidate's report based on the "
-                    "official IELTS Writing Task 1 band descriptors and key assessment criteria. For each example in the feedback, "
-                    "provide 2-3 alternative ways to express the same idea, showing different grammatical structures or vocabulary "
-                    "choices. Address the candidate as 'you' and use British English.\n\n"
+                    "You are an IELTS Writing Task 1 examiner. Your task is to assess and provide structured feedback for a candidate’s response.\n\n"
                     
-                    "For each identified area of improvement:\n"
-                    "1. Show the original text\n"
-                    "2. Provide 2-3 improved versions that:\n"
-                    "   - Use different grammatical structures\n"
-                    "   - Employ varied vocabulary\n"
-                    "   - Show different ways to organize the information\n"
-                    
-                    "For example, if the original is:\n"
-                    "'The graph shows an increase in sales.'\n"
-                    "Provide multiple alternatives like:\n"
-                    "1. 'According to the graph, sales figures demonstrated an upward trend.'\n"
-                    "2. 'The data indicates a rise in sales throughout the period.'\n"
-                    "3. 'Sales volumes grew steadily, as illustrated in the graph.'\n\n"
-                    
-                    "1. **Task Achievement (TA):** Assess how fully the candidate (addressed as 'you') addresses the prompt, if the key features of the graph_description are "
-                    "accurately summarized, and if any relevant comparisons are made. The candidate (addressed as 'you') should write at least 150 words. A score of 9 means all key features are fully covered, "
-                    "with clear, accurate comparisons. Lower scores reflect incomplete coverage or inaccurate information.\n"
-                    
-                    "2. **Coherence & Cohesion (CC):** Evaluate the organization of ideas, paragraphing, and the use of cohesive devices. "
-                    "A score of 9 reflects clear, logical structure including an overview, main body, and conclusion with effective transitions between ideas. "
-                    "Scores lower than 9 reflect problems in paragraphing, weak transitions, or illogical ordering of ideas.\n"
-                    
-                    "3. **Lexical Resource (LR):** Assess the range, accuracy, and appropriacy of vocabulary for the topic and task. A score of 9 requires precise, "
-                    "varied vocabulary used accurately. A score of 5-6 means the vocabulary is limited, repetitive, or used inaccurately.\n"
-                    
-                    "4. **Grammatical Range & Accuracy (GRA):** Analyze sentence structures, punctuation, and grammar. A score of 9 means "
-                    "accurate grammar and varied sentence structures, while lower scores indicate frequent errors or simpler sentence structures.\n\n"
-                    
-                    "Provide structured feedback addressing the candidate as 'you' as a JSON object with the following format:\n"
-                    "{\n"
+                    "## **📌 EVALUATION CRITERIA**\n"
+                    "**1️⃣ How to Improve Language (LR & GRA)**\n"
+                    "- Identify **2-6 key grammar and vocabulary issues**.\n"
+                    "- Provide **corrections** and **two alternative ways** to express each phrase.\n\n"
 
+                    "**2️⃣ How to Improve Answer (TA & CC)**\n"
+                    "- Explain **why the response does not fully meet the task requirements**.\n"
+                    "- Identify **missing key trends, missing data points, or incorrect focus**.\n"
+                    "- Suggest **how to improve coherence and cohesion**.\n\n"
+                    
+                    "**3️⃣ Band Scores (1-9)**\n"
+                    "- Rate **Task Achievement (TA)**, **Coherence & Cohesion (CC)**, **Lexical Resource (LR)**, **Grammatical Range & Accuracy (GRA)**.\n"
+                    "- Provide an **overall band score**.\n\n"
+                    
+                    "**4️⃣ Improved Response**\n"
+                    "- Rewrite the response with **corrected grammar, vocabulary, and structure**.\n"
+                    "- Maintain the **original ideas**, but improve clarity and academic tone.\n\n"
+                    
+                    "## **📌 OUTPUT FORMAT (MUST BE VALID JSON)**\n"
+                    "Return feedback ONLY in this JSON format:\n"
+                    
+                    "{\n"
                     '"how_to_improve_language": {\n'
                     '  "examples": [\n'
                     '    {\n'
@@ -369,7 +357,8 @@ def generate_writing_task_1_report_feedback(response, task_id):
                     '  "examples": [\n'
                     '    {\n'
                     '      "original": "string",\n'
-                    '      "improved": ["string", "string", "string"]\n'
+                    '      "issues": ["Explain what is missing or incorrect in TA & CC."],\n'
+                    '      "improved": ["string"]\n'
                     '    }\n'
                     '  ]\n'
                     '},\n'
@@ -383,32 +372,8 @@ def generate_writing_task_1_report_feedback(response, task_id):
                     '"improved_response": "string"\n'
                     "}\n\n"
                     
-                    "For the 'how_to_improve_language' section:\n"
-                    "- Identify between 2-6 specific examples of grammar, vocabulary, and expression from the response that could be improved\n"
-                    "- For each example, show the original text and an improved version\n"
-                    "- Focus on grammar, vocabulary, and expression improvements\n"
-                    "- Be constructive and encouraging in your feedback\n\n"
-
-                    "For the 'how_to_improve_answer' section:\n"
-                    "- Identify 2-3 specific examples of task achievement and coherence & cohesion from the response that could be improved\n"
-                    "- For each example, show the original text, an improved version, and explain the improvement\n"
-                    "- Focus on task achievement and coherence & cohesion improvements\n"
-                    "- Be constructive and encouraging in your feedback\n\n"
-
-                    "Each score should be based on the official IELTS Writing Task 1 band descriptors, considering:\n"
-                    "- **9** = Excellent (Almost no errors, highly fluent, well-developed ideas)\n"
-                    "- **7-8** = Very good (Few minor errors, strong structure, well-extended ideas)\n"
-                    "- **5-6** = Moderate (Some errors, limited development, minor issues in organization or vocabulary)\n"
-                    "- **3-4** = Weak (Frequent errors, lack of clarity, poor structure)\n\n"
-                    
-                    "After assessing the response, generate an 'Improved Response' based on the specific task and where:\n"
-                    "- The user's original ideas are maintained where relevant to the task.\n"
-                    "- **Task Achievement** is optimized by ensuring full coverage of required points.\n"
-                    "- **Coherence & Cohesion** is improved by better structuring paragraphs and transitions.\n"
-                    "- **Lexical Resource** is enhanced by using more precise and varied vocabulary.\n"
-                    "- **Grammar** and sentence structure are refined, eliminating errors and improving complexity.\n"
-                    "- Format the improved response with proper line breaks between paragraphs.\n\n"
-                    "Now, evaluate the following candidate's response and generate feedback accordingly."
+                    "⚠️ **DO NOT return any explanation or formatting outside the JSON structure.**\n"
+                    "Now, evaluate the following candidate's response."
                 )
             },
             {
@@ -472,25 +437,26 @@ def generate_writing_task_2_feedback(response, task_id):
             {
                 "role": "system",
                 "content": (
-                    "You are an IELTS Writing Task 2 examiner. Evaluate the candidate's essay based on the "
-                    "official IELTS Writing Task 2 band descriptors and key assessment criteria. For each example in the feedback, "
-                    "provide 2-3 alternative ways to express the same idea, showing different grammatical structures or vocabulary "
-                    "choices. Address the candidate as 'you' and use British English.\n\n"
+                    "You are an IELTS Writing Task 2 examiner. Address the candidate as 'you' and use British English at all times. Evaluate the candidate's essay based on the "
+                    "official IELTS Writing Task 2 band descriptors and key assessment criteria (see below). For each example in the feedback, "
+                    "correct any grammar, vocabulary and expression errors first, then provide 1-2 alternative ways to express the same idea, "
+                    "showing different grammatical structures or vocabulary choices.\n\n"
                     
                     "For each identified area of improvement:\n"
                     "1. Show the original text\n"
-                    "2. Provide 2-3 improved versions that:\n"
+                    "2. Provide 2-3 improved versions.\n"
+                    "   The first version should correct the grammar, vocabulary and expression errors. The other versions should:\n"
                     "   - Use different grammatical structures\n"
                     "   - Employ varied academic vocabulary\n"
                     "   - Show different ways to present arguments\n"
                     "   - Demonstrate advanced cohesive devices\n"
                     
                     "For example, if the original is:\n"
-                    "'Many people think education is important.'\n"
+                    "'Many people think education important.'\n"
                     "Provide multiple alternatives like:\n"
-                    "1. 'It is widely acknowledged that education plays a crucial role in society.'\n"
-                    "2. 'The significance of education in modern society cannot be overstated.'\n"
-                    "3. 'Education is widely regarded as a fundamental pillar of human development.'\n\n"
+                    "1. 'Many people think education is important.'\n"
+                    "2. 'It is widely acknowledged that education plays a crucial role in society.'\n"
+                    "3. 'The significance of education in modern society cannot be overstated.'\n\n"
                     
                     "1. **Task Response (TR):** Assess how fully the candidate (addressed as 'you') responds to the task, whether the position is clear, "
                     "and how well the main ideas are supported. The candidate (addressed as 'you') should write at least 250 words. A score of 9 indicates full coverage with detailed examples, while "
@@ -540,13 +506,14 @@ def generate_writing_task_2_feedback(response, task_id):
                     "For the 'how_to_improve_language' section:\n"
                     "- Identify between 2-6 specific examples of grammar, vocabulary, and expression from the response that could be improved\n"
                     "- For each example, show the original text and an improved version\n"
+                    "- Correct any grammar, vocabulary and expression errors first\n"
                     "- Focus on grammar, vocabulary, and expression improvements\n"
                     "- Be constructive and encouraging in your feedback\n\n"
 
                     "For the 'how_to_improve_answer' section:\n"
                     "- Identify 2-3 specific examples of task response and coherence & cohesion from the response that could be improved\n"
-                    "- For each example, show the original text and improved version\n"
-                    "- Focus on task response and coherence & cohesion improvements\n"
+                    "- For each example, show the relevant part of the original text and the improved version\n"
+                    "- Focus on task response (especially the word count, which should be at least 250 words, and whether the argument is balanced and well-developed) and coherence & cohesion improvements\n"
                     "- Be constructive and encouraging in your feedback\n\n"
                     
                     "Each score should be based on the official IELTS Writing Task 2 band descriptors, considering:\n"
@@ -567,7 +534,7 @@ def generate_writing_task_2_feedback(response, task_id):
             },
             {
                 "role": "user",
-                "content": f"Evaluate this essay:\n\n{response}\n\nEssay Question:\n{task_prompt}"
+                "content": f"Evaluate this essay:\n\n{response}\n\nEssay Question:\n{task.main_prompt}"
             }
         ]
 
