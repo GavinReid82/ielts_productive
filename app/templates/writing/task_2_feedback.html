@@ -51,30 +51,6 @@
                 {% endfor %}
             </div>
         {% endif %}
-
-        <!-- General Language Suggestions -->
-        {% if how_to_improve_language and how_to_improve_language.general_suggestions %}
-            <div class="mt-4">
-                <h4>General Language Suggestions:</h4>
-                <ul class="list-group">
-                    {% for suggestion in how_to_improve_language.general_suggestions %}
-                        <li class="list-group-item">{{ suggestion }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        {% endif %}
-
-        <!-- General Answer Suggestions -->
-        {% if how_to_improve_answer and how_to_improve_answer.general_suggestions %}
-            <div class="mt-4">
-                <h4>General Answer Suggestions:</h4>
-                <ul class="list-group">
-                    {% for suggestion in how_to_improve_answer.general_suggestions %}
-                        <li class="list-group-item">{{ suggestion }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        {% endif %}
     
     <h3 class="text-center mt-4">Example Essay</h3>
     <div class="bg-light p-3 rounded">

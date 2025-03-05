@@ -66,28 +66,6 @@
                                             </div>
                                         {% endif %}
 
-                                        {% if transcript.feedback.get('how_to_improve_language', {}).get('general_suggestions') %}
-                                            <div class="mt-3">
-                                                <h6>General Language Suggestions:</h6>
-                                                <ul class="list-group">
-                                                    {% for suggestion in transcript.feedback.get('how_to_improve_language', {}).get('general_suggestions', []) %}
-                                                        <li class="list-group-item">{{ suggestion }}</li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </div>
-                                        {% endif %}
-
-                                        {% if transcript.feedback.get('how_to_improve_answer', {}).get('general_suggestions') %}
-                                            <div class="mt-3">
-                                                <h6>General Answer Suggestions:</h6>
-                                                <ul class="list-group">
-                                                    {% for suggestion in transcript.feedback.get('how_to_improve_answer', {}).get('general_suggestions', []) %}
-                                                        <li class="list-group-item">{{ suggestion }}</li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </div>
-                                        {% endif %}
-
                                         {% if transcript.feedback.get('improved_response') %}
                                             <h6 class="mt-4">Improved Response:</h6>
                                             <div class="card">
