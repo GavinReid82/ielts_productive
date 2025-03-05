@@ -158,11 +158,11 @@ def writing_task_1_submit():
     session['feedback'] = {
         'response': response,
         'task_id': task_id,
-        'task_achievement': feedback.get('task_achievement', ''),
-        'coherence_cohesion': feedback.get('coherence_cohesion', ''),
-        'lexical_resource': feedback.get('lexical_resource', ''),
-        'grammatical_range_accuracy': feedback.get('grammatical_range_accuracy', ''),
-        'how_to_improve': feedback.get('how_to_improve', {
+        'how_to_improve_language': feedback.get('how_to_improve_language', {
+            'examples': [],
+            'general_suggestions': []
+        }),
+        'how_to_improve_answer': feedback.get('how_to_improve_answer', {
             'examples': [],
             'general_suggestions': []
         }),
@@ -196,11 +196,11 @@ def writing_task_1_feedback():
         task_id=task_id,
         type=task_type,
         response=feedback.get('response', 'No response available.'),
-        task_achievement=feedback.get('task_achievement', 'No feedback available.'),
-        coherence_cohesion=feedback.get('coherence_cohesion', 'No feedback available.'),
-        lexical_resource=feedback.get('lexical_resource', 'No feedback available.'),
-        grammatical_range_accuracy=feedback.get('grammatical_range_accuracy', 'No feedback available.'),
-        how_to_improve=feedback.get('how_to_improve', {
+        how_to_improve_language=feedback.get('how_to_improve_language', {
+            'examples': [],
+            'general_suggestions': []
+        }),
+        how_to_improve_answer=feedback.get('how_to_improve_answer', {
             'examples': [],
             'general_suggestions': []
         }),
@@ -305,11 +305,12 @@ def writing_task_2_submit():
     # Store feedback in session
     session['feedback'] = {
         'response': response,
-        'task_response': feedback.get('task_response', ''),
-        'coherence_cohesion': feedback.get('coherence_cohesion', ''),
-        'lexical_resource': feedback.get('lexical_resource', ''),
-        'grammatical_range_accuracy': feedback.get('grammatical_range_accuracy', ''),
-        'how_to_improve': feedback.get('how_to_improve', {
+        
+        'how_to_improve_language': feedback.get('how_to_improve_language', {
+            'examples': [],
+            'general_suggestions': []
+        }),
+        'how_to_improve_answer': feedback.get('how_to_improve_answer', {
             'examples': [],
             'general_suggestions': []
         }),
@@ -335,11 +336,11 @@ def writing_task_2_feedback():
     return render_template(
         'writing/task_2_feedback.html',
         response=feedback.get('response', 'No response available.'),
-        task_achievement=feedback.get('task_response', 'No feedback available.'),
-        coherence_cohesion=feedback.get('coherence_cohesion', 'No feedback available.'),
-        lexical_resource=feedback.get('lexical_resource', 'No feedback available.'),
-        grammatical_range_accuracy=feedback.get('grammatical_range_accuracy', 'No feedback available.'),
-        how_to_improve=feedback.get('how_to_improve', {
+        how_to_improve_language=feedback.get('how_to_improve_language', {
+            'examples': [],
+            'general_suggestions': []
+        }),
+        how_to_improve_answer=feedback.get('how_to_improve_answer', {
             'examples': [],
             'general_suggestions': []
         }),

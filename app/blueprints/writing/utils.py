@@ -200,15 +200,15 @@ def generate_writing_task_1_report_feedback(response, task_id):
                     "official IELTS Writing Task 1 band descriptors and key assessment criteria. Candidates' responses are based on a graph, "
                     "which is provided below with the user's response. Your feedback must be consistent, accurate, and strictly follow these guidelines:\n\n"
                     
-                    "1. **Task Achievement (TA):** Assess how fully the candidate ('you') addresses the prompt, if the key features are "
+                    "1. **Task Achievement (TA):** Assess how fully the candidate ('you') addresses the prompt, if the key features of the graph_description are "
                     "accurately summarized, and if any relevant comparisons are made. A score of 9 means all key features are fully covered, "
                     "with clear, accurate comparisons. Lower scores reflect incomplete coverage or inaccurate information.\n"
                     
                     "2. **Coherence & Cohesion (CC):** Evaluate the organization of ideas, paragraphing, and the use of cohesive devices. "
-                    "A score of 9 reflects clear, logical structure with effective transitions between ideas. Scores lower than 9 reflect "
-                    "problems in paragraphing, weak transitions, or illogical ordering of ideas.\n"
+                    "A score of 9 reflects clear, logical structure including an overview, main body, and conclusion with effective transitions between ideas. "
+                    "Scores lower than 9 reflect problems in paragraphing, weak transitions, or illogical ordering of ideas.\n"
                     
-                    "3. **Lexical Resource (LR):** Assess the range, accuracy, and appropriacy of vocabulary. A score of 9 requires precise, "
+                    "3. **Lexical Resource (LR):** Assess the range, accuracy, and appropriacy of vocabulary for the topic and task. A score of 9 requires precise, "
                     "varied vocabulary used accurately. A score of 5-6 means the vocabulary is limited, repetitive, or used inaccurately.\n"
                     
                     "4. **Grammatical Range & Accuracy (GRA):** Analyze sentence structures, punctuation, and grammar. A score of 9 means "
@@ -220,12 +220,18 @@ def generate_writing_task_1_report_feedback(response, task_id):
                     '"coherence_cohesion": "string",\n'
                     '"lexical_resource": "string",\n'
                     '"grammatical_range_accuracy": "string",\n'
-                    '"how_to_improve": {\n'
+                    '"how_to_improve_language": {\n'
                     '  "examples": [\n'
                     '    {\n'
                     '      "original": "string",\n'
                     '      "improved": ["string", "string", "string"],\n'
-                    '      "explanation": "string"\n'
+                    '    }\n'
+                    '  ],\n'
+                    '"how_to_improve_answer": {\n'
+                    '  "examples": [\n'
+                    '    {\n'
+                    '      "original": "string",\n'
+                    '      "improved": ["string", "string", "string"],\n'
                     '    }\n'
                     '  ],\n'
                     '  "general_suggestions": ["string"]\n'
@@ -240,13 +246,20 @@ def generate_writing_task_1_report_feedback(response, task_id):
                     '"improved_response": "string"\n'
                     "}\n\n"
                     
-                    "For the 'how_to_improve' section:\n"
-                    "- Identify 2-3 specific examples from the response that could be improved\n"
-                    "- For each example, show the original text, an improved version, and explain the improvement\n"
+                    "For the 'how_to_improve_language' section:\n"
+                    "- Identify 2-3 specific examples of grammar, vocabulary, and expression from the response that could be improved\n"
+                    "- For each example, show the original text and an improved version\n"
                     "- Focus on grammar, vocabulary, and expression improvements\n"
+                    "- Add 2-3 general language-specificsuggestions for overall improvement\n"
+                    "- Be constructive and encouraging in your feedback\n\n"
+
+                    "For the 'how_to_improve_answer' section:\n"
+                    "- Identify 2-3 specific examples of task achievement and coherence & cohesion from the response that could be improved\n"
+                    "- For each example, show the original text, an improved version, and explain the improvement\n"
+                    "- Focus on task achievement and coherence & cohesion improvements\n"
                     "- Add 2-3 general suggestions for overall improvement\n"
                     "- Be constructive and encouraging in your feedback\n\n"
-                    
+
                     "Each score should be based on the official IELTS Writing Task 1 band descriptors, considering:\n"
                     "- **9** = Excellent (Almost no errors, highly fluent, well-developed ideas)\n"
                     "- **7-8** = Very good (Few minor errors, strong structure, well-extended ideas)\n"
@@ -299,11 +312,11 @@ def generate_writing_task_1_report_feedback(response, task_id):
                 logger.error(f"Retry after rate limit failed: {e}")
                 return {
                     "error": "Service temporarily at capacity",
-                    "task_achievement": "We're processing a high volume of requests.",
-                    "coherence_cohesion": "Your response has been saved.",
-                    "lexical_resource": "Please check back in a few minutes.",
-                    "grammatical_range_accuracy": "Thank you for your patience.",
-                    "how_to_improve": {
+                    "how_to_improve_language": {
+                        "examples": [],
+                        "general_suggestions": ["Your feedback is being processed. Please check back soon."]
+                    },
+                    "how_to_improve_answer": {
                         "examples": [],
                         "general_suggestions": ["Your feedback is being processed. Please check back soon."]
                     },
@@ -314,11 +327,11 @@ def generate_writing_task_1_report_feedback(response, task_id):
         logger.error(f"General error: {str(e)}")
         return {
             "error": f"Error generating feedback: {str(e)}",
-            "task_achievement": "We're experiencing technical difficulties.",
-            "coherence_cohesion": "Your response has been saved.",
-            "lexical_resource": "Please check back in a few minutes.",
-            "grammatical_range_accuracy": "Thank you for your patience.",
-            "how_to_improve": {
+            "how_to_improve_language": {
+                "examples": [],
+                "general_suggestions": ["Your feedback is being processed. Please check back soon."]
+            },
+            "how_to_improve_answer": {
                 "examples": [],
                 "general_suggestions": ["Your feedback is being processed. Please check back soon."]
             },
@@ -358,11 +371,11 @@ def generate_writing_task_2_feedback(response, task_id):
                     "and how well the main ideas are supported. A score of 9 indicates full coverage with detailed examples, while "
                     "lower scores reflect gaps or unclear arguments.\n"
                     
-                    "2. **Coherence & Cohesion (CC):** Evaluate the logical structure, paragraphing, and use of cohesive devices. "
-                    "A score of 9 means highly organized ideas with effective transitions, while lower scores reflect issues with paragraphing "
-                    "or weak logical flow.\n"
+                    "2. **Coherence & Cohesion (CC):** Evaluate the logical structure (introduction, body paragraphs, conclusion), paragraphing, "
+                    "and use of cohesive devices. A score of 9 means highly organized ideas with effective transitions, while lower scores reflect "
+                    "issues with paragraphing or weak logical flow.\n"
                     
-                    "3. **Lexical Resource (LR):** Assess the range, accuracy, and appropriacy of vocabulary. A score of 9 reflects "
+                    "3. **Lexical Resource (LR):** Assess the range, accuracy, and appropriacy of vocabulary for the topic and task. A score of 9 reflects "
                     "wide-ranging, precise vocabulary used appropriately. Scores of 5-6 indicate repetitive vocabulary, while 3-4 reflects "
                     "incorrect or limited word choice.\n"
                     
@@ -376,16 +389,24 @@ def generate_writing_task_2_feedback(response, task_id):
                     '"coherence_cohesion": "string",\n'
                     '"lexical_resource": "string",\n'
                     '"grammatical_range_accuracy": "string",\n'
-                    '"how_to_improve": {\n'
+
+                    '"how_to_improve_language": {\n'
                     '  "examples": [\n'
                     '    {\n'
                     '      "original": "string",\n'
                     '      "improved": ["string", "string", "string"],\n'
-                    '      "explanation": "string"\n'
+                    '    }\n'
+                    '  ],\n'
+                    '"how_to_improve_answer": {\n'
+                    '  "examples": [\n'
+                    '    {\n'
+                    '      "original": "string",\n'
+                    '      "improved": ["string", "string", "string"],\n'
                     '    }\n'
                     '  ],\n'
                     '  "general_suggestions": ["string"]\n'
                     "},\n"
+
                     '"band_scores": {\n'
                     '  "task_response": float,\n'
                     '  "coherence_cohesion": float,\n'
@@ -396,10 +417,17 @@ def generate_writing_task_2_feedback(response, task_id):
                     '"improved_response": "string"\n'
                     "}\n\n"
                     
-                    "For the 'how_to_improve' section:\n"
-                    "- Identify 2-3 specific examples from the response that could be improved\n"
-                    "- For each example, show the original text, an improved version, and explain the improvement\n"
+                    "For the 'how_to_improve_language' section:\n"
+                    "- Identify 2-3 specific examples of grammar, vocabulary, and expression from the response that could be improved\n"
+                    "- For each example, show the original text and an improved version\n"
                     "- Focus on grammar, vocabulary, and expression improvements\n"
+                    "- Add 2-3 general language-specific suggestions for overall improvement\n"
+                    "- Be constructive and encouraging in your feedback\n\n"
+
+                    "For the 'how_to_improve_answer' section:\n"
+                    "- Identify 2-3 specific examples of task response and coherence & cohesion from the response that could be improved\n"
+                    "- For each example, show the original text and improved version\n"
+                    "- Focus on task response and coherence & cohesion improvements\n"
                     "- Add 2-3 general suggestions for overall improvement\n"
                     "- Be constructive and encouraging in your feedback\n\n"
                     
@@ -480,11 +508,12 @@ def generate_writing_task_2_feedback(response, task_id):
                         logger.error(f"All attempts failed: {e}")
                         return {
                             "error": "Error processing feedback format",
-                            "task_response": "We're experiencing technical difficulties. Your response has been saved and we'll process it shortly.",
-                            "coherence_cohesion": "Please check back in a few minutes.",
-                            "lexical_resource": "Your feedback will be available soon.",
-                            "grammatical_range_accuracy": "Thank you for your patience.",
-                            "how_to_improve": {
+                            
+                            "how_to_improve_language": {
+                                "examples": [],
+                                "general_suggestions": ["Your feedback is being processed. Please check back soon."]
+                            },
+                            "how_to_improve_answer": {
                                 "examples": [],
                                 "general_suggestions": ["Your feedback is being processed. Please check back soon."]
                             },
@@ -509,11 +538,12 @@ def generate_writing_task_2_feedback(response, task_id):
                 logger.error(f"Retry after rate limit failed: {e}")
                 return {
                     "error": "Service temporarily at capacity",
-                    "task_response": "We're processing a high volume of requests.",
-                    "coherence_cohesion": "Your response has been saved.",
-                    "lexical_resource": "Please check back in a few minutes.",
-                    "grammatical_range_accuracy": "Thank you for your patience.",
-                    "how_to_improve": {
+                    
+                    "how_to_improve_language": {
+                        "examples": [],
+                        "general_suggestions": ["Your feedback is being processed. Please check back soon."]
+                    },
+                    "how_to_improve_answer": {
                         "examples": [],
                         "general_suggestions": ["Your feedback is being processed. Please check back soon."]
                     },
@@ -524,11 +554,12 @@ def generate_writing_task_2_feedback(response, task_id):
         logger.error(f"General error: {str(e)}")
         return {
             "error": f"Error generating feedback: {str(e)}",
-            "task_response": "We're experiencing technical difficulties.",
-            "coherence_cohesion": "Your response has been saved.",
-            "lexical_resource": "Please check back in a few minutes.",
-            "grammatical_range_accuracy": "Thank you for your patience.",
-            "how_to_improve": {
+            
+            "how_to_improve_language": {
+                "examples": [],
+                "general_suggestions": ["Your feedback is being processed. Please check back soon."]
+            },
+            "how_to_improve_answer": {
                 "examples": [],
                 "general_suggestions": ["Your feedback is being processed. Please check back soon."]
             },
