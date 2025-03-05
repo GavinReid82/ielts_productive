@@ -5,10 +5,11 @@ from app.blueprints.writing.utils import extract_writing_response, generate_writ
 from openai import OpenAI
 import json
 import os
+import logging
 from app.blueprints.writing import writing_bp
 
+logger = logging.getLogger(__name__)
 writing_bp = Blueprint('writing', __name__, template_folder='templates')
-
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
@@ -117,101 +118,93 @@ def writing_task_1(task_type):
 @writing_bp.route('/writing_task_1_submit', methods=['POST'])
 @login_required
 def writing_task_1_submit():
-    user_id = session.get('user_id')
-    if not user_id:
-        flash("Session expired. Please log in again.", "warning")
-        return redirect(url_for('auth.login'))
-    
+    """Handle submission of Writing Task 1."""
     try:
-        task_id = int(request.form.get('task_id'))
-    except (TypeError, ValueError):
-        flash("Invalid task ID.", "danger")
-        return redirect(url_for('writing.writing_task_1', task_type='writing_task_1_letter'))
-    
-    if not task_id:
-        flash("No task selected.", "danger")
-        return redirect(url_for('writing.writing_task_1', task_type='writing_task_1_letter'))
-    
-    # Extract the writing response
-    response = extract_writing_response(request)
+        task_id = request.form.get('task_id')
+        response = extract_writing_response(request)
+        user_id = current_user.id
 
-    # Get the task details
-    task = Task.query.get(task_id)
-    if not task:
-        flash("Task not found.", "danger")
-        return redirect(url_for('writing.writing_task_1', task_type='writing_task_1_letter'))
+        print(f"Task ID: {task_id}")  # Debug log
+        print(f"Response: {response}")  # Debug log
 
-    # Generate AI feedback
-    # Choose the correct feedback function based on the task type
-    if task.type.lower() == "writing_task_1_letter":
-        feedback = generate_writing_task_1_letter_feedback(response, task_id)
-    elif task.type.lower() == "writing_task_1_report":
-        feedback = generate_writing_task_1_report_feedback(response, task_id)
-    else:
-        flash("Unknown task type.", "danger")
-        return redirect(url_for('writing.writing_task_1', task_type='writing_task_1_letter'))
-    
-    # Add debug logging
-    print("Generated feedback:", feedback)  # For development only
-    
-    # Save the transcript to the database
-    save_writing_transcript(current_user.id, task_id, response, feedback)
+        # Get task type and generate appropriate feedback
+        task = Task.query.get(task_id)
+        if not task:
+            raise ValueError("Task not found")
 
-    # Store feedback in session
-    session['feedback'] = {
-        'response': response,
-        'task_id': task_id,
-        'how_to_improve_language': feedback.get('how_to_improve_language', {
-            'examples': [],
-        }),
-        'how_to_improve_answer': feedback.get('how_to_improve_answer', {
-            'examples': [],
-        }),
-        'band_scores': feedback.get('band_scores', {
-            'task_achievement': 0,
-            'coherence_cohesion': 0,
-            'lexical_resource': 0,
-            'grammatical_range_accuracy': 0,
-            'overall_band': 0
-        }),
-        'improved_response': feedback.get('improved_response', 'No improved response generated.')
-    }
+        if task.type == 'writing_task_1_report':
+            feedback = generate_writing_task_1_report_feedback(response, task_id)
+        else:  # letter type
+            feedback = generate_writing_task_1_letter_feedback(response, task_id)
 
-    return redirect(url_for('writing.writing_task_1_feedback'))
+        print(f"Generated feedback: {feedback}")  # Debug log
+
+        # Save the transcript to the database
+        save_writing_transcript(user_id, task_id, response, feedback)
+
+        # Store feedback in session
+        session['feedback'] = {
+            'response': response,
+            'task': {
+                'id': task.id,
+                'type': task.type,
+                'description': task.description,
+                'main_prompt': task.main_prompt,
+                'bullet_points': task.bullet_points
+            },
+            'how_to_improve_language': feedback.get('how_to_improve_language', {
+                'examples': [],
+            }),
+            'how_to_improve_answer': feedback.get('how_to_improve_answer', {
+                'examples': [],
+            }),
+            'band_scores': feedback.get('band_scores', {
+                'task_achievement': 0,
+                'coherence_cohesion': 0,
+                'lexical_resource': 0,
+                'grammatical_range_accuracy': 0,
+                'overall_band': 0
+            }),
+            'improved_response': feedback.get('improved_response', '')
+        }
+
+        print(f"Session feedback: {session['feedback']}")  # Debug log
+
+        return redirect(url_for('writing.writing_task_1_feedback'))
+
+    except Exception as e:
+        logger.error(f"Error in writing_task_1_submit: {str(e)}")
+        flash(f"Error generating feedback: {str(e)}", 'error')
+        return redirect(url_for('writing.writing_home'))
 
 
-@writing_bp.route('/writing_task_1_feedback', methods=['GET'])
+@writing_bp.route('/writing_task_1_feedback')
 @login_required
 def writing_task_1_feedback():
-    """Retrieve stored feedback from session and display it."""
+    """Display feedback for Writing Task 1."""
     feedback = session.get('feedback', {})
-    task_id = feedback.get('task_id', 'No task ID available.')
-    
-    # Get the task type
-    task = Task.query.get(task_id)
-    task_type = task.type if task else None
+    print(f"Feedback in feedback route: {feedback}")  # Debug log
 
-    return render_template(
-        'writing/task_1_feedback.html',
-        task=task,
-        task_id=task_id,
-        type=task_type,
-        response=feedback.get('response', 'No response available.'),
-        how_to_improve_language=feedback.get('how_to_improve_language', {
-            'examples': [],
-        }),
-        how_to_improve_answer=feedback.get('how_to_improve_answer', {
-            'examples': [],
-        }),
-        band_scores=feedback.get('band_scores', {
-            'task_achievement': 0,
-            'coherence_cohesion': 0,
-            'lexical_resource': 0,
-            'grammatical_range_accuracy': 0,
-            'overall_band': 0
-        }),
-        improved_response=feedback.get('improved_response', 'No improved response generated.')
-    )
+    # Convert task dict back to Task object if needed
+    task_data = feedback.get('task', {})
+    if isinstance(task_data, dict):
+        task = Task(
+            id=task_data.get('id'),
+            type=task_data.get('type'),
+            description=task_data.get('description'),
+            main_prompt=task_data.get('main_prompt'),
+            bullet_points=task_data.get('bullet_points')
+        )
+    else:
+        task = task_data
+
+    return render_template('writing/task_1_feedback.html',
+                         task=task,
+                         response=feedback.get('response', ''),
+                         how_to_improve_language=feedback.get('how_to_improve_language', {}),
+                         how_to_improve_answer=feedback.get('how_to_improve_answer', {}),
+                         band_scores=feedback.get('band_scores', {}),
+                         improved_response=feedback.get('improved_response', ''))
 
 
 # ------------------------------------------------------------
@@ -276,75 +269,80 @@ def writing_task_2():
 @writing_bp.route('/writing_task_2_submit', methods=['POST'])
 @login_required
 def writing_task_2_submit():
-    """Submit the essay and generate feedback."""
-    user_id = session.get('user_id')
-    if not user_id:
-        flash("Session expired. Please log in again.", "warning")
-        return redirect(url_for('auth.login'))
-    
+    """Handle submission of Writing Task 2."""
     try:
-        task_id = int(request.form.get('task_id'))
-    except (TypeError, ValueError):
-        flash("Invalid task ID.", "danger")
-        return redirect(url_for('writing.writing_task_2'))
-    
-    if not task_id:
-        flash("No task selected.", "danger")
-        return redirect(url_for('writing.writing_task_2'))
-    
-    # Extract the essay response
-    response = request.form.get('writingTask2')
+        task_id = request.form.get('task_id')
+        response = extract_writing_response(request)
+        user_id = current_user.id
 
-    # Generate feedback using your AI model
-    feedback = generate_writing_task_2_feedback(response, task_id)
+        print(f"Task ID: {task_id}")  # Debug log
+        print(f"Response: {response}")  # Debug log
 
-    # Save the transcript to the database
-    save_writing_transcript(user_id, task_id, response, feedback)
+        # Generate feedback
+        feedback = generate_writing_task_2_feedback(response, task_id)
+        print(f"Generated feedback: {feedback}")  # Debug log
 
-    # Store feedback in session
-    session['feedback'] = {
-        'response': response,
-        
-        'how_to_improve_language': feedback.get('how_to_improve_language', {
-            'examples': [],
-        }),
-        'how_to_improve_answer': feedback.get('how_to_improve_answer', {
-            'examples': [],
-        }),
-        'band_scores': feedback.get('band_scores', {
-            'task_response': 0,
-            'coherence_cohesion': 0,
-            'lexical_resource': 0,
-            'grammatical_range_accuracy': 0,
-            'overall_band': 0
-        }),
-        'improved_response': feedback.get('improved_response', 'No improved response generated.')
-    }
+        # Save the transcript
+        save_writing_transcript(user_id, task_id, response, feedback)
 
-    return redirect(url_for('writing.writing_task_2_feedback'))
+        # Store feedback in session
+        session['feedback'] = {
+            'response': response,
+            'task': {
+                'id': task_id,
+                'type': 'writing_task_2',
+                'description': Task.query.get(task_id).description,
+                'main_prompt': Task.query.get(task_id).main_prompt
+            },
+            'how_to_improve_language': feedback.get('how_to_improve_language', {
+                'examples': [],
+            }),
+            'how_to_improve_answer': feedback.get('how_to_improve_answer', {
+                'examples': [],
+            }),
+            'band_scores': feedback.get('band_scores', {
+                'task_response': 0,
+                'coherence_cohesion': 0,
+                'lexical_resource': 0,
+                'grammatical_range_accuracy': 0,
+                'overall_band': 0
+            }),
+            'improved_response': feedback.get('improved_response', '')
+        }
+
+        print(f"Session feedback: {session['feedback']}")  # Debug log
+
+        return redirect(url_for('writing.writing_task_2_feedback'))
+
+    except Exception as e:
+        logger.error(f"Error in writing_task_2_submit: {str(e)}")
+        flash(f"Error generating feedback: {str(e)}", 'error')
+        return redirect(url_for('writing.writing_home'))
 
 
-@writing_bp.route('/writing_task_2_feedback', methods=['GET'])
+@writing_bp.route('/writing_task_2_feedback')
 @login_required
 def writing_task_2_feedback():
-    """Retrieve stored feedback for Writing Task 2 and display it."""
+    """Display feedback for Writing Task 2."""
     feedback = session.get('feedback', {})
+    print(f"Feedback in feedback route: {feedback}")  # Debug log
 
-    return render_template(
-        'writing/task_2_feedback.html',
-        response=feedback.get('response', 'No response available.'),
-        how_to_improve_language=feedback.get('how_to_improve_language', {
-            'examples': [],
-        }),
-        how_to_improve_answer=feedback.get('how_to_improve_answer', {
-            'examples': [],
-        }),
-        band_scores=feedback.get('band_scores', {
-            'task_response': feedback.get('band_scores', {}).get('task_response', 0),
-            'coherence_cohesion': feedback.get('band_scores', {}).get('coherence_cohesion', 0),
-            'lexical_resource': feedback.get('band_scores', {}).get('lexical_resource', 0),
-            'grammatical_range_accuracy': feedback.get('band_scores', {}).get('grammatical_range_accuracy', 0),
-            'overall_band': feedback.get('band_scores', {}).get('overall_band', 0)
-        }),
-        improved_response=feedback.get('improved_response', 'No improved response generated.')
-    )
+    # Convert task dict back to Task object if needed
+    task_data = feedback.get('task', {})
+    if isinstance(task_data, dict):
+        task = Task(
+            id=task_data.get('id'),
+            type=task_data.get('type'),
+            description=task_data.get('description'),
+            main_prompt=task_data.get('main_prompt')
+        )
+    else:
+        task = task_data
+
+    return render_template('writing/task_2_feedback.html',
+                         task=task,
+                         response=feedback.get('response', ''),
+                         how_to_improve_language=feedback.get('how_to_improve_language', {}),
+                         how_to_improve_answer=feedback.get('how_to_improve_answer', {}),
+                         band_scores=feedback.get('band_scores', {}),
+                         improved_response=feedback.get('improved_response', ''))

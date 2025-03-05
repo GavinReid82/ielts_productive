@@ -27,9 +27,14 @@
                     {% if task.language_inputs %}
                         {% for input in task.language_inputs %}
                         <div class="col-12 col-lg-8 {% if not loop.last %}mb-4{% endif %}">
-                            <img src="{{ url_for('static', filename=input.image_path) }}" 
-                                 alt="Language Example {{ loop.index }}" 
-                                 class="img-fluid shadow-sm rounded w-100">
+                            <div class="position-relative">
+                                <span class="position-absolute top-0 start-0 bg-primary text-white px-3 py-2 rounded-circle m-2">
+                                    {{ loop.index }}
+                                </span>
+                                <img src="{{ url_for('static', filename=input.image_path) }}" 
+                                     alt="Language Example {{ loop.index }}" 
+                                     class="img-fluid shadow-sm rounded w-100">
+                            </div>
                         </div>
                         {% endfor %}
                     {% endif %}
@@ -57,7 +62,7 @@
                     <div class="col-md-12">
                         <h4>Complete the sentences with the correct words/phrases:</h4>
                         <h5>You can use the useful language to help you.</h5>
-                        <h5>GREEN = Correct, RED = Incorrect</h5>
+                        <h5 class="mb-3">GREEN = Correct, RED = Incorrect</h5>
                         
                         {% if task.practice_questions %}
                             {% for question in task.practice_questions %}

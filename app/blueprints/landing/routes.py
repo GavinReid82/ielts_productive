@@ -13,37 +13,90 @@ def try_it_out_submit():
     task_id = request.form.get('task_id')
     response = request.form.get('writingTask1')  # or writingTask2 depending on the task
     
-    # Generate feedback using the appropriate function based on task type
-    task = Task.query.get(task_id)
-    if task.type == 'writing_task_1_report':
-        feedback = generate_writing_task_1_report_feedback(response, task_id)
-    elif task.type == 'writing_task_1_letter':
-        feedback = generate_writing_task_1_letter_feedback(response, task_id)
-    else:
-        feedback = generate_writing_task_2_feedback(response, task_id)
+    print(f"Task ID: {task_id}")  # Debug log
+    print(f"Response: {response}")  # Debug log
     
-    # Store feedback in session
-    session['feedback'] = {
-        'response': response,
-        'task': task,
-        'how_to_improve_language': feedback.get('how_to_improve_language', {
-            'examples': [],
-        }),
-        'how_to_improve_answer': feedback.get('how_to_improve_answer', {
-            'examples': [],
-        }),
-        'improved_response': feedback.get('improved_response', '')
-    }
+    try:
+        # Generate feedback using the appropriate function based on task type
+        task = Task.query.get(task_id)
+        if not task:
+            raise ValueError("Task not found")
+
+        if task.type == 'writing_task_1_report':
+            feedback = generate_writing_task_1_report_feedback(response, task_id)
+        elif task.type == 'writing_task_1_letter':
+            feedback = generate_writing_task_1_letter_feedback(response, task_id)
+        else:
+            feedback = generate_writing_task_2_feedback(response, task_id)
+        
+        print(f"Generated feedback: {feedback}")  # Debug log
+        
+        # Store feedback in session
+        session['feedback'] = {
+            'response': response,
+            'task': {
+                'id': task.id,
+                'type': task.type,
+                'description': task.description,
+                'main_prompt': task.main_prompt,
+                'bullet_points': task.bullet_points
+            },  # Convert task object to dict to avoid serialization issues
+            'how_to_improve_language': feedback.get('how_to_improve_language', {
+                'examples': [],
+                'general_suggestions': []
+            }),
+            'how_to_improve_answer': feedback.get('how_to_improve_answer', {
+                'examples': [],
+                'general_suggestions': []
+            }),
+            'band_scores': feedback.get('band_scores', {
+                'task_achievement': 0,
+                'coherence_cohesion': 0,
+                'lexical_resource': 0,
+                'grammatical_range_accuracy': 0,
+                'overall_band': 0
+            }),
+            'improved_response': feedback.get('improved_response', '')
+        }
+        
+        print(f"Session feedback: {session['feedback']}")  # Debug log
+        
+    except Exception as e:
+        logger.error(f"Error generating feedback: {str(e)}")
+        session['feedback'] = {
+            'response': response,
+            'task': task,
+            'error': str(e),
+            'how_to_improve_language': {'examples': []},
+            'how_to_improve_answer': {'examples': []},
+            'improved_response': 'Error generating feedback.'
+        }
     
     return redirect(url_for('landing.try_it_out_feedback'))
 
 @landing_bp.route('/try-it-out/feedback')
 def try_it_out_feedback():
     feedback = session.get('feedback', {})
+    print(f"Feedback in feedback route: {feedback}")  # Debug log
+    
+    # Convert task dict back to Task object if needed
+    task_data = feedback.get('task', {})
+    if isinstance(task_data, dict):
+        task = Task(
+            id=task_data.get('id'),
+            type=task_data.get('type'),
+            description=task_data.get('description'),
+            main_prompt=task_data.get('main_prompt'),
+            bullet_points=task_data.get('bullet_points')
+        )
+    else:
+        task = task_data
+
     return render_template('writing/task_1_feedback.html',
-                         task=feedback.get('task'),
+                         task=task,
                          response=feedback.get('response', ''),
                          how_to_improve_language=feedback.get('how_to_improve_language', {}),
                          how_to_improve_answer=feedback.get('how_to_improve_answer', {}),
+                         band_scores=feedback.get('band_scores', {}),
                          improved_response=feedback.get('improved_response', ''),
                          is_demo=True)

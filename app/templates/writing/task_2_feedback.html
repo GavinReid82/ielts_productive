@@ -54,11 +54,13 @@
     
     <h3 class="text-center mt-4">Example Essay</h3>
     <div class="bg-light p-3 rounded">
-        {% for paragraph in task.description.replace('\\n', '\n').split('\n\n') %}
-            {% if paragraph.strip() %}
-                <p>{{ paragraph }}</p>
-            {% endif %}
-        {% endfor %}
+        {% if task.description %}
+            {% for paragraph in task.description.replace('\\n', '\n').split('\n\n') %}
+                {% if paragraph.strip() %}
+                    <p>{{ paragraph }}</p>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
     </div>
 
 </div>

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 def extract_writing_response(request):
     """Extract and validate the writing response from the request."""
-    response = request.form.get('writingTask1')  # Changed from 'writingResponse' to match the form
+    response = request.form.get('writingTask1') or request.form.get('writingTask2')  # Check both form fields
     if not response:
         raise ValueError("No writing response provided")
     return response.replace("\r\n", "\n")  # Keep the line ending normalization
@@ -89,33 +89,29 @@ def generate_writing_task_1_letter_feedback(response, task_id):
 
                     "Provide structured feedback addressing the candidate as 'you' as a JSON object with the following format:\n"
                     "{\n"
-                    '"task_achievement": "string",\n'
-                    '"coherence_cohesion": "string",\n'
-                    '"lexical_resource": "string",\n'
-                    '"grammatical_range_accuracy": "string",\n'
                     '"how_to_improve_language": {\n'
                     '  "examples": [\n'
                     '    {\n'
                     '      "original": "string",\n'
-                    '      "improved": ["string", "string", "string"],\n'
+                    '      "improved": ["string", "string", "string"]\n'
                     '    }\n'
-                    '  ],\n'
-                    '  "general_suggestions": ["string"]\n'
-                    "},\n"
+                    '  ]\n'
+                    '},\n'
                     '"how_to_improve_answer": {\n'
                     '  "examples": [\n'
                     '    {\n'
                     '      "original": "string",\n'
-                    '      "improved": ["string", "string", "string"],\n'
+                    '      "improved": ["string", "string", "string"]\n'
                     '    }\n'
-                    '  ],\n'
+                    '  ]\n'
+                    '},\n'
                     '"band_scores": {\n'
                     '  "task_achievement": float,\n'
                     '  "coherence_cohesion": float,\n'
                     '  "lexical_resource": float,\n'
                     '  "grammatical_range_accuracy": float,\n'
                     '  "overall_band": float\n'
-                    "},\n"
+                    '},\n'
                     '"improved_response": "string"\n'
                     "}\n\n"
                     
@@ -151,7 +147,7 @@ def generate_writing_task_1_letter_feedback(response, task_id):
             },
             {
                 "role": "user",
-                "content": f"Evaluate this letter:\n\n{response}\n\nTask Prompt:\n{task_prompt}\nRequired Points:\n{bullet_points}"
+                "content": f"Evaluate this letter:\n\n{response}\n\nTask Prompt:\n{task.main_prompt}\nRequired Points:\n{task.bullet_points}"
             }
         ]
 
@@ -213,21 +209,10 @@ def generate_writing_task_1_letter_feedback(response, task_id):
 def generate_writing_task_1_report_feedback(response, task_id):
     """Generates AI feedback for IELTS Writing Task 1 (Report)."""
     try:
-        # Validate task_id is an integer
-        try:
-            task_id = int(task_id)
-        except (TypeError, ValueError):
-            raise ValueError("Invalid task ID provided")
-
-        # Get the task
+        # Get the task first
         task = Task.query.get(task_id)
         if not task:
             raise ValueError("Task not found")
-
-        if task and task.description:
-            graph_description = task.description
-        else:
-            graph_description = "No graph description provided."
 
         messages = [
             {
@@ -273,24 +258,25 @@ def generate_writing_task_1_report_feedback(response, task_id):
                     '  "examples": [\n'
                     '    {\n'
                     '      "original": "string",\n'
-                    '      "improved": ["string", "string", "string"],\n'
+                    '      "improved": ["string", "string", "string"]\n'
                     '    }\n'
-                    '  ],\n'
+                    '  ]\n'
+                    '},\n'
                     '"how_to_improve_answer": {\n'
                     '  "examples": [\n'
                     '    {\n'
                     '      "original": "string",\n'
-                    '      "improved": ["string", "string", "string"],\n'
+                    '      "improved": ["string", "string", "string"]\n'
                     '    }\n'
-                    '  ],\n'
-                    "},\n"
+                    '  ]\n'
+                    '},\n'
                     '"band_scores": {\n'
                     '  "task_achievement": float,\n'
                     '  "coherence_cohesion": float,\n'
                     '  "lexical_resource": float,\n'
                     '  "grammatical_range_accuracy": float,\n'
                     '  "overall_band": float\n'
-                    "},\n"
+                    '},\n'
                     '"improved_response": "string"\n'
                     "}\n\n"
                     
@@ -324,60 +310,42 @@ def generate_writing_task_1_report_feedback(response, task_id):
             },
             {
                 "role": "user",
-                "content": f"Evaluate this report:\n\n{response}\n\nTask Prompt:\n{task_prompt}\nGraph Description:\n{graph_description}"
+                "content": f"Evaluate this report:\n\n{response}\n\nTask Prompt:\n{task.main_prompt}\nGraph Description:\n{task.description}"
             }
         ]
 
-        try:
-            openai_response = client.chat.completions.create(
-                model="gpt-4",
-                messages=messages,
-                temperature=0.7,
-                max_tokens=2000,
-                timeout=30
-            )
-            raw_feedback = openai_response.choices[0].message.content.strip()
-            feedback = json.loads(raw_feedback)
-            return feedback
+        # Make the API call
+        completion = client.chat.completions.create(
+            model="gpt-4",
+            messages=messages,
+            temperature=0.7,
+        )
 
-        except RateLimitError as e:
-            logger.error(f"OpenAI Rate Limit error: {str(e)}")
-            time.sleep(5)
-            try:
-                openai_response = client.chat.completions.create(
-                    model="gpt-4",
-                    messages=messages,
-                    temperature=0.7,
-                    max_tokens=2000,
-                    timeout=30
-                )
-                raw_feedback = openai_response.choices[0].message.content.strip()
-                feedback = json.loads(raw_feedback)
-                return feedback
-            except Exception as e:
-                logger.error(f"Retry after rate limit failed: {e}")
-                return {
-                    "error": "Service temporarily at capacity",
-                    "how_to_improve_language": {
-                        "examples": [],
-                    },
-                    "how_to_improve_answer": {
-                        "examples": [],
-                    },
-                    "improved_response": "Your improved response will be available shortly."
-                }
+        # Extract the feedback
+        feedback_text = completion.choices[0].message.content
+        print(f"Raw OpenAI response: {feedback_text}")  # Debug log
+        
+        try:
+            feedback = json.loads(feedback_text)
+        except json.JSONDecodeError as e:
+            print(f"JSON parsing error: {str(e)}")  # Debug log
+            print(f"Failed to parse: {feedback_text}")  # Debug log
+            return {
+                'error': 'Error parsing feedback',
+                'how_to_improve_language': {'examples': []},
+                'how_to_improve_answer': {'examples': []},
+                'improved_response': 'Error generating feedback.'
+            }
+
+        return feedback
 
     except Exception as e:
-        logger.error(f"General error: {str(e)}")
+        logger.error(f"Error generating feedback: {str(e)}")
         return {
-            "error": f"Error generating feedback: {str(e)}",
-            "how_to_improve_language": {
-                "examples": [],
-            },
-            "how_to_improve_answer": {
-                "examples": [],
-            },
-            "improved_response": "Your improved response will be available shortly."
+            'error': f"Error generating feedback: {str(e)}",
+            'how_to_improve_language': {'examples': []},
+            'how_to_improve_answer': {'examples': []},
+            'improved_response': 'Your improved response will be available shortly.'
         }
 
 
@@ -444,26 +412,25 @@ def generate_writing_task_2_feedback(response, task_id):
                     '  "examples": [\n'
                     '    {\n'
                     '      "original": "string",\n'
-                    '      "improved": ["string", "string", "string"],\n'
+                    '      "improved": ["string", "string", "string"]\n'
                     '    }\n'
-                    '  ],\n'
+                    '  ]\n'
+                    '},\n'
                     '"how_to_improve_answer": {\n'
                     '  "examples": [\n'
                     '    {\n'
                     '      "original": "string",\n'
-                    '      "improved": ["string", "string", "string"],\n'
+                    '      "improved": ["string", "string", "string"]\n'
                     '    }\n'
-                    '  ],\n'
-                    '  "general_suggestions": ["string"]\n'
-                    "},\n"
-
+                    '  ]\n'
+                    '},\n'
                     '"band_scores": {\n'
                     '  "task_response": float,\n'
                     '  "coherence_cohesion": float,\n'
                     '  "lexical_resource": float,\n'
                     '  "grammatical_range_accuracy": float,\n'
                     '  "overall_band": float\n'
-                    "},\n"
+                    '},\n'
                     '"improved_response": "string"\n'
                     "}\n\n"
                     
@@ -497,7 +464,7 @@ def generate_writing_task_2_feedback(response, task_id):
             },
             {
                 "role": "user",
-                "content": f"Evaluate this essay:\n\n{response}\n\nEssay Question:\n{task_prompt}"
+                "content": f"Evaluate this essay:\n\n{response}\n\nEssay Question:\n{task.main_prompt}"
             }
         ]
 
