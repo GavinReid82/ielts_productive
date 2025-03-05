@@ -160,8 +160,97 @@ def generate_writing_task_1_letter_feedback(response, task_id):
                 timeout=30
             )
             raw_feedback = openai_response.choices[0].message.content.strip()
-            feedback = json.loads(raw_feedback)
-            return feedback
+            logger.info(f"Raw GPT response:\n{raw_feedback}")
+            cleaned_feedback = raw_feedback.strip().replace('\n', '\\n').replace('\t', '\\t')
+            logger.info(f"Cleaned response:\n{cleaned_feedback}")
+            try:
+                feedback = json.loads(cleaned_feedback)
+                return feedback
+            except json.JSONDecodeError as e:
+                logger.error(f"JSON error after cleaning: {e}")
+                logger.error(f"Error position: {e.pos}")
+                logger.error(f"Line: {e.lineno}, Column: {e.colno}")
+                # First retry with the same prompt
+                logger.warning(f"First attempt failed with JSON error: {e}. Retrying...")
+                try:
+                    openai_response = client.chat.completions.create(
+                        model="gpt-4",
+                        messages=messages,
+                        temperature=0.7,
+                        max_tokens=2000,
+                        timeout=30
+                    )
+                    raw_feedback = openai_response.choices[0].message.content.strip()
+                    cleaned_feedback = raw_feedback.strip().replace('\n', '\\n').replace('\t', '\\t')
+                    feedback = json.loads(cleaned_feedback)
+                    return feedback
+                except (json.JSONDecodeError, Exception) as e:
+                    # If retry fails, try with a simplified prompt
+                    logger.warning(f"Retry failed: {e}. Attempting with simplified prompt...")
+                    simplified_messages = [
+                        {
+                            "role": "system",
+                            "content": (
+                                "You are an IELTS Writing Task 1 examiner. Provide feedback in exactly this JSON format:\n"
+                                "{\n"
+                                '"how_to_improve_language": {\n'
+                                '  "examples": [\n'
+                                '    {\n'
+                                '      "original": "string",\n'
+                                '      "improved": ["string", "string", "string"]\n'
+                                '    }\n'
+                                '  ]\n'
+                                '},\n'
+                                '"how_to_improve_answer": {\n'
+                                '  "examples": [\n'
+                                '    {\n'
+                                '      "original": "string",\n'
+                                '      "improved": ["string", "string", "string"]\n'
+                                '    }\n'
+                                '  ]\n'
+                                '},\n'
+                                '"band_scores": {\n'
+                                '  "task_achievement": float,\n'
+                                '  "coherence_cohesion": float,\n'
+                                '  "lexical_resource": float,\n'
+                                '  "grammatical_range_accuracy": float,\n'
+                                '  "overall_band": float\n'
+                                '},\n'
+                                '"improved_response": "string"\n'
+                                "}"
+                            )
+                        },
+                        {
+                            "role": "user",
+                            "content": f"Evaluate this Writing Task 1 letter:\n\n{response}\n\nTask Prompt:\n{task.main_prompt}\nRequired Points:\n{task.bullet_points}"
+                        }
+                    ]
+                    try:
+                        openai_response = client.chat.completions.create(
+                            model="gpt-4",
+                            messages=simplified_messages,
+                            temperature=0.7,
+                            max_tokens=2000,
+                            timeout=30
+                        )
+                        raw_feedback = openai_response.choices[0].message.content.strip()
+                        feedback = json.loads(raw_feedback)
+                        return feedback
+                    except Exception as e:
+                        logger.error(f"Simplified prompt attempt failed: {e}")
+                        return {
+                            "error": "Error processing feedback format",
+                            "how_to_improve_language": {"examples": []},
+                            "how_to_improve_answer": {"examples": []},
+                            "band_scores": {
+                                "task_achievement": 0,
+                                "coherence_cohesion": 0,
+                                "lexical_resource": 0,
+                                "grammatical_range_accuracy": 0,
+                                "overall_band": 0
+                            },
+                            "improved_response": "Your improved response will be available shortly."
+                        }
 
         except RateLimitError as e:
             logger.error(f"OpenAI Rate Limit error: {str(e)}")
@@ -175,20 +264,34 @@ def generate_writing_task_1_letter_feedback(response, task_id):
                     timeout=30
                 )
                 raw_feedback = openai_response.choices[0].message.content.strip()
-                feedback = json.loads(raw_feedback)
-                return feedback
+                logger.info(f"Raw GPT response:\n{raw_feedback}")
+                cleaned_feedback = raw_feedback.strip().replace('\n', '\\n').replace('\t', '\\t')
+                logger.info(f"Cleaned response:\n{cleaned_feedback}")
+                try:
+                    feedback = json.loads(cleaned_feedback)
+                    return feedback
+                except json.JSONDecodeError as e:
+                    logger.error(f"JSON error after cleaning: {e}")
+                    logger.error(f"Error position: {e.pos}")
+                    logger.error(f"Line: {e.lineno}, Column: {e.colno}")
+                    return {
+                        "error": "Service temporarily at capacity",
+                        "how_to_improve_language": {
+                            "examples": [],
+                            "general_suggestions": ["Your feedback is being processed. Please check back soon."]
+                        },
+                        "how_to_improve_answer": {
+                            "examples": [],
+                            "general_suggestions": ["Your feedback is being processed. Please check back soon."]
+                        },
+                        "improved_response": "Your improved response will be available shortly."
+                    }
             except Exception as e:
-                logger.error(f"Retry after rate limit failed: {e}")
+                logger.error(f"OpenAI API error: {e}")
                 return {
-                    "error": "Service temporarily at capacity",
-                    "how_to_improve_language": {
-                        "examples": [],
-                        "general_suggestions": ["Your feedback is being processed. Please check back soon."]
-                    },
-                    "how_to_improve_answer": {
-                        "examples": [],
-                        "general_suggestions": ["Your feedback is being processed. Please check back soon."]
-                    },
+                    "error": "Error calling OpenAI API",
+                    "how_to_improve_language": {"examples": []},
+                    "how_to_improve_answer": {"examples": []},
                     "improved_response": "Your improved response will be available shortly."
                 }
 
@@ -464,7 +567,7 @@ def generate_writing_task_2_feedback(response, task_id):
             },
             {
                 "role": "user",
-                "content": f"Evaluate this essay:\n\n{response}\n\nEssay Question:\n{task.main_prompt}"
+                "content": f"Evaluate this essay:\n\n{response}\n\nEssay Question:\n{task_prompt}"
             }
         ]
 
@@ -477,11 +580,18 @@ def generate_writing_task_2_feedback(response, task_id):
                 timeout=30
             )
             raw_feedback = openai_response.choices[0].message.content.strip()
+            logger.info(f"Raw GPT response:\n{raw_feedback}")
+            cleaned_feedback = raw_feedback.strip().replace('\n', '\\n').replace('\t', '\\t')
+            logger.info(f"Cleaned response:\n{cleaned_feedback}")
             
             try:
-                feedback = json.loads(raw_feedback)
+                feedback = json.loads(cleaned_feedback)
                 return feedback
             except json.JSONDecodeError as e:
+                logger.error(f"JSON error after cleaning: {e}")
+                logger.error(f"Error position: {e.pos}")
+                logger.error(f"Line: {e.lineno}, Column: {e.colno}")
+                
                 # First retry with the same prompt
                 logger.warning(f"First attempt failed with JSON error: {e}. Retrying...")
                 try:
@@ -493,7 +603,8 @@ def generate_writing_task_2_feedback(response, task_id):
                         timeout=30
                     )
                     raw_feedback = openai_response.choices[0].message.content.strip()
-                    feedback = json.loads(raw_feedback)
+                    cleaned_feedback = raw_feedback.strip().replace('\n', '\\n').replace('\t', '\\t')
+                    feedback = json.loads(cleaned_feedback)
                     return feedback
                 except (json.JSONDecodeError, Exception) as e:
                     # If retry fails, try with a simplified prompt
@@ -501,11 +612,39 @@ def generate_writing_task_2_feedback(response, task_id):
                     simplified_messages = [
                         {
                             "role": "system",
-                            "content": "You are an IELTS examiner. Provide feedback in JSON format."
+                            "content": (
+                                "You are an IELTS Writing Task 2 examiner. Provide feedback in exactly this JSON format:\n"
+                                "{\n"
+                                '"how_to_improve_language": {\n'
+                                '  "examples": [\n'
+                                '    {\n'
+                                '      "original": "string",\n'
+                                '      "improved": ["string", "string", "string"]\n'
+                                '    }\n'
+                                '  ]\n'
+                                '},\n'
+                                '"how_to_improve_answer": {\n'
+                                '  "examples": [\n'
+                                '    {\n'
+                                '      "original": "string",\n'
+                                '      "improved": ["string", "string", "string"]\n'
+                                '    }\n'
+                                '  ]\n'
+                                '},\n'
+                                '"band_scores": {\n'
+                                '  "task_response": float,\n'
+                                '  "coherence_cohesion": float,\n'
+                                '  "lexical_resource": float,\n'
+                                '  "grammatical_range_accuracy": float,\n'
+                                '  "overall_band": float\n'
+                                '},\n'
+                                '"improved_response": "string"\n'
+                                "}"
+                            )
                         },
                         {
                             "role": "user",
-                            "content": f"Evaluate this response:\n\n{response}"
+                            "content": f"Evaluate this Writing Task 2 essay:\n\n{response}\n\nEssay Question:\n{task_prompt}"
                         }
                     ]
                     try:
@@ -523,12 +662,14 @@ def generate_writing_task_2_feedback(response, task_id):
                         logger.error(f"All attempts failed: {e}")
                         return {
                             "error": "Error processing feedback format",
-                            
-                            "how_to_improve_language": {
-                                "examples": [],
-                            },
-                            "how_to_improve_answer": {
-                                "examples": [],
+                            "how_to_improve_language": {"examples": []},
+                            "how_to_improve_answer": {"examples": []},
+                            "band_scores": {
+                                "task_response": 0,
+                                "coherence_cohesion": 0,
+                                "lexical_resource": 0,
+                                "grammatical_range_accuracy": 0,
+                                "overall_band": 0
                             },
                             "improved_response": "Your improved response will be available shortly."
                         }
@@ -545,18 +686,21 @@ def generate_writing_task_2_feedback(response, task_id):
                     timeout=30
                 )
                 raw_feedback = openai_response.choices[0].message.content.strip()
-                feedback = json.loads(raw_feedback)
+                cleaned_feedback = raw_feedback.strip().replace('\n', '\\n').replace('\t', '\\t')
+                feedback = json.loads(cleaned_feedback)
                 return feedback
             except Exception as e:
                 logger.error(f"Retry after rate limit failed: {e}")
                 return {
                     "error": "Service temporarily at capacity",
-                    
-                    "how_to_improve_language": {
-                        "examples": [],
-                    },
-                    "how_to_improve_answer": {
-                        "examples": [],
+                    "how_to_improve_language": {"examples": []},
+                    "how_to_improve_answer": {"examples": []},
+                    "band_scores": {
+                        "task_response": 0,
+                        "coherence_cohesion": 0,
+                        "lexical_resource": 0,
+                        "grammatical_range_accuracy": 0,
+                        "overall_band": 0
                     },
                     "improved_response": "Your improved response will be available shortly."
                 }
@@ -565,12 +709,14 @@ def generate_writing_task_2_feedback(response, task_id):
         logger.error(f"General error: {str(e)}")
         return {
             "error": f"Error generating feedback: {str(e)}",
-            
-            "how_to_improve_language": {
-                "examples": [],
-            },
-            "how_to_improve_answer": {
-                "examples": [],
+            "how_to_improve_language": {"examples": []},
+            "how_to_improve_answer": {"examples": []},
+            "band_scores": {
+                "task_response": 0,
+                "coherence_cohesion": 0,
+                "lexical_resource": 0,
+                "grammatical_range_accuracy": 0,
+                "overall_band": 0
             },
             "improved_response": "Your improved response will be available shortly."
         }
