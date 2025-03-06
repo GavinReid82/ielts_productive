@@ -7,9 +7,19 @@
     {% if is_demo %}
         <h1 class="text-center mb-4">Welcome to IELTS Productive</h1>
         <p class="text-center mb-4">This is a lesson to help you understand the task and improve your writing.</p>
-        <p class="text-center mb-4">Study the Useful Language, do the Practice, then use the useful language to write the Task 1.</p>
     {% endif %}
     
+    <div class="container bg-light p-4 rounded shadow-sm mb-4">
+        <p class="fw-bold mb-3">How to use this lesson:</p>
+        <ol class="mb-0">
+            <li>Study the <strong>useful language</strong></li>
+            <li>Do the <strong>practice</strong></li>
+            <li>Use the useful language to write the <strong>task</strong></li>
+            <li>Get <strong>feedback</strong></li>
+            <li>Repeat the task using the feedback to <strong>improve</strong> your writing</li>
+        </ol>
+    </div>
+
     <!-- Language Input Button -->
     <div class="d-grid gap-2 mb-4">
         <button class="btn btn-primary btn-lg" onclick="toggleSection('languageInputSection', this)">
@@ -28,13 +38,18 @@
                     {% if task.language_inputs %}
                         {% for input in task.language_inputs %}
                         <div class="col-12 col-lg-8 {% if not loop.last %}mb-4{% endif %}">
-                            <div class="position-relative">
-                                <span class="position-absolute top-0 start-0 bg-primary text-white px-3 py-2 rounded-circle m-2">
-                                    {{ loop.index }}
-                                </span>
-                                <img src="{{ url_for('static', filename=input.image_path) }}" 
-                                     alt="Language Example {{ loop.index }}" 
-                                     class="img-fluid shadow-sm rounded w-100">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <span class="bg-primary text-white px-2 py-1 rounded-circle" 
+                                          style="min-width: 30px; text-align: center; font-size: 0.9rem; display: inline-block;">
+                                        {{ loop.index }}
+                                    </span>
+                                </div>
+                                <div class="col">
+                                    <img src="{{ url_for('static', filename=input.image_path) }}" 
+                                         alt="Language Example {{ loop.index }}" 
+                                         class="img-fluid shadow-sm rounded w-100">
+                                </div>
                             </div>
                         </div>
                         {% endfor %}
