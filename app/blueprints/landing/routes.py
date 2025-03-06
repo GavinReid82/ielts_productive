@@ -43,18 +43,9 @@ def try_it_out_submit():
             },  # Convert task object to dict to avoid serialization issues
             'how_to_improve_language': feedback.get('how_to_improve_language', {
                 'examples': [],
-                'general_suggestions': []
             }),
             'how_to_improve_answer': feedback.get('how_to_improve_answer', {
                 'examples': [],
-                'general_suggestions': []
-            }),
-            'band_scores': feedback.get('band_scores', {
-                'task_achievement': 0,
-                'coherence_cohesion': 0,
-                'lexical_resource': 0,
-                'grammatical_range_accuracy': 0,
-                'overall_band': 0
             }),
             'improved_response': feedback.get('improved_response', '')
         }
@@ -97,6 +88,5 @@ def try_it_out_feedback():
                          response=feedback.get('response', ''),
                          how_to_improve_language=feedback.get('how_to_improve_language', {}),
                          how_to_improve_answer=feedback.get('how_to_improve_answer', {}),
-                         band_scores=feedback.get('band_scores', {}),
                          improved_response=feedback.get('improved_response', ''),
                          is_demo=True)

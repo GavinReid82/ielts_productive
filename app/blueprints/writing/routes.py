@@ -158,13 +158,6 @@ def writing_task_1_submit():
             'how_to_improve_answer': feedback.get('how_to_improve_answer', {
                 'examples': [],
             }),
-            'band_scores': feedback.get('band_scores', {
-                'task_achievement': 0,
-                'coherence_cohesion': 0,
-                'lexical_resource': 0,
-                'grammatical_range_accuracy': 0,
-                'overall_band': 0
-            }),
             'improved_response': feedback.get('improved_response', '')
         }
 
@@ -203,7 +196,6 @@ def writing_task_1_feedback():
                          response=feedback.get('response', ''),
                          how_to_improve_language=feedback.get('how_to_improve_language', {}),
                          how_to_improve_answer=feedback.get('how_to_improve_answer', {}),
-                         band_scores=feedback.get('band_scores', {}),
                          improved_response=feedback.get('improved_response', ''))
 
 

@@ -11,7 +11,6 @@
         </div>        
     </div>
 
-    <h2 class="text-center mt-5">Feedback</h2>
     <div class="mt-4 mx-auto" style="max-width: 800px;">
         <!-- Language Improvement Section -->
         <h3 class="text-center mt-4">How to Improve Your Language</h3>
@@ -24,7 +23,10 @@
                             <p class="ms-3 mb-3">{{ example.original }}</p>
                             <p class="text-success mb-1">I would suggest:</p>
                             {% for improved in example.improved %}
-                                <p class="ms-3 mb-2">{{ loop.index }}. {{ improved }}</p>
+                                <p class="ms-3 mb-2">
+                                    <strong>{{ 'Correction' if loop.first else 'Alternative' }}:</strong>
+                                    {{ improved }}
+                                </p>
                             {% endfor %}
                         </div>
                     </div>
@@ -39,12 +41,10 @@
                 {% for example in how_to_improve_answer.examples %}
                     <div class="card mb-3">
                         <div class="card-body">
-                            <p class="text-muted mb-1">You wrote:</p>
-                            <p class="ms-3 mb-3">{{ example.original }}</p>
+                            <p class="text-muted mb-1">Problem:</p>
+                            <p class="ms-3 mb-3">{{ example.issue }}</p>
                             <p class="text-success mb-1">I would suggest:</p>
-                            {% for improved in example.improved %}
-                                <p class="ms-3 mb-2">{{ loop.index }}. {{ improved }}</p>
-                            {% endfor %}
+                            <p class="ms-3 mb-2">{{ example.improved }}</p>
                         </div>
                     </div>
                 {% endfor %}
@@ -53,10 +53,19 @@
 
         <!-- Improved Response Section -->
         {% if improved_response %}
-            <div class="mt-4">
-                <h4 class="text-center">Improved Response</h4>
+            <div class="text-center mt-4">
+                <button class="btn btn-outline-primary" type="button" 
+                        data-bs-toggle="collapse" 
+                        data-bs-target="#improvedResponse" 
+                        aria-expanded="false" 
+                        aria-controls="improvedResponse">
+                    Show Example Response
+                </button>
+            </div>
+            <div class="collapse mt-3" id="improvedResponse">
+                <h3 class="text-center">Improved Response</h3>
                 <div class="bg-light p-3 rounded">
-                    {% for paragraph in task.description.replace('\\n', '\n').split('\n\n') %}
+                    {% for paragraph in improved_response.split('\n') %}
                         {% if paragraph.strip() %}
                             <p>{{ paragraph }}</p>
                         {% endif %}

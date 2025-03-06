@@ -5,6 +5,7 @@ from app.models import db, Transcript, Task
 from openai import OpenAI, OpenAIError, RateLimitError
 import logging
 import time
+import re
 
 # Initialize the OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -20,129 +21,79 @@ def extract_writing_response(request):
 def generate_writing_task_1_letter_feedback(response, task_id):
     """Generates AI feedback for IELTS Writing Task 1 (Letter)."""
     try:
-        # Validate task_id is an integer
-        try:
-            task_id = int(task_id)
-        except (TypeError, ValueError):
-            raise ValueError("Invalid task ID provided")
-
-        # Get the task
         task = Task.query.get(task_id)
         if not task:
             raise ValueError("Task not found")
 
-        task_prompt = task.main_prompt if task and task.main_prompt else "No prompt provided."
-        bullet_points = task.bullet_points if task and task.bullet_points else "No bullet points provided."
-
+        word_count = len(response.split())
+        
         messages = [
             {
                 "role": "system",
                 "content": (
-                    "You are an IELTS Writing Task 1 (Letter) examiner. Evaluate the candidate's letter based on the "
-                    "official IELTS Writing Task 1 band descriptors and key assessment criteria. For each example in the feedback, "
-                    "provide 2-3 alternative ways to express the same idea, showing different grammatical structures or vocabulary "
-                    "choices. Address the candidate as 'you' and use British English.\n\n"
+                    "You are an IELTS Writing Task 1 (letter) examiner.\n"
+                    "Your task is to assess and provide structured feedback for a candidate's letter.\n"
+                    "Use the task prompt and bullet points to give relevant feedback.\n"
+                    "Respond in British English and address the candidate as 'you'.\n\n"
                     
-                    "For each identified area of improvement:\n"
-                    "1. Show the original text\n"
-                    "2. Provide 2-3 improved versions that:\n"
-                    "   - Use appropriate tone (formal/semi-formal/informal) for the letter type\n"
-                    "   - Show natural letter-writing expressions and phrases\n"
-                    "   - Employ varied vocabulary suitable for letter writing\n"
-                    "   - Demonstrate clear organization with proper opening/closing\n"
+                    "Follow these instructions exactly:\n\n"
                     
-                    "For example, if the original is:\n"
-                    "'I want to tell you about a problem with my neighbor.'\n"
-                    "Provide multiple alternatives like:\n"
-                    "1. 'I am writing to inform you about an ongoing issue with my neighbor.'\n"
-                    "2. 'I would like to bring to your attention a situation concerning my neighbor.'\n"
-                    "3. 'I need to discuss a problem I've been having with my neighbor.'\n\n"
-                    
-                    "1. **Task Achievement (TA):** Assess how well the letter:\n"
-                    "   - Addresses the purpose of the letter (complaint, request, information, etc.)\n"
-                    "   - Covers all bullet points from the task\n"
-                    "   - Uses appropriate tone and style for the recipient\n"
-                    "   - Includes proper letter format (opening, paragraphing, closing)\n"
-                    "   - Meets the minimum word count (150 words)\n"
-                    
-                    "2. **Coherence & Cohesion (CC):** Evaluate:\n"
-                    "   - Clear organization of ideas in logical paragraphs\n"
-                    "   - Natural flow between paragraphs using appropriate linking phrases\n"
-                    "   - Proper use of letter-writing conventions\n"
-                    "   - Clear progression from opening to closing\n"
-                    
-                    "3. **Lexical Resource (LR):** Assess:\n"
-                    "   - Range and accuracy of vocabulary for letter writing\n"
-                    "   - Appropriate tone and register (formal/semi-formal/informal)\n"
-                    "   - Natural expressions and collocations used in letters\n"
-                    "   - Avoidance of overly informal or formal language where inappropriate\n"
-                    
-                    "4. **Grammatical Range & Accuracy (GRA):** Analyze:\n"
-                    "   - Accuracy of basic and complex sentence structures\n"
-                    "   - Variety of sentence forms appropriate for letters\n"
-                    "   - Correct use of tenses and modal verbs\n"
-                    "   - Proper punctuation in letter format\n\n"
-                    
-                    "The task details are provided below.\n\n"
-                    f"Task Prompt:\n{task_prompt}\n\n"
-                    f"Required Points:\n{bullet_points}\n\n"
+                    "=== STEP 1: CHECK LENGTH ===\n"
+                    "If response is under 150 words, your FIRST feedback must address this:\n"
+                    "- Original: [full response]\n"
+                    "- Improved: [\n"
+                    "    'Your response is only [X] words. You MUST write at least 150 words.',\n"
+                    "    'Missing required elements: proper letter format, addressing all bullet points, and conclusion',\n"
+                    "    'See below for how to develop your answer properly'\n"
+                    "  ]\n\n"
 
-                    "Provide structured feedback addressing the candidate as 'you' as a JSON object with the following format:\n"
+                    "=== STEP 2: LANGUAGE FEEDBACK ===\n"
+                    "Identify **2-5 key grammar and vocabulary issues**.\n"
+                    "In 'how_to_improve_language', provide:\n"
+                    "1. The original issue from the candidate's response\n"
+                    "2. A corrected version\n"
+                    "3. An alternative way to express it\n\n"
+                    
+                    "=== STEP 3: TASK ACHIEVEMENT FEEDBACK ===\n"
+                    "Identify **2-3 key Task Achievement issues**.\n"
+                    "In 'how_to_improve_answer', address:\n"
+                    "1. Response below 150 words\n"
+                    "2. Missing bullet points\n"
+                    "3. Inappropriate tone\n"
+                    "4. Letter format issues\n"
+                    "5. Paragraph organisation\n\n"
+                    
+                    "=== STEP 4: GENERATE IMPROVED RESPONSE ===\n"
+                    "Generate an improved letter that:\n"
+                    "- Meets the word count requirement\n"
+                    "- Maintains the user's original ideas where relevant\n"
+                    "- Addresses all bullet points\n"
+                    "- Uses appropriate tone and format\n"
+                    "- Includes proper letter components\n"
+                    "- Uses varied vocabulary and grammar\n\n"
+
+                    "=== OUTPUT FORMAT (STRICT JSON) ===\n"
                     "{\n"
                     '"how_to_improve_language": {\n'
-                    '  "examples": [\n'
-                    '    {\n'
-                    '      "original": "string",\n'
-                    '      "improved": ["string", "string", "string"]\n'
-                    '    }\n'
-                    '  ]\n'
+                    '  "examples": [{\n'
+                    '    "original": "text",\n'
+                    '    "improved": ["correction", "alternative"]\n'
+                    '  }]\n'
                     '},\n'
                     '"how_to_improve_answer": {\n'
-                    '  "examples": [\n'
-                    '    {\n'
-                    '      "original": "string",\n'
-                    '      "improved": ["string", "string", "string"]\n'
-                    '    }\n'
-                    '  ]\n'
+                    '  "examples": [{\n'
+                    '    "issue": "text",\n'
+                    '    "improved": "text"\n'
+                    '  }]\n'
                     '},\n'
-                    '"band_scores": {\n'
-                    '  "task_achievement": float,\n'
-                    '  "coherence_cohesion": float,\n'
-                    '  "lexical_resource": float,\n'
-                    '  "grammatical_range_accuracy": float,\n'
-                    '  "overall_band": float\n'
-                    '},\n'
-                    '"improved_response": "string"\n'
+                    '"improved_response": "complete rewritten letter"\n'
                     "}\n\n"
-                    
-                    "For the 'how_to_improve_language' section:\n"
-                    "- Identify 2-3 specific examples from the response that could be improved\n"
-                    "- For each example, show the original text, an improved version, and explain the improvement\n"
-                    "- Focus on grammar, vocabulary, and expression improvements\n"
-                    "- Add 2-3 general suggestions for overall improvement\n"
-                    "- Be constructive and encouraging in your feedback\n\n"
 
-                    "For the 'how_to_improve_answer' section:\n"
-                    "- Identify 2-3 specific examples from the response that could be improved\n"
-                    "- For each example, show a section of the original text, a section of the improved version\n"
-                    "- Focus on task achievement and coherence & cohesion improvements\n"
-                    "- Add 2-3 general suggestions for overall improvement\n"
-                    "- Be constructive and encouraging in your feedback\n\n"
-                    
-                    "Each score should be based on the official IELTS Writing Task 1 band descriptors, considering:\n"
-                    "- **9** = Excellent (Almost no errors, highly fluent, well-developed ideas)\n"
-                    "- **7-8** = Very good (Few minor errors, strong structure, well-extended ideas)\n"
-                    "- **5-6** = Moderate (Some errors, limited development, minor issues in organization or vocabulary)\n"
-                    "- **3-4** = Weak (Frequent errors, lack of clarity, poor structure)\n\n"
-                    
-                    "After assessing the response, generate an 'Improved Response' based on the specific task and where:\n"
-                    "- The user's original ideas are maintained where relevant to the task.\n"
-                    "- **Task Achievement** is optimized by ensuring full coverage of required points.\n"
-                    "- **Coherence & Cohesion** is improved by better structuring paragraphs and transitions.\n"
-                    "- **Lexical Resource** is enhanced by using more precise and varied vocabulary.\n"
-                    "- **Grammar** and sentence structure are refined, eliminating errors and improving complexity.\n"
-                    "- Format the improved response with proper line breaks between paragraphs and letter components (greeting, body paragraphs, closing).\n\n"
-                    "Now, evaluate the following candidate's response and generate feedback accordingly."
+                    "=== IMPORTANT ===\n"
+                    "- Always check word count first\n"
+                    "- Ensure all bullet points are addressed\n"
+                    "- Check tone matches the letter type\n"
+                    "- Return ONLY valid JSON\n"
                 )
             },
             {
@@ -191,38 +142,32 @@ def generate_writing_task_1_letter_feedback(response, task_id):
                         {
                             "role": "system",
                             "content": (
-                                "You are an IELTS Writing Task 1 examiner. Provide feedback in exactly this JSON format:\n"
+                                "You are an IELTS Writing Task 1 (letter) examiner. Provide feedback in exactly this JSON format:\n"
                                 "{\n"
                                 '"how_to_improve_language": {\n'
                                 '  "examples": [\n'
                                 '    {\n'
-                                '      "original": "string",\n'
-                                '      "improved": ["string", "string", "string"]\n'
+                                '      "original": "text",\n'
+                                '      "improved": ["correction", "alternative"]\n'
                                 '    }\n'
                                 '  ]\n'
                                 '},\n'
                                 '"how_to_improve_answer": {\n'
                                 '  "examples": [\n'
                                 '    {\n'
-                                '      "original": "string",\n'
-                                '      "improved": ["string", "string", "string"]\n'
+                                '      "issue": "text",\n'
+                                '      "improved": "text"\n'
                                 '    }\n'
                                 '  ]\n'
                                 '},\n'
-                                '"band_scores": {\n'
-                                '  "task_achievement": float,\n'
-                                '  "coherence_cohesion": float,\n'
-                                '  "lexical_resource": float,\n'
-                                '  "grammatical_range_accuracy": float,\n'
-                                '  "overall_band": float\n'
-                                '},\n'
-                                '"improved_response": "string"\n'
-                                "}"
+                                '"improved_response": "text"\n'
+                                "}\n"
+                                "\nEnsure 'improved' in how_to_improve_answer is a single string, not an array."
                             )
                         },
                         {
                             "role": "user",
-                            "content": f"Evaluate this Writing Task 1 letter:\n\n{response}\n\nTask Prompt:\n{task.main_prompt}\nRequired Points:\n{task.bullet_points}"
+                            "content": f"Evaluate this letter:\n\n{response}\n\nTask Prompt:\n{task.main_prompt}\nRequired Points:\n{task.bullet_points}"
                         }
                     ]
                     try:
@@ -237,7 +182,7 @@ def generate_writing_task_1_letter_feedback(response, task_id):
                         feedback = json.loads(raw_feedback)
                         return feedback
                     except Exception as e:
-                        logger.error(f"Simplified prompt attempt failed: {e}")
+                        logger.error(f"All attempts failed: {e}")
                         return {
                             "error": "Error processing feedback format",
                             "how_to_improve_language": {"examples": []},
@@ -317,63 +262,90 @@ def generate_writing_task_1_report_feedback(response, task_id):
         if not task:
             raise ValueError("Task not found")
 
+        # Calculate word count
+        word_count = len(response.split())
+        
         messages = [
             {
                 "role": "system",
                 "content": (
-                    "You are an IELTS Writing Task 1 examiner. Your task is to assess and provide structured feedback for a candidate’s response.\n\n"
+                    "You are an IELTS Academic Writing Task 1 (report) examiner.\n"
+                    "Your task is to assess and provide structured feedback for a candidate's response.\n"
+                    "Use the task prompt and graph description (given in content) to give relevant feedback to the candidate's response.\n"
+                    "Respond in British English and address the candidate as 'you'.\n\n"
                     
-                    "## **📌 EVALUATION CRITERIA**\n"
-                    "**1️⃣ How to Improve Language (LR & GRA)**\n"
-                    "- Identify **2-6 key grammar and vocabulary issues**.\n"
-                    "- Provide **corrections** and **two alternative ways** to express each phrase.\n\n"
+                    "Follow these instructions exactly:\n\n"
+                    
+                    "=== STEP 1: CHECK LENGTH ===\n"
+                    "If response is under 150 words, your FIRST feedback for 'how_to_improve_answer' must address this:\n"
+                    "- Original: [full response]\n"
+                    "- Improved: [\n"
+                    "    'Your response is only [X] words. You MUST write at least 150 words.',\n"
+                    "    'Missing required elements: introduction (overview), body paragraphs (data analysis, comparisons) and conclusion',\n"
+                    "    'See below for how to develop your answer properly'\n"
+                    "  ]\n\n"
 
-                    "**2️⃣ How to Improve Answer (TA & CC)**\n"
-                    "- Explain **why the response does not fully meet the task requirements**.\n"
-                    "- Identify **missing key trends, missing data points, or incorrect focus**.\n"
-                    "- Suggest **how to improve coherence and cohesion**.\n\n"
+                    "=== STEP 2: LANGUAGE FEEDBACK ===\n"
+                    "Identify **2-5 key grammar and vocabulary issues**.\n"
+                    "In 'how_to_improve_language', provide:\n"
+                    "1. The original issue as provided in the candidate's response\n"
+                    "2. A corrected version of the original issue\n"
+                    "3. An alternative way to express the original issue (e.g. using passive voice)\n\n"
                     
-                    "**3️⃣ Band Scores (1-9)**\n"
-                    "- Rate **Task Achievement (TA)**, **Coherence & Cohesion (CC)**, **Lexical Resource (LR)**, **Grammatical Range & Accuracy (GRA)**.\n"
-                    "- Provide an **overall band score**.\n\n"
+                    "Example format:\n"
+                    "Original: 'the graph show people watch more tv in the night'\n"
+                    "Improved: [\n"
+                    "  'The graph shows that people watched more television at night',\n"
+                    "  'According to the data, television viewership was seen to be highest at night...',\n"
+                    "]\n\n"
+
+                    "=== STEP 3: TASK ACHIEVEMENT FEEDBACK ===\n"
+                    "Identify **2-3 key Task Achievement issues**.\n"
+                    "In 'how_to_improve_answer', address:\n"
+                    "1. Response below 150 words\n"
+                    "2. Missing overview\n"
+                    "3. Missing data/percentages\n"
+                    "4. Missing comparisons\n"
+                    "5. Paragraph organisation\n\n"
                     
-                    "**4️⃣ Improved Response**\n"
-                    "- Rewrite the response with **corrected grammar, vocabulary, and structure**.\n"
-                    "- Maintain the **original ideas**, but improve clarity and academic tone.\n\n"
-                    
-                    "## **📌 OUTPUT FORMAT (MUST BE VALID JSON)**\n"
-                    "Return feedback ONLY in this JSON format:\n"
-                    
+                    "Example format:\n"
+                    "Issue: 'Missing comparisons'\n"
+                    "Improved: [\n"
+                    "  'You have identified differences in the data, but not given any similarities. For example, 'Television and radio shared similar audience numbers between 12pm and 1pm',\n"
+                    "]\n\n"
+
+                    "=== STEP 4: GENERATE IMPROVED RESPONSE ===\n"
+                    "Generate an 'Improved Response' based on the specific task and where:\n"
+                    "- Meets the word count requirement\n"
+                    "- The user's original ideas are maintained where relevant to the task.\n"
+                    "- **Task Achievement** is optimized by ensuring full coverage of required points.\n"
+                    "- **Coherence & Cohesion** is improved by better structuring paragraphs and transitions.\n"
+                    "- **Lexical Resource** is enhanced by using more precise and varied vocabulary.\n"
+                    "- **Grammar** and sentence structure are refined, eliminating errors and improving complexity.\n"
+                    "- Format the improved response with proper line breaks between paragraphs and essay components (introduction, body paragraphs, conclusion).\n\n"
+
+                    "=== OUTPUT FORMAT (STRICT JSON) ===\n"
                     "{\n"
                     '"how_to_improve_language": {\n'
-                    '  "examples": [\n'
-                    '    {\n'
-                    '      "original": "string",\n'
-                    '      "improved": ["string", "string", "string"]\n'
-                    '    }\n'
-                    '  ]\n'
+                    '  "examples": [{\n'
+                    '    "original": "text",\n'
+                    '    "improved": ["correction", "alternative"]\n'
+                    '  }]\n'
                     '},\n'
                     '"how_to_improve_answer": {\n'
-                    '  "examples": [\n'
-                    '    {\n'
-                    '      "original": "string",\n'
-                    '      "issues": ["Explain what is missing or incorrect in TA & CC."],\n'
-                    '      "improved": ["string"]\n'
-                    '    }\n'
-                    '  ]\n'
+                    '  "examples": [{\n'
+                    '    "issue": "text",\n'
+                    '    "improved": "text"\n'
+                    '  }]\n'
                     '},\n'
-                    '"band_scores": {\n'
-                    '  "task_achievement": float,\n'
-                    '  "coherence_cohesion": float,\n'
-                    '  "lexical_resource": float,\n'
-                    '  "grammatical_range_accuracy": float,\n'
-                    '  "overall_band": float\n'
-                    '},\n'
-                    '"improved_response": "string"\n'
+                    '"improved_response": "complete rewritten response"\n'
                     "}\n\n"
-                    
-                    "⚠️ **DO NOT return any explanation or formatting outside the JSON structure.**\n"
-                    "Now, evaluate the following candidate's response."
+
+                    "=== IMPORTANT ===\n"
+                    "- Always check word count first\n"
+                    "- Include specific data/percentages in improvements\n"
+                    "- Refer to the task prompt and graph description to give relevant feedback\n"
+                    "- Return ONLY valid JSON\n"
                 )
             },
             {
@@ -382,159 +354,156 @@ def generate_writing_task_1_report_feedback(response, task_id):
             }
         ]
 
-        # Make the API call
-        completion = client.chat.completions.create(
-            model="gpt-4",
-            messages=messages,
-            temperature=0.7,
-        )
-
-        # Extract the feedback
-        feedback_text = completion.choices[0].message.content
-        print(f"Raw OpenAI response: {feedback_text}")  # Debug log
-        
         try:
-            feedback = json.loads(feedback_text)
-        except json.JSONDecodeError as e:
-            print(f"JSON parsing error: {str(e)}")  # Debug log
-            print(f"Failed to parse: {feedback_text}")  # Debug log
+            openai_response = client.chat.completions.create(
+                model="gpt-4",
+                messages=messages,
+                temperature=0.7,
+                max_tokens=2000,
+                timeout=30
+            )
+            raw_feedback = openai_response.choices[0].message.content.strip()
+            logger.info(f"Raw GPT response:\n{raw_feedback}")
+            
+            # First try to parse the raw JSON
+            try:
+                feedback = json.loads(raw_feedback)
+                return feedback
+            except json.JSONDecodeError:
+                # If that fails, try cleaning the response
+                try:
+                    # Replace newlines in the improved_response section
+                    cleaned_feedback = re.sub(
+                        r'("improved_response":\s*")(.*?)(")',
+                        lambda m: m.group(1) + m.group(2).replace('\n', '\\n') + m.group(3),
+                        raw_feedback,
+                        flags=re.DOTALL
+                    )
+                    
+                    feedback = json.loads(cleaned_feedback)
+                    
+                    # Convert escaped newlines back to real newlines in improved_response
+                    if 'improved_response' in feedback:
+                        feedback['improved_response'] = feedback['improved_response'].replace('\\n', '\n')
+                    
+                    return feedback
+                    
+                except (json.JSONDecodeError, Exception) as e:
+                    logger.error(f"JSON error after cleaning: {e}")
+                    return {
+                        "error": "Error parsing feedback",
+                        "how_to_improve_language": {"examples": []},
+                        "how_to_improve_answer": {"examples": []},
+                        "improved_response": "Error generating feedback."
+                    }
+
+        except Exception as e:
+            logger.error(f"OpenAI API error: {e}")
             return {
-                'error': 'Error parsing feedback',
-                'how_to_improve_language': {'examples': []},
-                'how_to_improve_answer': {'examples': []},
-                'improved_response': 'Error generating feedback.'
+                "error": f"Error calling OpenAI API: {str(e)}",
+                "how_to_improve_language": {"examples": []},
+                "how_to_improve_answer": {"examples": []},
+                "improved_response": "Error generating feedback."
             }
 
-        return feedback
-
     except Exception as e:
-        logger.error(f"Error generating feedback: {str(e)}")
+        logger.error(f"General error: {str(e)}")
         return {
-            'error': f"Error generating feedback: {str(e)}",
-            'how_to_improve_language': {'examples': []},
-            'how_to_improve_answer': {'examples': []},
-            'improved_response': 'Your improved response will be available shortly.'
+            "error": f"Error generating feedback: {str(e)}",
+            "how_to_improve_language": {"examples": []},
+            "how_to_improve_answer": {"examples": []},
+            "improved_response": "Error generating feedback."
         }
 
 
 def generate_writing_task_2_feedback(response, task_id):
-    """Generates AI feedback for IELTS Writing Task 2."""
+    """Generates AI feedback for IELTS Writing Task 2 (Essay)."""
     try:
-        # Validate task_id is an integer
-        try:
-            task_id = int(task_id)
-        except (TypeError, ValueError):
-            raise ValueError("Invalid task ID provided")
-
-        # Get the task
         task = Task.query.get(task_id)
         if not task:
             raise ValueError("Task not found")
 
-        task_prompt = task.main_prompt if task and task.main_prompt else "No prompt provided."
-
+        word_count = len(response.split())
+        
         messages = [
             {
                 "role": "system",
                 "content": (
-                    "You are an IELTS Writing Task 2 examiner. Address the candidate as 'you' and use British English at all times. Evaluate the candidate's essay based on the "
-                    "official IELTS Writing Task 2 band descriptors and key assessment criteria (see below). For each example in the feedback, "
-                    "correct any grammar, vocabulary and expression errors first, then provide 1-2 alternative ways to express the same idea, "
-                    "showing different grammatical structures or vocabulary choices.\n\n"
+                    "You are an IELTS Writing Task 2 examiner.\n"
+                    "Your task is to assess and provide structured feedback for a candidate's essay.\n"
+                    "Use the essay question to give relevant feedback.\n"
+                    "Respond in British English and address the candidate as 'you'.\n\n"
                     
-                    "For each identified area of improvement:\n"
-                    "1. Show the original text\n"
-                    "2. Provide 2-3 improved versions.\n"
-                    "   The first version should correct the grammar, vocabulary and expression errors. The other versions should:\n"
-                    "   - Use different grammatical structures\n"
-                    "   - Employ varied academic vocabulary\n"
-                    "   - Show different ways to present arguments\n"
-                    "   - Demonstrate advanced cohesive devices\n"
+                    "Follow these instructions exactly:\n\n"
                     
-                    "For example, if the original is:\n"
-                    "'Many people think education important.'\n"
-                    "Provide multiple alternatives like:\n"
-                    "1. 'Many people think education is important.'\n"
-                    "2. 'It is widely acknowledged that education plays a crucial role in society.'\n"
-                    "3. 'The significance of education in modern society cannot be overstated.'\n\n"
-                    
-                    "1. **Task Response (TR):** Assess how fully the candidate (addressed as 'you') responds to the task, whether the position is clear, "
-                    "and how well the main ideas are supported. The candidate (addressed as 'you') should write at least 250 words. A score of 9 indicates full coverage with detailed examples, while "
-                    "lower scores reflect gaps or unclear arguments.\n"
-                    
-                    "2. **Coherence & Cohesion (CC):** Evaluate the logical structure (introduction, body paragraphs, conclusion), paragraphing, "
-                    "and use of cohesive devices. A score of 9 means highly organized ideas with effective transitions, while lower scores reflect "
-                    "issues with paragraphing or weak logical flow.\n"
-                    
-                    "3. **Lexical Resource (LR):** Assess the range, accuracy, and appropriacy of vocabulary for the topic and task. A score of 9 reflects "
-                    "wide-ranging, precise vocabulary used appropriately. Scores of 5-6 indicate repetitive vocabulary, while 3-4 reflects "
-                    "incorrect or limited word choice.\n"
-                    
-                    "4. **Grammatical Range & Accuracy (GRA):** Analyze sentence structures, grammar, punctuation, and errors. "
-                    "A score of 9 means highly accurate grammar and varied sentence structures, while lower scores reflect frequent errors "
-                    "and simpler structures.\n\n"
-                    
-                    "Provide structured feedback addressing the candidate as 'you' as a JSON object with the following format:\n"
-                    "{\n"
+                    "=== STEP 1: CHECK LENGTH ===\n"
+                    "If response is under 250 words, your FIRST feedback must address this:\n"
+                    "- Original: [full response]\n"
+                    "- Improved: [\n"
+                    "    'Your response is only [X] words. You MUST write at least 250 words.',\n"
+                    "    'Missing required elements: introduction, body paragraphs, and conclusion',\n"
+                    "    'See below for how to develop your answer properly'\n"
+                    "  ]\n\n"
 
+                    "=== STEP 2: LANGUAGE FEEDBACK ===\n"
+                    "Identify **2-5 key grammar and vocabulary issues**.\n"
+                    "In 'how_to_improve_language', provide:\n"
+                    "1. The original issue from the candidate's response\n"
+                    "2. A corrected version\n"
+                    "3. An alternative way to express it\n\n"
+                    
+                    "=== STEP 3: TASK ACHIEVEMENT FEEDBACK ===\n"
+                    "Identify **2-3 key Task Achievement issues**.\n"
+                    "In 'how_to_improve_answer', provide:\n"
+                    "1. Response below 250 words\n"
+                    "2. Missing thesis statement\n"
+                    "3. Underdeveloped arguments\n"
+                    "4. Missing examples\n"
+                    "5. Paragraph organisation\n\n"
+                    
+                    "Example format:\n"
+                    "{\n"
+                    '  "issue": "Your essay lacks a clear thesis statement",\n'
+                    '  "improved": "Start your introduction with a clear position. For example: While museums provide valuable cultural education, charging entrance fees can be necessary for their sustainability and development."\n'
+                    "}\n\n"
+
+                    "=== STEP 4: GENERATE IMPROVED RESPONSE ===\n"
+                    "Generate an improved essay that:\n"
+                    "- Meets the word count requirement\n"
+                    "- Maintains the user's original ideas where relevant\n"
+                    "- Uses the essay description as an example\n"
+                    "- Has clear thesis and topic sentences\n"
+                    "- Develops arguments with examples\n"
+                    "- Uses academic vocabulary and complex grammar\n"
+                    "- Has proper essay structure\n\n"
+
+                    "=== OUTPUT FORMAT (STRICT JSON) ===\n"
+                    "{\n"
                     '"how_to_improve_language": {\n'
-                    '  "examples": [\n'
-                    '    {\n'
-                    '      "original": "string",\n'
-                    '      "improved": ["string", "string", "string"]\n'
-                    '    }\n'
-                    '  ]\n'
+                    '  "examples": [{\n'
+                    '    "original": "text",\n'
+                    '    "improved": ["correction", "alternative"]\n'
+                    '  }]\n'
                     '},\n'
                     '"how_to_improve_answer": {\n'
-                    '  "examples": [\n'
-                    '    {\n'
-                    '      "original": "string",\n'
-                    '      "improved": ["string", "string", "string"]\n'
-                    '    }\n'
-                    '  ]\n'
+                    '  "examples": [{\n'
+                    '    "issue": "text",\n'
+                    '    "improved": "text"\n'
+                    '  }]\n'
                     '},\n'
-                    '"band_scores": {\n'
-                    '  "task_response": float,\n'
-                    '  "coherence_cohesion": float,\n'
-                    '  "lexical_resource": float,\n'
-                    '  "grammatical_range_accuracy": float,\n'
-                    '  "overall_band": float\n'
-                    '},\n'
-                    '"improved_response": "string"\n'
+                    '"improved_response": "complete rewritten essay"\n'
                     "}\n\n"
-                    
-                    "For the 'how_to_improve_language' section:\n"
-                    "- Identify between 2-6 specific examples of grammar, vocabulary, and expression from the response that could be improved\n"
-                    "- For each example, show the original text and an improved version\n"
-                    "- Correct any grammar, vocabulary and expression errors first\n"
-                    "- Focus on grammar, vocabulary, and expression improvements\n"
-                    "- Be constructive and encouraging in your feedback\n\n"
 
-                    "For the 'how_to_improve_answer' section:\n"
-                    "- Identify 2-3 specific examples of task response and coherence & cohesion from the response that could be improved\n"
-                    "- For each example, show the relevant part of the original text and the improved version\n"
-                    "- Focus on task response (especially the word count, which should be at least 250 words, and whether the argument is balanced and well-developed) and coherence & cohesion improvements\n"
-                    "- Be constructive and encouraging in your feedback\n\n"
-                    
-                    "Each score should be based on the official IELTS Writing Task 2 band descriptors, considering:\n"
-                    "- **9** = Excellent (Almost no errors, highly fluent, well-developed ideas)\n"
-                    "- **7-8** = Very good (Few minor errors, strong structure, well-extended ideas)\n"
-                    "- **5-6** = Moderate (Some errors, limited development, minor issues in organization or vocabulary)\n"
-                    "- **3-4** = Weak (Frequent errors, lack of clarity, poor structure)\n\n"
-                    
-                    "After assessing the response, generate an 'Improved Response' based on the specific task and where:\n"
-                    "- The user's original ideas are maintained where relevant to the task.\n"
-                    "- **Task Response** is optimized by ensuring full coverage of required points.\n"
-                    "- **Coherence & Cohesion** is improved by better structuring paragraphs and transitions.\n"
-                    "- **Lexical Resource** is enhanced by using more precise and varied vocabulary.\n"
-                    "- **Grammar** and sentence structure are refined, eliminating errors and improving complexity.\n"
-                    "- Format the improved response with proper line breaks between paragraphs and essay components (introduction, body paragraphs, conclusion).\n\n"
-                    "Now, evaluate the following candidate's response and generate feedback accordingly."
+                    "=== IMPORTANT ===\n"
+                    "- Always check word count first\n"
+                    "- Ensure clear position on the topic\n"
+                    "- Check argument development\n"
+                    "- Return ONLY valid JSON\n"
                 )
             },
             {
                 "role": "user",
-                "content": f"Evaluate this essay:\n\n{response}\n\nEssay Question:\n{task.main_prompt}"
+                "content": f"Evaluate this essay:\n\n{response}\n\nEssay Question:\n{task.main_prompt}\n\nEssay Description:\n{task.description}"
             }
         ]
 
@@ -585,33 +554,27 @@ def generate_writing_task_2_feedback(response, task_id):
                                 '"how_to_improve_language": {\n'
                                 '  "examples": [\n'
                                 '    {\n'
-                                '      "original": "string",\n'
-                                '      "improved": ["string", "string", "string"]\n'
+                                '      "original": "text",\n'
+                                '      "improved": ["correction", "alternative"]\n'
                                 '    }\n'
                                 '  ]\n'
                                 '},\n'
                                 '"how_to_improve_answer": {\n'
                                 '  "examples": [\n'
                                 '    {\n'
-                                '      "original": "string",\n'
-                                '      "improved": ["string", "string", "string"]\n'
+                                '      "issue": "text",\n'
+                                '      "improved": "text"\n'
                                 '    }\n'
                                 '  ]\n'
                                 '},\n'
-                                '"band_scores": {\n'
-                                '  "task_response": float,\n'
-                                '  "coherence_cohesion": float,\n'
-                                '  "lexical_resource": float,\n'
-                                '  "grammatical_range_accuracy": float,\n'
-                                '  "overall_band": float\n'
-                                '},\n'
-                                '"improved_response": "string"\n'
-                                "}"
+                                '"improved_response": "text"\n'
+                                "}\n"
+                                "\nEnsure 'improved' in how_to_improve_answer is a single string, not an array."
                             )
                         },
                         {
                             "role": "user",
-                            "content": f"Evaluate this Writing Task 2 essay:\n\n{response}\n\nEssay Question:\n{task_prompt}"
+                            "content": f"Evaluate this Writing Task 2 essay:\n\n{response}\n\nEssay Question:\n{task.main_prompt}"
                         }
                     ]
                     try:

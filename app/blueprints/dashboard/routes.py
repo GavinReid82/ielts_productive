@@ -19,7 +19,8 @@ def my_tasks():
         "Service temporarily unavailable",
         "We apologize for the inconvenience",
         "Feedback service temporarily unavailable",
-        "Error processing feedback"
+        "Error processing feedback",
+        "Error generating feedback"
     ]
     
     # Get all transcripts that have an associated feedback
@@ -39,35 +40,27 @@ def my_tasks():
             print(f"- Skipping: feedback is not a dict")
             continue
             
-        # For Writing Task 2, check task_response
-        if t.task.type == 'writing_task_2':
-            print(f"- Has task_response: {bool(t.feedback.get('task_response'))}")
-            if not t.feedback.get('task_response'):
-                print(f"- Skipping: missing task_response")
-                continue
-            if any(error in t.feedback['task_response'] for error in error_messages):
-                print(f"- Skipping: task_response contains error message")
-                continue
-        # For other tasks, check task_achievement
-        else:
-            print(f"- Has task_achievement: {bool(t.feedback.get('task_achievement'))}")
-            if not t.feedback.get('task_achievement'):
-                print(f"- Skipping: missing task_achievement")
-                continue
-            if any(error in t.feedback['task_achievement'] for error in error_messages):
-                print(f"- Skipping: task_achievement contains error message")
-                continue
-                
-        # Check other required fields
-        required_fields = ['coherence_cohesion', 'lexical_resource', 'grammatical_range_accuracy']
+        # Check for error in feedback
+        if t.feedback.get('error'):
+            print(f"- Skipping: contains error message")
+            continue
+            
+        # Check for required fields in new format
+        required_fields = ['how_to_improve_language', 'how_to_improve_answer', 'improved_response']
+        has_all_fields = True
         for field in required_fields:
-            print(f"- Has {field}: {bool(t.feedback.get(field))}")
             if not t.feedback.get(field):
                 print(f"- Skipping: missing {field}")
-                continue
-            if any(error in t.feedback[field] for error in error_messages):
-                print(f"- Skipping: {field} contains error message")
-                continue
+                has_all_fields = False
+                break
+                
+        if not has_all_fields:
+            continue
+            
+        # Check if any error messages in the improved response
+        if any(error in t.feedback['improved_response'] for error in error_messages):
+            print(f"- Skipping: improved_response contains error message")
+            continue
             
         print(f"- Adding transcript {t.id} to valid list")
         valid_transcripts.append(t)
