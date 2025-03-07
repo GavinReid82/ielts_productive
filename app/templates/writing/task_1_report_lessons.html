@@ -6,9 +6,10 @@
 <div class="container my-4">
     {% if is_demo %}
         <h1 class="text-center mb-4">Welcome to IELTS Productive</h1>
-        <p class="text-center mb-4">This is a lesson to help you understand the task and improve your writing.</p>
     {% endif %}
-    
+    <h1 class="text-center mb-4">IELTS Task 1</h1>
+    <p class="text-center mb-4">This is a lesson to help you understand task 1 and improve your writing.</p>
+ 
     <div class="container bg-light p-4 rounded shadow-sm mb-4">
         <p class="fw-bold mb-3">How to use this lesson:</p>
         <ol class="mb-0">
@@ -83,9 +84,10 @@
 
                     <!-- Practice Questions -->
                     <div class="col-md-6">
-                        <h4>Complete the sentences using the correct words/phrases:</h4>
+                        <h4>1. Read the graph</h4>
+                        <h4>2. Complete the sentences to correctly describe the graph:</h4>
                         <h5>You can use the useful language to help you.</h5>
-                        <h5 class="mb-3">GREEN = Correct, RED = Incorrect</h5>
+                        <h5 class="mb-3"><span style="color: green;">GREEN</span> = Correct, <span style="color: red;">RED</span> = Incorrect</h5>
                         
                         {% if task.practice_questions %}
                             {% for question in task.practice_questions %}
@@ -226,7 +228,7 @@
             if (sectionId === 'taskSection') {
                 document.getElementById('writingForm').addEventListener('submit', function() {
                     const submitButton = document.getElementById('submitButton');
-                    submitButton.innerHTML = 'Generating Feedback...';
+                    submitButton.innerHTML = 'Please wait, generating feedback... <i class="fas fa-spinner fa-spin"></i>';
                     submitButton.disabled = true;
                 });
             }
