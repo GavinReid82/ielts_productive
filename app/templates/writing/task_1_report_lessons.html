@@ -6,6 +6,19 @@
 <div class="container my-4">
     {% if is_demo %}
         <h1 class="text-center mb-4">Welcome to IELTS Productive</h1>
+        <script>
+            // Send analytics data when demo lesson is viewed
+            fetch('/track-demo-view', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    page: 'task_1_report_lessons',
+                    timestamp: new Date().toISOString()
+                })
+            });
+        </script>
     {% endif %}
     <h1 class="text-center mb-4">IELTS Task 1</h1>
     <p class="text-center mb-4">This is a lesson to help you understand task 1 and improve your writing.</p>
@@ -217,12 +230,18 @@
 </style>
 
 <script>
+    let startTime = new Date();
+    let viewedSections = new Set();
+
     function toggleSection(sectionId, button) {
         const section = document.getElementById(sectionId);
         if (section.style.display === 'none') {
             // Show section
             section.style.display = 'block';
             button.textContent = button.textContent.replace('Show', 'Hide').replace('Continue to', 'Hide');
+            
+            // Track section view
+            viewedSections.add(sectionId);
             
             // Add form submit handler after section is shown
             if (sectionId === 'taskSection') {
@@ -243,6 +262,28 @@
             button.textContent = button.textContent.replace('Hide', 'Show').replace('Hide', 'Continue to');
         }
     }
+
+    // Track when user leaves the page
+    window.addEventListener('beforeunload', function() {
+        if (document.querySelector('[data-is-demo="true"]')) {
+            const endTime = new Date();
+            const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
+            
+            // Send final analytics data
+            fetch('/track-demo-view', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    page: 'task_1_report_lessons',
+                    timestamp: new Date().toISOString(),
+                    sections_viewed: Array.from(viewedSections),
+                    session_duration: duration
+                })
+            });
+        }
+    });
 
     function checkAnswer(selectElement, correctAnswer) {
         if (selectElement.value === correctAnswer) {

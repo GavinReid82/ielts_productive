@@ -1,0 +1,98 @@
+{% extends "layout.html" %}
+
+{% block title %}Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="mb-4">Demo Analytics Dashboard</h1>
+    
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Views</h5>
+                    <h2 class="card-text" id="totalViews">0</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Today's Views</h5>
+                    <h2 class="card-text" id="todayViews">0</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Average Time Spent</h5>
+                    <h2 class="card-text" id="avgTime">0 min</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Recent Activity</h5>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date/Time</th>
+                            <th>Page</th>
+                            <th>Country</th>
+                            <th>Sections Viewed</th>
+                            <th>Duration</th>
+                        </tr>
+                    </thead>
+                    <tbody id="analyticsTable">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Fetch and display analytics data
+function loadAnalytics() {
+    fetch('/admin/analytics')
+        .then(response => response.json())
+        .then(data => {
+            // Update summary stats
+            document.getElementById('totalViews').textContent = data.length;
+            
+            // Calculate today's views
+            const today = new Date().toDateString();
+            const todayViews = data.filter(entry => 
+                new Date(entry.timestamp).toDateString() === today
+            ).length;
+            document.getElementById('todayViews').textContent = todayViews;
+            
+            // Update table
+            const tableBody = document.getElementById('analyticsTable');
+            tableBody.innerHTML = '';
+            
+            data.forEach(entry => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${entry.timestamp}</td>
+                    <td>${entry.page}</td>
+                    <td>${entry.country || 'Unknown'}</td>
+                    <td>${entry.sections_viewed.join(', ') || 'None'}</td>
+                    <td>${entry.session_duration ? Math.round(entry.session_duration / 60) + ' min' : 'N/A'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        });
+}
+
+// Load analytics on page load
+document.addEventListener('DOMContentLoaded', loadAnalytics);
+
+// Refresh data every 5 minutes
+setInterval(loadAnalytics, 300000);
+</script>
+{% endblock %} 

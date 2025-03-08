@@ -7,6 +7,7 @@ from app.models import User, Task
 from flask_migrate import Migrate
 from flask_login import current_user, login_required
 import logging
+from app.routes.analytics import analytics_bp
 
 mail = Mail()
 
@@ -110,6 +111,7 @@ def create_app(config_class=Config):
         app.register_blueprint(dashboard_bp)
         app.register_blueprint(payments_bp, url_prefix='/payments')
         app.register_blueprint(legal_bp, url_prefix='/legal')
+        app.register_blueprint(analytics_bp)
 
         logger.info("Application creation completed successfully")
         return app

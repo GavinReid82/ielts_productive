@@ -106,3 +106,27 @@ class Transcript(db.Model):
 
     def __repr__(self):
         return f"<Transcript User {self.user_id}, Task {self.task_id}>"
+
+# Analytics model for tracking demo usage
+class DemoAnalytics(db.Model):
+    __tablename__ = 'demo_analytics'
+
+    id = db.Column(db.Integer, primary_key=True)
+    page = db.Column(db.String(100), nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False)
+    ip_address = db.Column(db.String(50), nullable=True)
+    country = db.Column(db.String(100), nullable=True)
+    user_agent = db.Column(db.String(500), nullable=True)
+    session_duration = db.Column(db.Integer, nullable=True)  # Duration in seconds
+    sections_viewed = db.Column(db.JSON, nullable=True)  # Track which sections were viewed
+
+    def __repr__(self):
+        return f"<DemoAnalytics {self.page} at {self.timestamp}>"
+
+    def set_password(self, password):
+        """Hashes the password and stores it securely."""
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        """Verifies a password against the stored hash."""
+        return check_password_hash(self.password_hash, password)
