@@ -107,7 +107,7 @@ class Transcript(db.Model):
     def __repr__(self):
         return f"<Transcript User {self.user_id}, Task {self.task_id}>"
 
-# Analytics model for tracking demo usage
+# Analytics model for tracking demo usage and times
 class DemoAnalytics(db.Model):
     __tablename__ = 'demo_analytics'
 
