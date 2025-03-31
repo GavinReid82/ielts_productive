@@ -1,5 +1,6 @@
 from flask_login import current_user, login_required
-from app.models import db, Transcript, Task, Payment
+from app.extensions import db
+from app.models import Transcript, Task, Payment
 from flask import Blueprint, render_template, request, url_for, redirect, flash, session, jsonify
 from app.blueprints.writing.utils import extract_writing_response, generate_writing_task_1_letter_feedback, generate_writing_task_1_report_feedback, generate_writing_task_2_feedback, save_writing_transcript
 from openai import OpenAI

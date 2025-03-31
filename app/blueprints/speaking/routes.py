@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template, request, session, redirect, url_for
+from flask import Blueprint, render_template, request, session, redirect, url_for, jsonify, current_app
 from app.blueprints.speaking.utils import save_audio_file, transcribe_audio, generate_feedback
-from app.models import db, Transcript, Task
+from app.extensions import db
+from app.models import Transcript, Task
 from openai import OpenAI
 import json
 import os

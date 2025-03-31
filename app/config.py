@@ -2,6 +2,7 @@
 import os
 from dotenv import load_dotenv
 import logging
+from datetime import timedelta
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -48,3 +49,25 @@ class Config:
     except Exception as e:
         logger.error(f"Failed to create upload folder: {str(e)}")
         UPLOAD_FOLDER = '/tmp'  # Fallback to /tmp if we can't create the folder
+
+    # File upload settings
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
+    
+    # Session settings
+    PERMANENT_SESSION_LIFETIME = timedelta(days=7)
+    
+    # JWT settings
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'jwt-secret-key'
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
+
+class TestConfig(Config):
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    WTF_CSRF_ENABLED = False
+    
+    # Disable mail in tests
+    MAIL_SERVER = None
+    MAIL_PORT = None
+    MAIL_USE_TLS = False
+    MAIL_USERNAME = None
+    MAIL_PASSWORD = None

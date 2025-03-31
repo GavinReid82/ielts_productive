@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, session,request, current_app
 from flask_login import login_user, logout_user, login_required, current_user
-from app.models import db, User
+from app.extensions import db
+from app.models import User
 from app.blueprints.auth.forms import LoginForm, RegistrationForm, RequestPasswordResetForm, ResetPasswordForm
 from datetime import datetime, timedelta
 import secrets

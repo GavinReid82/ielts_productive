@@ -1,7 +1,8 @@
 import os
 import json
 from flask import current_app
-from app.models import db, Transcript, Task
+from app.extensions import db
+from app.models import Transcript, Task
 from openai import OpenAI, OpenAIError, RateLimitError
 import logging
 import time

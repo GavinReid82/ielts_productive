@@ -1,50 +1,109 @@
 {% extends "layout.html" %}
 
-{% block title %}Analytics Dashboard{% endblock %}
+{% block title %}Landing Page Analytics{% endblock %}
 
 {% block content %}
 <div class="container my-4">
-    <h1 class="mb-4">Demo Analytics Dashboard</h1>
+    <h1 class="mb-4">Landing Page Analytics</h1>
     
+    <!-- Date Range Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Date Range</h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="startDate">Start Date</label>
+                        <input type="date" class="form-control" id="startDate">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="endDate">End Date</label>
+                        <input type="date" class="form-control" id="endDate">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button class="btn btn-primary d-block w-100" onclick="loadAnalytics()">Apply Filter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
     <div class="row mb-4">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Total Views</h5>
-                    <h2 class="card-text" id="totalViews">0</h2>
+                    <h5 class="card-title">Landing Page Views</h5>
+                    <h2 class="card-text" id="landingPageViews">0</h2>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Today's Views</h5>
-                    <h2 class="card-text" id="todayViews">0</h2>
+                    <h5 class="card-title">Conversion Rate</h5>
+                    <h2 class="card-text" id="conversionRate">0%</h2>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Average Time Spent</h5>
+                    <h5 class="card-title">Unique Countries</h5>
+                    <h2 class="card-text" id="uniqueCountries">0</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Avg. Time Spent</h5>
                     <h2 class="card-text" id="avgTime">0 min</h2>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Device & Browser Stats -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Device Types</h5>
+                    <canvas id="deviceChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Browsers</h5>
+                    <canvas id="browserChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Analytics Table -->
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Recent Activity</h5>
+            <h5 class="card-title">Landing Page Visitors</h5>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
                         <tr>
                             <th>Date/Time</th>
-                            <th>Page</th>
                             <th>Country</th>
-                            <th>Sections Viewed</th>
+                            <th>Device</th>
+                            <th>Browser</th>
+                            <th>Referrer</th>
                             <th>Duration</th>
+                            <th>Converted</th>
                         </tr>
                     </thead>
                     <tbody id="analyticsTable">
@@ -55,37 +114,84 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+let deviceChart = null;
+let browserChart = null;
+
+function updateCharts(deviceStats, browserStats) {
+    // Update Device Chart
+    if (deviceChart) deviceChart.destroy();
+    const deviceCtx = document.getElementById('deviceChart').getContext('2d');
+    deviceChart = new Chart(deviceCtx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys(deviceStats),
+            datasets: [{
+                data: Object.values(deviceStats),
+                backgroundColor: ['#FF6384', '#36A2EB']
+            }]
+        }
+    });
+
+    // Update Browser Chart
+    if (browserChart) browserChart.destroy();
+    const browserCtx = document.getElementById('browserChart').getContext('2d');
+    browserChart = new Chart(browserCtx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys(browserStats),
+            datasets: [{
+                data: Object.values(browserStats),
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+            }]
+        }
+    });
+}
+
 // Fetch and display analytics data
 function loadAnalytics() {
-    fetch('/admin/analytics')
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    let url = '/admin/analytics';
+    if (startDate || endDate) {
+        url += '?';
+        if (startDate) url += `start_date=${startDate}&`;
+        if (endDate) url += `end_date=${endDate}`;
+    }
+    
+    fetch(url)
         .then(response => response.json())
         .then(data => {
             // Update summary stats
-            document.getElementById('totalViews').textContent = data.length;
+            document.getElementById('landingPageViews').textContent = data.summary.landing_page_views;
+            document.getElementById('conversionRate').textContent = data.summary.conversion_rate + '%';
+            document.getElementById('uniqueCountries').textContent = data.summary.unique_countries;
+            document.getElementById('avgTime').textContent = Math.round(data.summary.avg_session_duration / 60) + ' min';
             
-            // Calculate today's views
-            const today = new Date().toDateString();
-            const todayViews = data.filter(entry => 
-                new Date(entry.timestamp).toDateString() === today
-            ).length;
-            document.getElementById('todayViews').textContent = todayViews;
+            // Update charts
+            updateCharts(data.summary.device_stats, data.summary.browser_stats);
             
             // Update table
             const tableBody = document.getElementById('analyticsTable');
             tableBody.innerHTML = '';
             
-            data.forEach(entry => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${entry.timestamp}</td>
-                    <td>${entry.page}</td>
-                    <td>${entry.country || 'Unknown'}</td>
-                    <td>${entry.sections_viewed.join(', ') || 'None'}</td>
-                    <td>${entry.session_duration ? Math.round(entry.session_duration / 60) + ' min' : 'N/A'}</td>
-                `;
-                tableBody.appendChild(row);
-            });
+            data.entries
+                .filter(entry => entry.is_landing_page)
+                .forEach(entry => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${entry.timestamp}</td>
+                        <td>${entry.country || 'Unknown'}</td>
+                        <td>${entry.device_type}</td>
+                        <td>${entry.browser}</td>
+                        <td>${entry.referrer || 'Direct'}</td>
+                        <td>${entry.session_duration ? Math.round(entry.session_duration / 60) + ' min' : 'N/A'}</td>
+                        <td>${entry.converted_to_signup ? 'Yes' : 'No'}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
         });
 }
 

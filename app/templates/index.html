@@ -1,0 +1,163 @@
+{% extends "layout.html" %}
+
+{% block title %}IELTS Productive - Improve Your IELTS Writing{% endblock %}
+
+{% block content %}
+<!-- Analytics Tracking -->
+<script>
+    // Initialize analytics tracking
+    const analytics = {
+        startTime: new Date(),
+        viewedSections: new Set(),
+        
+        init() {
+            // Send initial page view
+            this.trackPageView();
+            
+            // Track when user leaves the page
+            window.addEventListener('beforeunload', () => this.trackPageExit());
+            
+            // Track section views
+            document.querySelectorAll('[data-track-section]').forEach(element => {
+                element.addEventListener('click', () => {
+                    const section = element.getAttribute('data-track-section');
+                    this.viewedSections.add(section);
+                });
+            });
+        },
+        
+        trackPageView() {
+            fetch('/track-demo-view', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    page: window.location.pathname,
+                    timestamp: new Date().toISOString(),
+                    sections_viewed: [],
+                    session_duration: 0
+                })
+            }).catch(error => console.error('Analytics error:', error));
+        },
+        
+        trackPageExit() {
+            const endTime = new Date();
+            const duration = Math.round((endTime - this.startTime) / 1000); // Duration in seconds
+            
+            fetch('/track-demo-view', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    page: window.location.pathname,
+                    timestamp: new Date().toISOString(),
+                    sections_viewed: Array.from(this.viewedSections),
+                    session_duration: duration
+                })
+            });
+        }
+    };
+
+    // Initialize analytics when the page loads
+    document.addEventListener('DOMContentLoaded', () => analytics.init());
+</script>
+
+<!-- Main Content -->
+<div class="container my-5">
+    <div class="row align-items-center">
+        <div class="col-lg-6">
+            <h1 class="display-4 mb-4">Improve Your IELTS Writing</h1>
+            <p class="lead mb-4">Get instant feedback on your writing tasks and improve your band score with our AI-powered IELTS writing assistant.</p>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg px-4 me-md-2" data-track-section="register">Get Started</a>
+                <a href="{{ url_for('landing.try_it_out') }}" class="btn btn-outline-secondary btn-lg px-4" data-track-section="try_it_out">Try It Out</a>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <img src="{{ url_for('static', filename='images/hero-image.jpg') }}" alt="IELTS Writing" class="img-fluid rounded shadow">
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Task 1 & 2 Support</h5>
+                    <p class="card-text">Get feedback on both Task 1 (reports/letters) and Task 2 (essays) writing tasks.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Instant Feedback</h5>
+                    <p class="card-text">Receive detailed feedback on your writing within seconds, including band score estimates.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Improvement Tips</h5>
+                    <p class="card-text">Get specific suggestions to improve your writing and increase your band score.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <h2 class="mb-4">How It Works</h2>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center">
+                <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                    <h3 class="mb-0">1</h3>
+                </div>
+                <h5>Choose a Task</h5>
+                <p>Select from a variety of IELTS writing tasks</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center">
+                <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                    <h3 class="mb-0">2</h3>
+                </div>
+                <h5>Write Your Response</h5>
+                <p>Complete the task within the time limit</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center">
+                <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                    <h3 class="mb-0">3</h3>
+                </div>
+                <h5>Get Feedback</h5>
+                <p>Receive instant AI-powered feedback</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center">
+                <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                    <h3 class="mb-0">4</h3>
+                </div>
+                <h5>Improve</h5>
+                <p>Use feedback to enhance your writing</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <h2 class="mb-4">Ready to Improve Your IELTS Writing?</h2>
+            <p class="lead mb-4">Join thousands of students who are already improving their IELTS writing with our platform.</p>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg px-4" data-track-section="bottom_cta">Get Started Now</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

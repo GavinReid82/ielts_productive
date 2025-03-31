@@ -1,5 +1,6 @@
 from app import create_app
-from app.models import db, User, Task, UserTask
+from app.extensions import db
+from app.models import User, Task, UserTask
 
 app = create_app()
 with app.app_context():
