@@ -8,11 +8,15 @@ import secrets
 from flask_mail import Message
 from app.extensions import mail
 import logging
+from flask_login import login_manager
 
 auth_bp = Blueprint('auth', __name__)
 
 logger = logging.getLogger(__name__)
 
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 def send_verification_email(user):
     token = secrets.token_urlsafe(32)
@@ -39,12 +43,12 @@ If you did not register for this account, please ignore this email.
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    form = LoginForm()  # Initialize form before try block
     try:
         logger.info(f"Login route accessed. Referrer: {request.referrer}")
         if current_user.is_authenticated:
             return redirect(url_for('dashboard.dashboard_home'))
             
-        form = LoginForm()
         if form.validate_on_submit():
             user = User.query.filter_by(email=form.email.data).first()
             if user and user.check_password(form.password.data):
