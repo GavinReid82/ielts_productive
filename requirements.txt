@@ -22,6 +22,7 @@ stripe==11.5.0
 # Utils
 python-dotenv==1.0.0
 email_validator==2.2.0
+geoip2==4.8.0
 
 # Security
 python-dateutil==2.9.0.post0
@@ -29,3 +30,6 @@ PyJWT==2.8.0
 
 # Additional dependencies
 Flask-Mail==0.9.1
+
+# Testing
+pytest==8.0.2
