@@ -1,11 +1,32 @@
-from app import create_app
-import logging
 import os
+import logging
+from app import create_app
+from dotenv import load_dotenv
 from logging.handlers import RotatingFileHandler
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Load environment variables
+load_dotenv()
+
+# Determine environment
+env = os.getenv('FLASK_ENV', 'production')
+logger.info(f"Environment: {env}")
+
+# Verify secret key
+secret_key = os.getenv('FLASK_SECRET_KEY')
+logger.info(f"FLASK_SECRET_KEY present: {bool(secret_key)}")
+logger.info(f"FLASK_SECRET_KEY length: {len(secret_key) if secret_key else 0}")
+
+# Create upload directory if it doesn't exist
+upload_folder = os.path.join('/tmp', 'uploads')
+os.makedirs(upload_folder, exist_ok=True)
+logger.info(f"Upload folder configured: {upload_folder}")
+
+# Create app
+app = create_app()
 
 # Add file handler for Azure's log directory
 log_dir = os.getenv('LOG_DIR', '/home/LogFiles')
@@ -26,22 +47,13 @@ try:
     logger.info("Starting application initialization...")
     
     # Log environment variables (excluding sensitive values)
-    logger.info(f"Environment: {os.getenv('FLASK_ENV', 'production')}")
-    logger.info(f"FLASK_SECRET_KEY present: {bool(os.getenv('FLASK_SECRET_KEY'))}")
-    logger.info(f"FLASK_SECRET_KEY length: {len(os.getenv('FLASK_SECRET_KEY', ''))}")
-    
-    # Create upload folder if it doesn't exist
-    from app.config import Config
-    os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
-    logger.info(f"Upload folder configured: {Config.UPLOAD_FOLDER}")
-    
-    # Create the application
-    app = create_app()
-    logger.info("Application created successfully")
+    logger.info(f"Environment: {env}")
+    logger.info(f"FLASK_SECRET_KEY present: {bool(secret_key)}")
+    logger.info(f"FLASK_SECRET_KEY length: {len(secret_key) if secret_key else 0}")
     
     # Log configuration details
     logger.info(f"Database URI: {app.config['SQLALCHEMY_DATABASE_URI'].split('@')[1] if '@' in app.config['SQLALCHEMY_DATABASE_URI'] else 'local'}")
-    logger.info(f"Upload folder: {app.config['UPLOAD_FOLDER']}")
+    logger.info(f"Upload folder: {upload_folder}")
     logger.info(f"SECRET_KEY configured: {bool(app.config.get('SECRET_KEY'))}")
     logger.info(f"SECRET_KEY length: {len(app.config.get('SECRET_KEY', ''))}")
     logger.info(f"SESSION_TYPE: {app.config.get('SESSION_TYPE')}")

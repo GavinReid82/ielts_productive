@@ -1,21 +1,25 @@
 # Gunicorn Configuration File for IELTS Productive
 # Updated for Azure Web App deployment - 2025
 
+import multiprocessing
+
 # Server socket
 bind = "0.0.0.0:8000"
 backlog = 2048
 
 # Worker processes
-workers = 4  # Increased for Azure
-worker_class = 'sync'
+workers = multiprocessing.cpu_count() * 2 + 1
+worker_class = "sync"
 worker_connections = 1000
-timeout = 300
-keepalive = 2
+timeout = 120
+keepalive = 5
 
 # Logging
-accesslog = '/home/LogFiles/gunicorn_access.log'
-errorlog = '/home/LogFiles/gunicorn_error.log'
-loglevel = 'info'
+accesslog = "-"
+errorlog = "-"
+loglevel = "info"
+capture_output = True
+enable_stdio_inheritance = True
 
 # Process naming
 proc_name = 'ielts-productive'
