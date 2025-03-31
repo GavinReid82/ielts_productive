@@ -2,7 +2,6 @@ import os
 import logging
 from app import create_app
 from dotenv import load_dotenv
-from logging.handlers import RotatingFileHandler
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -27,21 +26,6 @@ logger.info(f"Upload folder configured: {upload_folder}")
 
 # Create app
 app = create_app()
-
-# Add file handler for Azure's log directory
-log_dir = os.getenv('LOG_DIR', '/home/LogFiles')
-if not os.path.exists(log_dir):
-    os.makedirs(log_dir, exist_ok=True)
-file_handler = RotatingFileHandler(
-    os.path.join(log_dir, 'flask_app.log'),
-    maxBytes=10240,
-    backupCount=10
-)
-file_handler.setFormatter(logging.Formatter(
-    '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
-))
-logger.addHandler(file_handler)
-logger.setLevel(logging.INFO)
 
 try:
     logger.info("Starting application initialization...")

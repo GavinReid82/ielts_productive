@@ -11,6 +11,8 @@ logger = logging.getLogger(__name__)
 if os.getenv('FLASK_ENV') == 'development':
     load_dotenv()
     logger.info("Loaded environment variables from .env file (development mode)")
+else:
+    logger.info("Running in production mode, using Azure environment variables")
 
 class Config:
     WTF_CSRF_ENABLED = True
