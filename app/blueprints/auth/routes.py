@@ -14,7 +14,7 @@ auth_bp = Blueprint('auth', __name__)
 
 logger = logging.getLogger(__name__)
 
-@login_manager.user_loader
+@login_manager.user_loader()
 def load_user(user_id):
     return User.query.get(int(user_id))
 

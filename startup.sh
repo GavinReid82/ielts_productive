@@ -21,7 +21,7 @@ pip install --no-cache-dir --no-deps -r requirements.txt
 export FLASK_ENV=production
 export PYTHONUNBUFFERED=1
 export PYTHONPATH=/home/site/wwwroot
-export GUNICORN_CMD_ARGS="--timeout 120 --workers 4 --threads 2 --worker-class gthread"
+export GUNICORN_CMD_ARGS="--timeout 120 --workers 2 --threads 4 --worker-class gthread --max-requests 1000 --max-requests-jitter 50"
 
 # Start Gunicorn with optimized settings
-gunicorn -c gunicorn_config.py run:app --bind 0.0.0.0:8000 --timeout 120 --workers 4 --threads 2 --worker-class gthread 
+gunicorn -c gunicorn_config.py run:app --bind 0.0.0.0:8000 --timeout 120 --workers 2 --threads 4 --worker-class gthread --max-requests 1000 --max-requests-jitter 50 --log-level debug 

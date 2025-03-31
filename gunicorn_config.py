@@ -2,14 +2,16 @@
 # Updated for Azure Web App deployment - 2025
 
 import multiprocessing
+import os
 
 # Server socket
 bind = "0.0.0.0:8000"
 backlog = 2048
 
-# Worker processes
-workers = multiprocessing.cpu_count() * 2 + 1
-worker_class = "sync"
+# Worker processes - optimized for Azure
+workers = 2  # Reduced from CPU-based calculation for memory efficiency
+worker_class = "gthread"  # Changed from sync to gthread for better concurrency
+threads = 4  # Added explicit thread count
 worker_connections = 1000
 timeout = 120
 keepalive = 5
@@ -17,7 +19,7 @@ keepalive = 5
 # Logging
 accesslog = "-"
 errorlog = "-"
-loglevel = "info"
+loglevel = "debug"  # Changed to debug for better troubleshooting
 capture_output = True
 enable_stdio_inheritance = True
 
@@ -43,3 +45,8 @@ reload_engine = 'auto'
 # Azure specific
 forwarded_allow_ips = '*'
 secure_scheme_headers = {'X-FORWARDED-PROTOCOL': 'ssl', 'X-FORWARDED-PROTO': 'https', 'X-FORWARDED-SSL': 'on'}
+
+# Memory management
+max_requests = 1000
+max_requests_jitter = 50
+worker_tmp_dir = '/tmp'  # Use /tmp for worker temporary files
