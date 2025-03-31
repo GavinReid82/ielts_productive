@@ -54,6 +54,9 @@ def create_app(config_class=Config):
         if os.getenv('FLASK_ENV') == 'production':
             app.config['SESSION_TYPE'] = 'redis'
             app.config['SESSION_REDIS'] = os.getenv('REDIS_URL')
+            # Redis SSL settings
+            app.config['SESSION_REDIS_SSL'] = True
+            app.config['SESSION_REDIS_RETRY_ON_TIMEOUT'] = True
         else:
             app.config['SESSION_TYPE'] = 'filesystem'
             app.config['SESSION_FILE_DIR'] = os.path.join(app.root_path, 'flask_session')
