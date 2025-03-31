@@ -50,21 +50,36 @@ def create_app(config_class=Config):
             logger.error(f"Failed to create session directory: {str(e)}")
             session_dir = '/tmp'  # Fallback to /tmp if we can't create the directory
         
-        app.config['SESSION_TYPE'] = 'filesystem'  # Use filesystem storage for sessions
-        app.config['SESSION_USE_SIGNER'] = True  # Sign the session cookie
-        app.config['SESSION_KEY_PREFIX'] = 'ielts_prod_'  # Add a prefix for session keys
-        app.config['SESSION_FILE_DIR'] = session_dir  # Store session files in configured directory
-        app.config['SESSION_FILE_THRESHOLD'] = 100  # Maximum number of sessions to store
-        app.config['SESSION_FILE_MODE'] = 0o600  # Secure file permissions
+        # Session configuration with better compatibility
+        app.config['SESSION_TYPE'] = 'filesystem'
+        app.config['SESSION_USE_SIGNER'] = True
+        app.config['SESSION_KEY_PREFIX'] = 'ielts_prod_'
+        app.config['SESSION_FILE_DIR'] = session_dir
+        app.config['SESSION_FILE_THRESHOLD'] = 100
+        app.config['SESSION_FILE_MODE'] = 0o600
         
-        # Initialize session after all config is set
-        Session(app)
+        # Cookie settings with better compatibility
+        app.config['SESSION_COOKIE_SECURE'] = True
+        app.config['SESSION_COOKIE_HTTPONLY'] = True
+        app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+        app.config['SESSION_COOKIE_NAME'] = 'ielts_prod_session'
+        app.config['SESSION_COOKIE_PATH'] = '/'
         
-        # Log session configuration
-        logger.info(f"Session type: {app.config.get('SESSION_TYPE')}")
-        logger.info(f"Session use signer: {app.config.get('SESSION_USE_SIGNER')}")
-        logger.info(f"Session key prefix: {app.config.get('SESSION_KEY_PREFIX')}")
-        logger.info(f"Session directory: {app.config.get('SESSION_FILE_DIR')}")
+        # Additional session settings for better compatibility
+        app.config['SESSION_REFRESH_EACH_REQUEST'] = True
+        app.config['SESSION_COOKIE_MAX_AGE'] = 3600  # 1 hour
+        app.config['SESSION_COOKIE_DOMAIN'] = None  # Let browser set domain
+        
+        try:
+            # Initialize session after all config is set
+            Session(app)
+            logger.info("Session initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize session: {str(e)}", exc_info=True)
+            # Fallback to simple session if Flask-Session fails
+            app.config['SESSION_TYPE'] = 'null'
+            Session(app)
+            logger.warning("Using null session type as fallback")
         
         # Initialize login manager
         login_manager.init_app(app)
