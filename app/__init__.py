@@ -2,7 +2,7 @@ from flask import Flask, redirect, url_for, render_template, request
 from flask_mail import Mail
 from flask_session import Session
 from app.config import Config
-from app.extensions import db, login_manager
+from app.extensions import db, login_manager, CustomSessionInterface, session
 from app.models import User, Task
 from flask_migrate import Migrate
 from flask_login import current_user, login_required
@@ -71,8 +71,6 @@ def create_app(config_class=Config):
         app.config['SESSION_COOKIE_DOMAIN'] = None  # Let browser set domain
         app.config['SESSION_COOKIE_ENCODING'] = 'utf-8'  # Ensure proper string encoding
         app.config['SESSION_SERIALIZER'] = 'json'  # Use JSON serializer for better compatibility
-        app.config['SESSION_USE_SIGNER'] = True  # Sign the session cookie
-        app.config['SESSION_KEY_PREFIX'] = 'ielts_prod_'  # Prefix for session keys
         
         # Azure-specific settings
         if os.getenv('AZURE_WEBSITE_HOSTNAME'):
@@ -80,14 +78,15 @@ def create_app(config_class=Config):
             logger.info(f"Setting session cookie domain to: {app.config['SESSION_COOKIE_DOMAIN']}")
         
         try:
-            # Initialize session after all config is set
-            Session(app)
+            # Initialize session with custom interface
+            app.session_interface = CustomSessionInterface()
+            session.init_app(app)
             logger.info("Session initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize session: {str(e)}", exc_info=True)
             # Fallback to simple session if Flask-Session fails
             app.config['SESSION_TYPE'] = 'null'
-            Session(app)
+            session.init_app(app)
             logger.warning("Using null session type as fallback")
         
         # Initialize login manager

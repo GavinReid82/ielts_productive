@@ -1,8 +1,58 @@
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
+from flask_session import Session
+from flask.sessions import SecureSessionInterface
+import json
 
 mail = Mail()
 
 db = SQLAlchemy()
 login_manager = LoginManager()
+
+class CustomSessionInterface(SecureSessionInterface):
+    def get_signing_serializer(self, app):
+        if not app.secret_key:
+            return None
+        return self.serializer_class(
+            app.secret_key,
+            salt=self.salt,
+            serializer=self.serializer,
+            signer_kwargs={'key_derivation': self.key_derivation}
+        )
+
+    def save_session(self, app, session, response):
+        domain = self.get_cookie_domain(app)
+        path = self.get_cookie_path(app)
+        
+        if not session:
+            if session.modified:
+                response.delete_cookie(
+                    app.config['SESSION_COOKIE_NAME'],
+                    domain=domain,
+                    path=path
+                )
+            return
+
+        httponly = self.get_cookie_httponly(app)
+        secure = self.get_cookie_secure(app)
+        samesite = self.get_cookie_samesite(app)
+        expires = self.get_expiration_time(app, session)
+        
+        # Convert session ID to string if it's bytes
+        session_id = session.sid
+        if isinstance(session_id, bytes):
+            session_id = session_id.decode('utf-8')
+        
+        response.set_cookie(
+            app.config['SESSION_COOKIE_NAME'],
+            session_id,
+            expires=expires,
+            httponly=httponly,
+            domain=domain,
+            path=path,
+            secure=secure,
+            samesite=samesite
+        )
+
+session = Session()
