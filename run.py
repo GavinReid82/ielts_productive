@@ -25,6 +25,11 @@ logger.setLevel(logging.INFO)
 try:
     logger.info("Starting application initialization...")
     
+    # Log environment variables (excluding sensitive values)
+    logger.info(f"Environment: {os.getenv('FLASK_ENV', 'production')}")
+    logger.info(f"FLASK_SECRET_KEY present: {bool(os.getenv('FLASK_SECRET_KEY'))}")
+    logger.info(f"FLASK_SECRET_KEY length: {len(os.getenv('FLASK_SECRET_KEY', ''))}")
+    
     # Create upload folder if it doesn't exist
     from app.config import Config
     os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
@@ -37,6 +42,9 @@ try:
     # Log configuration details
     logger.info(f"Database URI: {app.config['SQLALCHEMY_DATABASE_URI'].split('@')[1] if '@' in app.config['SQLALCHEMY_DATABASE_URI'] else 'local'}")
     logger.info(f"Upload folder: {app.config['UPLOAD_FOLDER']}")
+    logger.info(f"SECRET_KEY configured: {bool(app.config.get('SECRET_KEY'))}")
+    logger.info(f"SECRET_KEY length: {len(app.config.get('SECRET_KEY', ''))}")
+    logger.info(f"SESSION_TYPE: {app.config.get('SESSION_TYPE')}")
     
     if __name__ == '__main__':
         logger.info("Starting server on port 8000")

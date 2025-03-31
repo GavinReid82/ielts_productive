@@ -8,6 +8,7 @@ from flask_migrate import Migrate
 from flask_login import current_user, login_required
 import logging
 from app.routes.analytics import analytics_bp
+import os
 
 mail = Mail()
 migrate = Migrate()
@@ -16,14 +17,37 @@ logger = logging.getLogger(__name__)
 def create_app(config_class=Config):
     app = Flask(__name__)
     
+    # Add detailed startup logging
+    logger.info("Starting application initialization...")
+    logger.info(f"Current working directory: {os.getcwd()}")
+    logger.info(f"Environment variables loaded: {bool(os.getenv('FLASK_SECRET_KEY'))}")
+    logger.info(f"Config class being used: {config_class.__name__}")
+    
     # Configure the app
     app.config.from_object(config_class)
+    
+    # Ensure secret key is set
+    if not app.config.get('SECRET_KEY'):
+        logger.error("SECRET_KEY is not set in configuration!")
+        raise RuntimeError("SECRET_KEY must be set in configuration")
+    
+    # Log configuration after loading
+    logger.info(f"App configured with SECRET_KEY: {bool(app.config.get('SECRET_KEY'))}")
+    logger.info(f"App configured with WTF_CSRF_ENABLED: {app.config.get('WTF_CSRF_ENABLED')}")
     
     # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)
+    
+    # Configure session with simple settings
+    app.config['SESSION_TYPE'] = 'null'  # Use null session type (in-memory)
+    app.config['SESSION_USE_SIGNER'] = True  # Sign the session cookie
     Session(app)
+    
+    # Log session configuration
+    logger.info(f"Session type: {app.config.get('SESSION_TYPE')}")
+    logger.info(f"Session use signer: {app.config.get('SESSION_USE_SIGNER')}")
     
     # Initialize login manager
     login_manager.init_app(app)

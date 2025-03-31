@@ -7,8 +7,10 @@ from datetime import timedelta
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from .env file only in development
+if os.getenv('FLASK_ENV') == 'development':
+    load_dotenv()
+    logger.info("Loaded environment variables from .env file (development mode)")
 
 class Config:
     WTF_CSRF_ENABLED = True
@@ -16,8 +18,10 @@ class Config:
     STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
     STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
 
-    # Log environment variables (excluding sensitive data)
+    # Log detailed environment variable information (excluding sensitive values)
+    logger.info(f"Environment: {os.getenv('FLASK_ENV', 'production')}")
     logger.info(f"FLASK_SECRET_KEY set: {bool(os.getenv('FLASK_SECRET_KEY'))}")
+    logger.info(f"FLASK_SECRET_KEY length: {len(os.getenv('FLASK_SECRET_KEY', ''))}")
     logger.info(f"STRIPE_SECRET_KEY set: {bool(os.getenv('STRIPE_SECRET_KEY'))}")
     logger.info(f"STRIPE_PUBLISHABLE_KEY set: {bool(os.getenv('STRIPE_PUBLISHABLE_KEY'))}")
 
