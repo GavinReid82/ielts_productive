@@ -2,7 +2,7 @@ from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from flask_session import Session
-from flask.sessions import SecureSessionInterface
+from flask.sessions import SessionInterface
 import json
 import logging
 
@@ -12,7 +12,7 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 logger = logging.getLogger(__name__)
 
-class CustomSessionInterface(SecureSessionInterface):
+class CustomSessionInterface(SessionInterface):
     def get_signing_serializer(self, app):
         if not app.secret_key:
             return None
