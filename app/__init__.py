@@ -52,18 +52,28 @@ def create_app(config_class=Config):
         
         # Simple session configuration
         if os.getenv('FLASK_ENV') == 'production':
+            redis_url = os.getenv('REDIS_URL')
+            if not redis_url:
+                logger.error("REDIS_URL not set in production environment")
+                raise RuntimeError("REDIS_URL must be set in production environment")
+            
             app.config['SESSION_TYPE'] = 'redis'
-            app.config['SESSION_REDIS'] = os.getenv('REDIS_URL')
+            app.config['SESSION_REDIS'] = redis_url
             # Redis SSL settings
             app.config['SESSION_REDIS_SSL'] = True
             app.config['SESSION_REDIS_RETRY_ON_TIMEOUT'] = True
+            app.config['SESSION_REDIS_RETRY_NUMBER'] = 3
+            app.config['SESSION_REDIS_RETRY_DELAY'] = 0.1
+            logger.info("Configured Redis session storage")
         else:
             app.config['SESSION_TYPE'] = 'filesystem'
             app.config['SESSION_FILE_DIR'] = os.path.join(app.root_path, 'flask_session')
             os.makedirs(app.config['SESSION_FILE_DIR'], exist_ok=True)
+            logger.info("Configured filesystem session storage")
         
         app.config['SESSION_COOKIE_SECURE'] = True
         app.config['SESSION_COOKIE_HTTPONLY'] = True
+        app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
         
         # Initialize session
         session.init_app(app)
