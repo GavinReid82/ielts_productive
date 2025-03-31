@@ -35,7 +35,7 @@ jobs:
       # Create a startup.txt file for Azure
       - name: Create startup command file
         run: |
-          echo "python -m flask db upgrade && gunicorn app:app" > startup.txt
+          echo "pip install --no-cache-dir -r requirements.txt && gunicorn -c gunicorn_config.py run:app" > startup.txt
 
       - name: Clean and prepare deployment package
         run: |
