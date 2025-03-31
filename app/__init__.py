@@ -9,7 +9,6 @@ from flask_login import current_user, login_required
 import logging
 from app.routes.analytics import analytics_bp
 import os
-from flask_login import LoginManager
 from flask_moment import Moment
 from flask_bootstrap import Bootstrap
 import redis
@@ -17,7 +16,6 @@ import redis
 mail = Mail()
 migrate = Migrate()
 logger = logging.getLogger(__name__)
-login = LoginManager()
 moment = Moment()
 bootstrap = Bootstrap()
 
@@ -47,9 +45,12 @@ def create_app(config_class=Config):
         db.init_app(app)
         migrate.init_app(app, db)
         mail.init_app(app)
-        login.init_app(app)
+        login_manager.init_app(app)
         moment.init_app(app)
         bootstrap.init_app(app)
+        
+        # Configure login manager
+        login_manager.login_view = 'auth.login'
         
         # Session configuration
         if os.getenv('FLASK_ENV') == 'production':
@@ -86,9 +87,6 @@ def create_app(config_class=Config):
         
         # Initialize session
         session.init_app(app)
-        
-        # Initialize login manager
-        login_manager.login_view = 'auth.login'
         
         # Register blueprints
         from app.blueprints.landing.routes import landing_bp

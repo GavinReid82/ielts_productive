@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, session,request, current_app
 from flask_login import login_user, logout_user, login_required, current_user
-from app.extensions import db
+from app.extensions import db, login_manager
 from app.models import User
 from app.blueprints.auth.forms import LoginForm, RegistrationForm, RequestPasswordResetForm, ResetPasswordForm
 from datetime import datetime, timedelta
@@ -8,13 +8,11 @@ import secrets
 from flask_mail import Message
 from app.extensions import mail
 import logging
-from flask_login import login_manager
 
 auth_bp = Blueprint('auth', __name__)
-
 logger = logging.getLogger(__name__)
 
-@login_manager.user_loader()
+@login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
