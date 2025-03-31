@@ -23,75 +23,94 @@ def create_app(config_class=Config):
     logger.info(f"Environment variables loaded: {bool(os.getenv('FLASK_SECRET_KEY'))}")
     logger.info(f"Config class being used: {config_class.__name__}")
     
-    # Configure the app
-    app.config.from_object(config_class)
-    
-    # Ensure secret key is set
-    if not app.config.get('SECRET_KEY'):
-        logger.error("SECRET_KEY is not set in configuration!")
-        raise RuntimeError("SECRET_KEY must be set in configuration")
-    
-    # Log configuration after loading
-    logger.info(f"App configured with SECRET_KEY: {bool(app.config.get('SECRET_KEY'))}")
-    logger.info(f"App configured with WTF_CSRF_ENABLED: {app.config.get('WTF_CSRF_ENABLED')}")
-    
-    # Initialize extensions
-    db.init_app(app)
-    migrate.init_app(app, db)
-    mail.init_app(app)
-    
-    # Configure session with simple settings
-    app.config['SESSION_TYPE'] = 'null'  # Use null session type (in-memory)
-    app.config['SESSION_USE_SIGNER'] = True  # Sign the session cookie
-    app.config['SESSION_KEY_PREFIX'] = 'ielts_prod_'  # Add a prefix for session keys
-    
-    # Initialize session after all config is set
-    Session(app)
-    
-    # Log session configuration
-    logger.info(f"Session type: {app.config.get('SESSION_TYPE')}")
-    logger.info(f"Session use signer: {app.config.get('SESSION_USE_SIGNER')}")
-    logger.info(f"Session key prefix: {app.config.get('SESSION_KEY_PREFIX')}")
-    
-    # Initialize login manager
-    login_manager.init_app(app)
-    login_manager.login_view = 'auth.login'
-    
-    # Register blueprints
-    from app.blueprints.landing.routes import landing_bp
-    from app.blueprints.auth.routes import auth_bp
-    from app.blueprints.writing.routes import writing_bp
-    from app.blueprints.speaking.routes import speaking_bp
-    from app.blueprints.dashboard.routes import dashboard_bp
-    from app.blueprints.payments.routes import payments_bp
-    from app.blueprints.legal.routes import legal_bp
-    
-    app.register_blueprint(landing_bp)
-    app.register_blueprint(auth_bp, url_prefix='/auth')
-    app.register_blueprint(writing_bp, url_prefix='/writing')
-    app.register_blueprint(speaking_bp, url_prefix='/speaking')
-    app.register_blueprint(dashboard_bp)
-    app.register_blueprint(payments_bp, url_prefix='/payments')
-    app.register_blueprint(legal_bp, url_prefix='/legal')
-    app.register_blueprint(analytics_bp)
-    
-    # Root route
-    @app.route('/', endpoint='root')
-    def index():
-        """Root route handler"""
-        if current_user.is_authenticated:
-            return redirect(url_for('writing.writing_home'))
+    try:
+        # Configure the app
+        app.config.from_object(config_class)
         
-        # Get task #31 for the demo
-        demo_task = Task.query.get(31)
-        if not demo_task:
-            return render_template('landing/home.html')
+        # Ensure secret key is set
+        if not app.config.get('SECRET_KEY'):
+            logger.error("SECRET_KEY is not set in configuration!")
+            raise RuntimeError("SECRET_KEY must be set in configuration")
         
-        return render_template(
-            'writing/task_1_report_lessons.html',
-            task=demo_task,
-            is_demo=True
-        )
+        # Log configuration after loading
+        logger.info(f"App configured with SECRET_KEY: {bool(app.config.get('SECRET_KEY'))}")
+        logger.info(f"App configured with WTF_CSRF_ENABLED: {app.config.get('WTF_CSRF_ENABLED')}")
+        
+        # Initialize extensions
+        db.init_app(app)
+        migrate.init_app(app, db)
+        mail.init_app(app)
+        
+        # Configure session with simple settings
+        session_dir = '/tmp/flask_session'
+        try:
+            os.makedirs(session_dir, exist_ok=True)
+            logger.info(f"Created session directory at {session_dir}")
+        except Exception as e:
+            logger.error(f"Failed to create session directory: {str(e)}")
+            session_dir = '/tmp'  # Fallback to /tmp if we can't create the directory
+        
+        app.config['SESSION_TYPE'] = 'filesystem'  # Use filesystem storage for sessions
+        app.config['SESSION_USE_SIGNER'] = True  # Sign the session cookie
+        app.config['SESSION_KEY_PREFIX'] = 'ielts_prod_'  # Add a prefix for session keys
+        app.config['SESSION_FILE_DIR'] = session_dir  # Store session files in configured directory
+        app.config['SESSION_FILE_THRESHOLD'] = 100  # Maximum number of sessions to store
+        app.config['SESSION_FILE_MODE'] = 0o600  # Secure file permissions
+        
+        # Initialize session after all config is set
+        Session(app)
+        
+        # Log session configuration
+        logger.info(f"Session type: {app.config.get('SESSION_TYPE')}")
+        logger.info(f"Session use signer: {app.config.get('SESSION_USE_SIGNER')}")
+        logger.info(f"Session key prefix: {app.config.get('SESSION_KEY_PREFIX')}")
+        logger.info(f"Session directory: {app.config.get('SESSION_FILE_DIR')}")
+        
+        # Initialize login manager
+        login_manager.init_app(app)
+        login_manager.login_view = 'auth.login'
+        
+        # Register blueprints
+        from app.blueprints.landing.routes import landing_bp
+        from app.blueprints.auth.routes import auth_bp
+        from app.blueprints.writing.routes import writing_bp
+        from app.blueprints.speaking.routes import speaking_bp
+        from app.blueprints.dashboard.routes import dashboard_bp
+        from app.blueprints.payments.routes import payments_bp
+        from app.blueprints.legal.routes import legal_bp
+        
+        app.register_blueprint(landing_bp)
+        app.register_blueprint(auth_bp, url_prefix='/auth')
+        app.register_blueprint(writing_bp, url_prefix='/writing')
+        app.register_blueprint(speaking_bp, url_prefix='/speaking')
+        app.register_blueprint(dashboard_bp)
+        app.register_blueprint(payments_bp, url_prefix='/payments')
+        app.register_blueprint(legal_bp, url_prefix='/legal')
+        app.register_blueprint(analytics_bp)
+        
+        logger.info("Application initialized successfully")
+        
+        # Root route
+        @app.route('/', endpoint='root')
+        def index():
+            """Root route handler"""
+            if current_user.is_authenticated:
+                return redirect(url_for('writing.writing_home'))
+            
+            # Get task #31 for the demo
+            demo_task = Task.query.get(31)
+            if not demo_task:
+                return render_template('landing/home.html')
+            
+            return render_template(
+                'writing/task_1_report_lessons.html',
+                task=demo_task,
+                is_demo=True
+            )
+        
+    except Exception as e:
+        logger.error(f"Failed to initialize application: {str(e)}", exc_info=True)
+        raise
     
     return app
 

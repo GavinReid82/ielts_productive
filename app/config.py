@@ -14,7 +14,16 @@ if os.getenv('FLASK_ENV') == 'development':
 
 class Config:
     WTF_CSRF_ENABLED = True
-    SECRET_KEY = os.getenv('FLASK_SECRET_KEY', 'your_secret_key')
+    
+    # Ensure secret key is set in production
+    if os.getenv('FLASK_ENV') == 'production':
+        secret_key = os.getenv('FLASK_SECRET_KEY')
+        if not secret_key:
+            raise RuntimeError("FLASK_SECRET_KEY must be set in production environment")
+        SECRET_KEY = secret_key
+    else:
+        SECRET_KEY = os.getenv('FLASK_SECRET_KEY', 'dev_secret_key')  # Only use fallback in development
+    
     STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
     STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
 
