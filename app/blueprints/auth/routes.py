@@ -48,12 +48,12 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user and user.check_password(form.password.data):
             if not user.is_verified:
-                session['unverified_email'] = user.email
+                session['unverified_email'] = str(user.email)
                 flash('Please verify your email before logging in. Check your inbox for the verification link.', 'warning')
                 return render_template('auth/login.html', form=form)
                 
             login_user(user)
-            session['user_id'] = user.id
+            session['user_id'] = str(user.id)
             flash('Logged in successfully!', 'success')
             
             # Get the next parameter from the URL
@@ -145,6 +145,7 @@ def resend_verification():
 def logout():
     logout_user()
     session.pop('user_id', None)
+    session.clear()
     flash('Logged out successfully.', 'success')
     return redirect(url_for('auth.login'))
 

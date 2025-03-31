@@ -69,6 +69,7 @@ def create_app(config_class=Config):
         app.config['SESSION_REFRESH_EACH_REQUEST'] = True
         app.config['SESSION_COOKIE_MAX_AGE'] = 3600  # 1 hour
         app.config['SESSION_COOKIE_DOMAIN'] = None  # Let browser set domain
+        app.config['SESSION_COOKIE_ENCODING'] = 'utf-8'  # Ensure proper string encoding
         
         # Azure-specific settings
         if os.getenv('AZURE_WEBSITE_HOSTNAME'):

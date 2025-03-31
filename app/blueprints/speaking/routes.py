@@ -54,7 +54,7 @@ def speaking_task_2_submit():
     """Handle audio file upload, transcription, and feedback generation."""
 
     # ✅ Step 1: Ensure user is logged in before processing
-    user_id = session.get("user_id")
+    user_id = str(session.get("user_id"))  # Ensure string encoding
     print(f"🛠️ DEBUG: Session Data - {session}")  # ✅ Log session data for debugging
 
     if not user_id:
