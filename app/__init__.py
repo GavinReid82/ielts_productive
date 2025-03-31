@@ -43,11 +43,15 @@ def create_app(config_class=Config):
     # Configure session with simple settings
     app.config['SESSION_TYPE'] = 'null'  # Use null session type (in-memory)
     app.config['SESSION_USE_SIGNER'] = True  # Sign the session cookie
+    app.config['SESSION_KEY_PREFIX'] = 'ielts_prod_'  # Add a prefix for session keys
+    
+    # Initialize session after all config is set
     Session(app)
     
     # Log session configuration
     logger.info(f"Session type: {app.config.get('SESSION_TYPE')}")
     logger.info(f"Session use signer: {app.config.get('SESSION_USE_SIGNER')}")
+    logger.info(f"Session key prefix: {app.config.get('SESSION_KEY_PREFIX')}")
     
     # Initialize login manager
     login_manager.init_app(app)
