@@ -2,7 +2,7 @@ from flask import Flask, redirect, url_for, render_template, request
 from flask_mail import Mail
 from flask_session import Session
 from app.config import Config
-from app.extensions import db, login_manager, CustomSessionInterface, session
+from app.extensions import db, login_manager, session
 from app.models import User, Task
 from flask_migrate import Migrate
 from flask_login import current_user, login_required
