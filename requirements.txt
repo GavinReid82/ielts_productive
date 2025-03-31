@@ -31,5 +31,5 @@ PyJWT==2.8.0
 # Additional dependencies
 Flask-Mail==0.9.1
 
-# Testing
+# Testing etc
 pytest==8.0.2
