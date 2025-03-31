@@ -49,13 +49,21 @@ def login():
             user = User.query.filter_by(email=form.email.data).first()
             if user and user.check_password(form.password.data):
                 if not user.is_verified:
-                    session['unverified_email'] = str(user.email)  # Ensure string encoding
+                    try:
+                        session['unverified_email'] = str(user.email)  # Ensure string encoding
+                    except Exception as e:
+                        logger.error(f"Error setting unverified_email in session: {str(e)}")
                     flash('Please verify your email before logging in. Check your inbox for the verification link.', 'warning')
                     return render_template('auth/login.html', form=form)
                     
-                login_user(user)
-                session['user_id'] = str(user.id)  # Ensure string encoding
-                flash('Logged in successfully!', 'success')
+                try:
+                    login_user(user)
+                    session['user_id'] = str(user.id)  # Ensure string encoding
+                    flash('Logged in successfully!', 'success')
+                except Exception as e:
+                    logger.error(f"Error during login process: {str(e)}", exc_info=True)
+                    flash('An error occurred during login. Please try again.', 'danger')
+                    return render_template('auth/login.html', form=form)
                 
                 # Get the next parameter from the URL
                 next_page = request.args.get('next')

@@ -4,11 +4,13 @@ from flask_mail import Mail
 from flask_session import Session
 from flask.sessions import SecureSessionInterface
 import json
+import logging
 
 mail = Mail()
 
 db = SQLAlchemy()
 login_manager = LoginManager()
+logger = logging.getLogger(__name__)
 
 class CustomSessionInterface(SecureSessionInterface):
     def get_signing_serializer(self, app):
@@ -22,37 +24,47 @@ class CustomSessionInterface(SecureSessionInterface):
         )
 
     def save_session(self, app, session, response):
-        domain = self.get_cookie_domain(app)
-        path = self.get_cookie_path(app)
-        
-        if not session:
-            if session.modified:
-                response.delete_cookie(
-                    app.config['SESSION_COOKIE_NAME'],
-                    domain=domain,
-                    path=path
-                )
-            return
+        try:
+            domain = self.get_cookie_domain(app)
+            path = self.get_cookie_path(app)
+            
+            if not session:
+                if session.modified:
+                    response.delete_cookie(
+                        app.config['SESSION_COOKIE_NAME'],
+                        domain=domain,
+                        path=path
+                    )
+                return
 
-        httponly = self.get_cookie_httponly(app)
-        secure = self.get_cookie_secure(app)
-        samesite = self.get_cookie_samesite(app)
-        expires = self.get_expiration_time(app, session)
-        
-        # Convert session ID to string if it's bytes
-        session_id = session.sid
-        if isinstance(session_id, bytes):
-            session_id = session_id.decode('utf-8')
-        
-        response.set_cookie(
-            app.config['SESSION_COOKIE_NAME'],
-            session_id,
-            expires=expires,
-            httponly=httponly,
-            domain=domain,
-            path=path,
-            secure=secure,
-            samesite=samesite
-        )
+            httponly = self.get_cookie_httponly(app)
+            secure = self.get_cookie_secure(app)
+            samesite = self.get_cookie_samesite(app)
+            expires = self.get_expiration_time(app, session)
+            
+            # Ensure session ID is a string
+            session_id = session.sid
+            if isinstance(session_id, bytes):
+                try:
+                    session_id = session_id.decode('utf-8')
+                except UnicodeDecodeError:
+                    logger.error("Failed to decode session ID from bytes")
+                    return
+            
+            # Set cookie with string session ID
+            response.set_cookie(
+                app.config['SESSION_COOKIE_NAME'],
+                session_id,
+                expires=expires,
+                httponly=httponly,
+                domain=domain,
+                path=path,
+                secure=secure,
+                samesite=samesite
+            )
+        except Exception as e:
+            logger.error(f"Error saving session: {str(e)}", exc_info=True)
+            # Don't raise the exception, just log it
+            return
 
 session = Session()
