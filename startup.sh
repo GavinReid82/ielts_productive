@@ -14,12 +14,14 @@ chmod 755 /tmp/uploads
 # Activate virtual environment
 source antenv/bin/activate
 
-# Install dependencies if needed
-pip install --no-cache-dir -r requirements.txt
+# Install dependencies with memory optimization
+pip install --no-cache-dir --no-deps -r requirements.txt
 
 # Set environment variables
 export FLASK_ENV=production
 export PYTHONUNBUFFERED=1
+export PYTHONPATH=/home/site/wwwroot
+export GUNICORN_CMD_ARGS="--timeout 120 --workers 4 --threads 2 --worker-class gthread"
 
-# Start Gunicorn
-gunicorn -c gunicorn_config.py run:app 
+# Start Gunicorn with optimized settings
+gunicorn -c gunicorn_config.py run:app --bind 0.0.0.0:8000 --timeout 120 --workers 4 --threads 2 --worker-class gthread 
