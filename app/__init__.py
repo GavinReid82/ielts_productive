@@ -70,6 +70,9 @@ def create_app(config_class=Config):
         app.config['SESSION_COOKIE_MAX_AGE'] = 3600  # 1 hour
         app.config['SESSION_COOKIE_DOMAIN'] = None  # Let browser set domain
         app.config['SESSION_COOKIE_ENCODING'] = 'utf-8'  # Ensure proper string encoding
+        app.config['SESSION_SERIALIZER'] = 'json'  # Use JSON serializer for better compatibility
+        app.config['SESSION_USE_SIGNER'] = True  # Sign the session cookie
+        app.config['SESSION_KEY_PREFIX'] = 'ielts_prod_'  # Prefix for session keys
         
         # Azure-specific settings
         if os.getenv('AZURE_WEBSITE_HOSTNAME'):

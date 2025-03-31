@@ -39,36 +39,41 @@ If you did not register for this account, please ignore this email.
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    logger.info(f"Login route accessed. Referrer: {request.referrer}")
-    if current_user.is_authenticated:
-        return redirect(url_for('dashboard.dashboard_home'))
-        
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user and user.check_password(form.password.data):
-            if not user.is_verified:
-                session['unverified_email'] = str(user.email)
-                flash('Please verify your email before logging in. Check your inbox for the verification link.', 'warning')
-                return render_template('auth/login.html', form=form)
+    try:
+        logger.info(f"Login route accessed. Referrer: {request.referrer}")
+        if current_user.is_authenticated:
+            return redirect(url_for('dashboard.dashboard_home'))
+            
+        form = LoginForm()
+        if form.validate_on_submit():
+            user = User.query.filter_by(email=form.email.data).first()
+            if user and user.check_password(form.password.data):
+                if not user.is_verified:
+                    session['unverified_email'] = str(user.email)  # Ensure string encoding
+                    flash('Please verify your email before logging in. Check your inbox for the verification link.', 'warning')
+                    return render_template('auth/login.html', form=form)
+                    
+                login_user(user)
+                session['user_id'] = str(user.id)  # Ensure string encoding
+                flash('Logged in successfully!', 'success')
                 
-            login_user(user)
-            session['user_id'] = str(user.id)
-            flash('Logged in successfully!', 'success')
-            
-            # Get the next parameter from the URL
-            next_page = request.args.get('next')
-            
-            # If there's no next parameter or it's the landing page,
-            # redirect to dashboard instead
-            if not next_page or 'landing' in next_page or next_page == '/':
-                return redirect(url_for('dashboard.dashboard_home'))
+                # Get the next parameter from the URL
+                next_page = request.args.get('next')
                 
-            return redirect(next_page)
-            
-        else:
-            flash('Invalid email or password.', 'danger')
-    return render_template('auth/login.html', form=form)
+                # If there's no next parameter or it's the landing page,
+                # redirect to dashboard instead
+                if not next_page or 'landing' in next_page or next_page == '/':
+                    return redirect(url_for('dashboard.dashboard_home'))
+                    
+                return redirect(next_page)
+                
+            else:
+                flash('Invalid email or password.', 'danger')
+        return render_template('auth/login.html', form=form)
+    except Exception as e:
+        logger.error(f"Error in login route: {str(e)}", exc_info=True)
+        flash('An error occurred during login. Please try again.', 'danger')
+        return render_template('auth/login.html', form=form)
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
@@ -143,11 +148,16 @@ def resend_verification():
 @auth_bp.route('/logout')
 @login_required
 def logout():
-    logout_user()
-    session.pop('user_id', None)
-    session.clear()
-    flash('Logged out successfully.', 'success')
-    return redirect(url_for('auth.login'))
+    try:
+        logout_user()
+        session.pop('user_id', None)
+        session.clear()  # Clear all session data
+        flash('Logged out successfully.', 'success')
+        return redirect(url_for('auth.login'))
+    except Exception as e:
+        logger.error(f"Error in logout route: {str(e)}", exc_info=True)
+        flash('An error occurred during logout. Please try again.', 'danger')
+        return redirect(url_for('auth.login'))
 
 
 
