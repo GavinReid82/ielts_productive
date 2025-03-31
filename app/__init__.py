@@ -9,10 +9,16 @@ from flask_login import current_user, login_required
 import logging
 from app.routes.analytics import analytics_bp
 import os
+from flask_login import LoginManager
+from flask_moment import Moment
+from flask_bootstrap import Bootstrap
 
 mail = Mail()
 migrate = Migrate()
 logger = logging.getLogger(__name__)
+login = LoginManager()
+moment = Moment()
+bootstrap = Bootstrap()
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -40,59 +46,23 @@ def create_app(config_class=Config):
         db.init_app(app)
         migrate.init_app(app, db)
         mail.init_app(app)
+        login.init_app(app)
+        moment.init_app(app)
+        bootstrap.init_app(app)
         
-        # Configure session with simple settings
-        session_dir = os.getenv('AZURE_LOCAL_STORAGE_PATH', '/tmp/flask_session')
-        try:
-            os.makedirs(session_dir, exist_ok=True)
-            logger.info(f"Created session directory at {session_dir}")
-        except Exception as e:
-            logger.error(f"Failed to create session directory: {str(e)}")
-            session_dir = '/tmp'  # Fallback to /tmp if we can't create the directory
-        
-        # Session configuration with better compatibility
+        # Simple session configuration
         app.config['SESSION_TYPE'] = 'filesystem'
-        app.config['SESSION_USE_SIGNER'] = True
-        app.config['SESSION_KEY_PREFIX'] = 'ielts_prod_'
-        app.config['SESSION_FILE_DIR'] = session_dir
-        app.config['SESSION_FILE_THRESHOLD'] = 100
-        app.config['SESSION_FILE_MODE'] = 0o600
-        
-        # Cookie settings with better compatibility
+        app.config['SESSION_FILE_DIR'] = os.path.join(app.root_path, 'flask_session')
         app.config['SESSION_COOKIE_SECURE'] = True
         app.config['SESSION_COOKIE_HTTPONLY'] = True
-        app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-        app.config['SESSION_COOKIE_NAME'] = 'ielts_prod_session'
-        app.config['SESSION_COOKIE_PATH'] = '/'
         
-        # Additional session settings for better compatibility
-        app.config['SESSION_REFRESH_EACH_REQUEST'] = True
-        app.config['SESSION_COOKIE_MAX_AGE'] = 3600  # 1 hour
-        app.config['SESSION_COOKIE_DOMAIN'] = None  # Let browser set domain
-        app.config['SESSION_COOKIE_ENCODING'] = 'utf-8'  # Ensure proper string encoding
-        app.config['SESSION_SERIALIZER'] = 'json'  # Use JSON serializer for better compatibility
-        app.config['SESSION_USE_SIGNER'] = True  # Sign the session cookie
-        app.config['SESSION_KEY_PREFIX'] = 'ielts_prod_'  # Prefix for session keys
+        # Ensure session directory exists
+        os.makedirs(app.config['SESSION_FILE_DIR'], exist_ok=True)
         
-        # Azure-specific settings
-        if os.getenv('AZURE_WEBSITE_HOSTNAME'):
-            app.config['SESSION_COOKIE_DOMAIN'] = os.getenv('AZURE_WEBSITE_HOSTNAME')
-            logger.info(f"Setting session cookie domain to: {app.config['SESSION_COOKIE_DOMAIN']}")
-        
-        try:
-            # Initialize session with custom interface
-            app.session_interface = CustomSessionInterface()
-            session.init_app(app)
-            logger.info("Session initialized successfully")
-        except Exception as e:
-            logger.error(f"Failed to initialize session: {str(e)}", exc_info=True)
-            # Fallback to simple session if Flask-Session fails
-            app.config['SESSION_TYPE'] = 'null'
-            session.init_app(app)
-            logger.warning("Using null session type as fallback")
+        # Initialize session
+        session.init_app(app)
         
         # Initialize login manager
-        login_manager.init_app(app)
         login_manager.login_view = 'auth.login'
         
         # Register blueprints
