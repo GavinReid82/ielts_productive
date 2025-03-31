@@ -51,13 +51,16 @@ def create_app(config_class=Config):
         bootstrap.init_app(app)
         
         # Simple session configuration
-        app.config['SESSION_TYPE'] = 'filesystem'
-        app.config['SESSION_FILE_DIR'] = os.path.join(app.root_path, 'flask_session')
+        if os.getenv('FLASK_ENV') == 'production':
+            app.config['SESSION_TYPE'] = 'redis'
+            app.config['SESSION_REDIS'] = os.getenv('REDIS_URL')
+        else:
+            app.config['SESSION_TYPE'] = 'filesystem'
+            app.config['SESSION_FILE_DIR'] = os.path.join(app.root_path, 'flask_session')
+            os.makedirs(app.config['SESSION_FILE_DIR'], exist_ok=True)
+        
         app.config['SESSION_COOKIE_SECURE'] = True
         app.config['SESSION_COOKIE_HTTPONLY'] = True
-        
-        # Ensure session directory exists
-        os.makedirs(app.config['SESSION_FILE_DIR'], exist_ok=True)
         
         # Initialize session
         session.init_app(app)
