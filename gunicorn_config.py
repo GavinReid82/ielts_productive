@@ -6,15 +6,15 @@ bind = "0.0.0.0:8000"
 backlog = 2048
 
 # Worker processes
-workers = 3
+workers = 4  # Increased for Azure
 worker_class = 'sync'
 worker_connections = 1000
 timeout = 300
 keepalive = 2
 
 # Logging
-accesslog = '-'
-errorlog = '-'
+accesslog = '/home/LogFiles/gunicorn_access.log'
+errorlog = '/home/LogFiles/gunicorn_error.log'
 loglevel = 'info'
 
 # Process naming
@@ -30,8 +30,12 @@ pidfile = None
 umask = 0
 user = None
 group = None
-tmp_upload_dir = None
+tmp_upload_dir = '/tmp/uploads'
 
 # Debug
 reload = False
 reload_engine = 'auto'
+
+# Azure specific
+forwarded_allow_ips = '*'
+secure_scheme_headers = {'X-FORWARDED-PROTOCOL': 'ssl', 'X-FORWARDED-PROTO': 'https', 'X-FORWARDED-SSL': 'on'}

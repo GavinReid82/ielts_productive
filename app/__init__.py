@@ -42,7 +42,7 @@ def create_app(config_class=Config):
         mail.init_app(app)
         
         # Configure session with simple settings
-        session_dir = '/tmp/flask_session'
+        session_dir = os.getenv('AZURE_LOCAL_STORAGE_PATH', '/tmp/flask_session')
         try:
             os.makedirs(session_dir, exist_ok=True)
             logger.info(f"Created session directory at {session_dir}")
@@ -69,6 +69,11 @@ def create_app(config_class=Config):
         app.config['SESSION_REFRESH_EACH_REQUEST'] = True
         app.config['SESSION_COOKIE_MAX_AGE'] = 3600  # 1 hour
         app.config['SESSION_COOKIE_DOMAIN'] = None  # Let browser set domain
+        
+        # Azure-specific settings
+        if os.getenv('AZURE_WEBSITE_HOSTNAME'):
+            app.config['SESSION_COOKIE_DOMAIN'] = os.getenv('AZURE_WEBSITE_HOSTNAME')
+            logger.info(f"Setting session cookie domain to: {app.config['SESSION_COOKIE_DOMAIN']}")
         
         try:
             # Initialize session after all config is set
