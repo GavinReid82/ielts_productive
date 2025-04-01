@@ -115,16 +115,8 @@ def create_app(config_class=Config):
             if current_user.is_authenticated:
                 return redirect(url_for('writing.writing_home'))
             
-            # Get task #31 for the demo
-            demo_task = Task.query.get(31)
-            if not demo_task:
-                return render_template('landing/home.html')
-            
-            return render_template(
-                'writing/task_1_report_lessons.html',
-                task=demo_task,
-                is_demo=True
-            )
+            # For non-authenticated users, show the landing page
+            return render_template('landing/home.html')
         
     except Exception as e:
         logger.error(f"Failed to initialize application: {str(e)}", exc_info=True)
