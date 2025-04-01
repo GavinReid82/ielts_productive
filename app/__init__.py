@@ -108,16 +108,6 @@ def create_app(config_class=Config):
         
         logger.info("Application initialized successfully")
         
-        # Root route
-        @app.route('/', endpoint='root')
-        def index():
-            """Root route handler"""
-            if current_user.is_authenticated:
-                return redirect(url_for('writing.writing_home'))
-            
-            # For non-authenticated users, show the landing page
-            return render_template('landing/home.html')
-        
     except Exception as e:
         logger.error(f"Failed to initialize application: {str(e)}", exc_info=True)
         raise

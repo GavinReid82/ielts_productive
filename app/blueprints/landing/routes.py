@@ -6,7 +6,33 @@ from flask_login import current_user
 
 logger = logging.getLogger(__name__)
 
-landing_bp = Blueprint('landing', __name__, template_folder='templates')
+landing_bp = Blueprint('landing', __name__)
+
+@landing_bp.route('/')
+def home():
+    """Landing page route"""
+    try:
+        logger.info("Accessing landing page route")
+        logger.info(f"User authenticated: {current_user.is_authenticated}")
+        if current_user.is_authenticated:
+            logger.info("User is authenticated, redirecting to writing home")
+            return redirect(url_for('writing.writing_home'))
+        
+        # Get task #31 for the demo
+        demo_task = Task.query.get(31)
+        if not demo_task:
+            logger.error("Demo task not found")
+            return render_template('landing/home.html')
+        
+        logger.info("User is not authenticated, showing demo task")
+        return render_template(
+            'writing/task_1_report_lessons.html',
+            task=demo_task,
+            is_demo=True
+        )
+    except Exception as e:
+        logger.error(f"Error in landing page route: {str(e)}", exc_info=True)
+        raise
 
 @landing_bp.route('/try-it-out/submit', methods=['POST'])
 def try_it_out_submit():
